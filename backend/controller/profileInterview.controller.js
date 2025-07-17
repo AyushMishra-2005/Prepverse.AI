@@ -53,6 +53,8 @@ export const checkRoleValidity = async (req, res) => {
       headers: form.getHeaders(),
     });
 
+    console.log(data.resume_data);
+
 
     if (data.resume_data) {
 
