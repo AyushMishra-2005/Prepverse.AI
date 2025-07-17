@@ -6,6 +6,7 @@ import toast from 'react-hot-toast'
 import axios from 'axios'
 import useConversation from '../stateManage/useConversation.js'
 import { useNavigate } from 'react-router-dom';
+import server from "../environment.js";
 
 export default function ProfileInterviewForm() {
   const [topics, setTopics] = useState([""]);
@@ -48,7 +49,7 @@ export default function ProfileInterviewForm() {
 
     try {
       const { data } = await axios.post(
-        'http://localhost:8000/profileInterview/checkRoleValidity',
+        `${server}/profileInterview/checkRoleValidity`,
         formData,
         { withCredentials: true }
       );

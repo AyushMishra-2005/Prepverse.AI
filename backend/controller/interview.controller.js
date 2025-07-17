@@ -56,23 +56,6 @@ export const generateQuestions = async (req, res) => {
         "transition": "transition phrase"
       }`;
 
-
-
-
-      aiResponse = await axios.post(
-        "http://localhost:11434/api/generate",
-        {
-          model: "llama3:8b",
-          prompt: prompt,
-          stream: false,
-          format: "json",
-          options: {
-            temperature: 0.7
-          }
-        }
-      );
-
-
       response = await callGeminiFlash(prompt);
 
       const { addressing, transition } = response;

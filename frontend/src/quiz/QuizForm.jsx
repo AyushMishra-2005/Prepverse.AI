@@ -4,6 +4,7 @@ import { useQuiz } from '../context/QuizContext.jsx';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 import useConversation from '../stateManage/useConversation.js';
+import server from '../environment.js';
 
 const QuizForm = () => {
   const [formData, setFormData] = useState({
@@ -45,7 +46,7 @@ const QuizForm = () => {
       const numOfQns = formData.count;
 
       const { data } = await axios.post(
-        "http://localhost:8000/quiz/generate-quiz-questions",
+        `${server}/quiz/generate-quiz-questions`,
         {
           role, topic, numOfQns, level
         },

@@ -2,6 +2,7 @@ import React, { useRef, useState } from 'react'
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import axios from 'axios'
+import server from '../environment';
 
 function InputForm({setMessage}) {
 
@@ -16,7 +17,7 @@ function InputForm({setMessage}) {
     
     try{
       const res = await axios.post(
-        "http://localhost:8000/sendUserMessage",
+        `${server}/sendUserMessage`,
         {search}
       );
 

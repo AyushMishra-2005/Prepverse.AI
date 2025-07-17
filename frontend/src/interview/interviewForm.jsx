@@ -5,6 +5,7 @@ import useConversation from '../stateManage/useConversation';
 import toast from 'react-hot-toast';
 import axios from 'axios';
 import CircularProgress from '@mui/material/CircularProgress';
+import server from '../environment';
 
 const InterviewSection = () => {
   const navigate = useNavigate();
@@ -42,7 +43,7 @@ const InterviewSection = () => {
       setLoading(true);
       const { role, topic, numOfQns } = formData;
       const { data } = await axios.post(
-        "http://localhost:8000/interview/checkRoleAndTopic",
+        `${server}/interview/checkRoleAndTopic`,
         {
           role, topic, numOfQns
         },

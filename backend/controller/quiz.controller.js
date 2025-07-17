@@ -62,33 +62,7 @@ export const checkRoleAndTopicQuiz = async (req, res) => {
 
       Only respond with the JSON object as described above.`;
 
-    const aiResponse = await axios.post(
-      "http://localhost:11434/api/generate",
-      {
-        model: "llama3:8b",
-        prompt: prompt,
-        stream: false,
-        format: "json",
-        options: {
-          temperature: 0.8,
-          presence_penalty: 0.6,
-          frequency_penalty: 0.6
-        }
-      }
-    );
-
-    let rawdata = aiResponse.data.response;
-
-
-    if (!rawdata.endsWith("}")) {
-      rawdata += "}";
-    }
-
-    const jsonMatch = rawdata.match(/\{(?:[^{}]|(?:\{[^{}]*\}))*\}/);
-    if (!jsonMatch) {
-      return res.status(500).json({ message: "Invalid JSON received from AI!" });
-    }
-    const response = JSON.parse(jsonMatch[0]);
+    const response = await callGeminiFlash(prompt);
 
     let { valid, questions } = response;
 
