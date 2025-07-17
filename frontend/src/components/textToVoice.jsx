@@ -11,7 +11,7 @@ function TextToVoice({ onStart, onEnd, setStopSpeakingCallback }) {
     try {
       onStart?.();
 
-      const response = await fetch("http://localhost:3000/speak", {
+      const response = await fetch("https://prepverse-ai-python-server.onrender.com/speak", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ text: assistantContent }),

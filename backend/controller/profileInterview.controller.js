@@ -47,7 +47,7 @@ export const checkRoleValidity = async (req, res) => {
       return res.status(501).json({ message: "Not valid role and topic" });
     }
 
-    const flaskUrl = "http://127.0.0.1:3000/parse-resume";
+    const flaskUrl = "https://prepverse-ai-python-server.onrender.com/parse-resume";
 
     const { data } = await axios.post(flaskUrl, form, {
       headers: form.getHeaders(),
@@ -62,7 +62,7 @@ export const checkRoleValidity = async (req, res) => {
       const job_title = role;
 
       const response = await axios.post(
-        'http://127.0.0.1:3000/evaluate-resume',
+        'https://prepverse-ai-python-server.onrender.com/evaluate-resume',
         {resume_data, job_title, topics}
       );
 
