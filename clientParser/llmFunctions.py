@@ -55,7 +55,6 @@ Respond ONLY with the final JSON object.
 """
 
 
-
   response = model.generate_content(prompt)
   raw_text = response.text.strip()
   cleaned = re.sub(r"^```(?:json)?\n|\n```$", "", raw_text.strip(), flags=re.MULTILINE)
@@ -66,7 +65,7 @@ Respond ONLY with the final JSON object.
   except json.JSONDecodeError as e:
     print("Failed to parse Gemini response:", e)
     return {"error": "Invalid JSON from Gemini", "raw": response.text}
-
+    
 def evaluate_resume(resume_json, job_title, topics):
     topics_str = ", ".join(topics)
 
