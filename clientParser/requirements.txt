@@ -1,0 +1,7 @@
+Flask
+requests
+PyMuPDF
+edge-tts
+flask-cors
+google-generativeai
+python-dotenv 
