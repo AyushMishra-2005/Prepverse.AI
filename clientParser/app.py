@@ -17,8 +17,6 @@ CORS(app)
 @app.route("/parse-resume", methods=['post'])
 def parse_resume():
   
-  print('I am working')
-
   if 'file' not in request.files:
     return jsonify({"message" : "No file Found"}), 400
   

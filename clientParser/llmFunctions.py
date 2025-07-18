@@ -22,29 +22,57 @@ Given the raw text of a candidate's resume, extract **only the technical informa
 - Only extract content that is useful to generate technical interview questions.
 - If a section is missing, return an empty list for it.
 - Start and end with curly braces {{}} for a valid JSON object.
+- Extract ONLY the following fields, even if the heading in the resume is named differently (e.g., "Technical Background" instead of "Skills", or "Hands-on with Open Source" instead of "Open Source Contributions").
 
-### Extract ONLY the following fields:
+### Extract this schema:
 
-1. **skills**:
-   - Grouped under categories:
-     - frontend
-     - backend
-     - mobile
-     - devops
-     - databases
-     - tools_and_platforms
-
-2. **experience**: list of objects with:
-   - company
-   - role
-   - technologies (tech/tools used in the role)
-   - responsibilities (as bullet points or short sentences)
-
-3. **projects**: list of objects with:
-   - name
-   - role
-   - description (brief summary of what the project does)
-   - technologies (languages, libraries, frameworks, tools used)
+{{
+  "skills": {{
+    "frontend": [],
+    "backend": [],
+    "mobile": [],
+    "devops": [],
+    "databases": [],
+    "tools_and_platforms": [],
+    "cloud_services": [],
+    "testing_frameworks": [],
+    "languages": []
+  }},
+  "experience": [
+    {{
+      "company": "",
+      "role": "",
+      "duration": "",
+      "technologies": [],
+      "responsibilities": []
+    }}
+  ],
+  "projects": [
+    {{
+      "name": "",
+      "role": "",
+      "description": "",
+      "technologies": [],
+      "github_link": ""
+    }}
+  ],
+  "certifications": [
+    {{
+      "title": "",
+      "issuing_organization": "",
+      "issue_date": "",
+      "certificate_link": ""
+    }}
+  ],
+  "open_source_contributions": [
+    {{
+      "project_name": "",
+      "description": "",
+      "technologies": [],
+      "contribution_link": ""
+    }}
+  ]
+}}
 
 Here is the resume content:
 \"\"\"
@@ -53,18 +81,17 @@ Here is the resume content:
 
 Respond ONLY with the final JSON object.
 """
-
-
   response = model.generate_content(prompt)
   raw_text = response.text.strip()
   cleaned = re.sub(r"^```(?:json)?\n|\n```$", "", raw_text.strip(), flags=re.MULTILINE)
-  
+
   try:
       parsed = json.loads(cleaned)
       return parsed
   except json.JSONDecodeError as e:
-    print("Failed to parse Gemini response:", e)
-    return {"error": "Invalid JSON from Gemini", "raw": response.text}
+      print("Failed to parse Gemini response:", e)
+      return {"error": "Invalid JSON from Gemini", "raw": response.text}
+
     
 def evaluate_resume(resume_json, job_title, topics):
     topics_str = ", ".join(topics)
