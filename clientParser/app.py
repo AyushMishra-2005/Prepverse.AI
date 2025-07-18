@@ -14,7 +14,7 @@ import uuid
 app = Flask(__name__)
 CORS(app)
 
-@app.route("/parse-resume", methods=['post'])
+@app.route("/parse-resume", methods=['POST'])
 def parse_resume():
   
   if 'file' not in request.files:
