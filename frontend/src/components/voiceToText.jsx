@@ -1,7 +1,9 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
 
-const VoiceConvertor = ({onTranscriptUpdate, onControlsReady}) => {
+const VoiceConvertor = ({ onTranscriptUpdate, onControlsReady }) => {
+  const [isClient, setIsClient] = useState(false);
+
   const {
     transcript,
     listening,
@@ -9,23 +11,29 @@ const VoiceConvertor = ({onTranscriptUpdate, onControlsReady}) => {
     browserSupportsSpeechRecognition
   } = useSpeechRecognition();
 
+  // Ensure client-side only (avoids SSR crashes)
   useEffect(() => {
-    if(onTranscriptUpdate){
+    setIsClient(true);
+  }, []);
+
+  useEffect(() => {
+    if (onTranscriptUpdate) {
       onTranscriptUpdate(transcript);
     }
-  }, [transcript, onTranscriptUpdate]);
+  }, [transcript]);
 
   useEffect(() => {
-    if(onControlsReady){
+    if (onControlsReady) {
       onControlsReady({
-        startListening: () => {SpeechRecognition.startListening({ continuous: true })},
-        stopListening: () => {SpeechRecognition.stopListening()},
+        startListening: () => SpeechRecognition.startListening({ continuous: true }),
+        stopListening: () => SpeechRecognition.stopListening(),
         resetTranscript,
-        isListening : listening,
-      })
+        isListening: listening,
+      });
     }
-  }, [listening, resetTranscript, onControlsReady]);
+  }, [listening, resetTranscript]);
 
+  if (!isClient) return null;
 
   if (!browserSupportsSpeechRecognition) {
     return <span>Browser doesn't support speech recognition.</span>;
