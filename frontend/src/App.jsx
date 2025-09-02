@@ -33,6 +33,7 @@ import Lottie from 'lottie-react';
 import pageNotFound from './assets/animations/errorAnimation.json'
 import ProfileInterviewForm from './interview/profileInterviewForm';
 import ResumeProcessingPage from './components/resumeProgressPage';
+import ProfilePage from './components/profilePage';
 
 function App() {
 
@@ -136,6 +137,8 @@ function App() {
 
             <Route path='/ResumeProcessingPage' element={authUser ? <ResumeProcessingPage /> : <Navigate to="/" replace />} />
 
+              
+            <Route path='/profilePage' element={authUser ? <ProfilePage /> : <Navigate to="/" replace />} />
           </Routes>
         </div>
 

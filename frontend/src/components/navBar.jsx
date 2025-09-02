@@ -15,17 +15,19 @@ import {
   MobileNavMenu,
 } from "../components/ui/resizable-navbar.jsx";
 import { useAuth } from "../context/AuthProvider.jsx";
+import SwipeableTemporaryDrawer from "../components/drawerComponent.jsx"
 
 export function NavbarDemo() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
   const navigate = useNavigate();
   const { authUser } = useAuth();
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
   const navItems = [
     { name: "Home", link: "/" },
-    { name: "AI Interviews", link: "/aiInterviews" },
-    { name: "Contact", link: "/mockInterviewLandingPage" },
+    { name: "AI Hire", link: "/aiInterviews" },
+    { name: "Internships", link: "/mockInterviewLandingPage" },
   ];
 
   const features = [
@@ -42,6 +44,17 @@ export function NavbarDemo() {
 
   const handleMenuClose = () => {
     setAnchorEl(null);
+  };
+
+  const toggleDrawer = (open) => (event) => {
+    if (
+      event &&
+      event.type === "keydown" &&
+      (event.key === "Tab" || event.key === "Shift")
+    ) {
+      return;
+    }
+    setDrawerOpen(open);
   };
 
   return (
@@ -63,7 +76,7 @@ export function NavbarDemo() {
               onClose={handleMenuClose}
               PaperProps={{
                 sx: {
-                  backgroundColor: "#1f2937", 
+                  backgroundColor: "#1f2937",
                   color: "white",
                   mt: 1,
                   zIndex: 1400,
@@ -96,29 +109,30 @@ export function NavbarDemo() {
               ))}
             </Menu>
 
-            {/* Login/Logout */}
-            {authUser ? (
-              <NavbarButton variant="secondary" onClick={() => navigate("/logout")}>
-                Logout
-              </NavbarButton>
-            ) : (
+            {!authUser && (
               <NavbarButton variant="secondary" onClick={() => navigate("/login")}>
                 Login
               </NavbarButton>
             )}
 
-            {/* Avatar */}
             {authUser && (
-              <Avatar
-                alt="User"
-                src={authUser.user.profilePicURL}
-                sx={{ width: 48, height: 48 }}
-              />
+              <>
+                <Avatar
+                  alt="User"
+                  src={authUser.user.profilePicURL}
+                  sx={{ width: 48, height: 48, cursor: "pointer" }}
+                  onClick={toggleDrawer(true)}
+                />
+                <SwipeableTemporaryDrawer
+                  open={drawerOpen}
+                  onClose={toggleDrawer(false)}
+                  onOpen={toggleDrawer(true)}
+                />
+              </>
             )}
           </div>
         </NavBody>
 
-        {/* Mobile Navigation */}
         <MobileNav>
           <MobileNavHeader>
             <NavbarLogo />
@@ -128,11 +142,19 @@ export function NavbarDemo() {
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               />
               {authUser && (
-                <Avatar
-                  alt="User"
-                  src={authUser.user.profilePicURL}
-                  sx={{ width: 48, height: 48 }}
-                />
+                <>
+                  <Avatar
+                    alt="User"
+                    src={authUser.user.profilePicURL}
+                    sx={{ width: 48, height: 48, cursor: "pointer" }}
+                    onClick={toggleDrawer(true)}
+                  />
+                  <SwipeableTemporaryDrawer
+                    open={drawerOpen}
+                    onClose={toggleDrawer(false)}
+                    onOpen={toggleDrawer(true)}
+                  />
+                </>
               )}
             </div>
           </MobileNavHeader>
