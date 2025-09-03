@@ -12,6 +12,7 @@ import quizRoute from './route/quiz.route.js'
 import resumeRoute from './route/resume.route.js'
 import profileInterviewRoute from './route/profileInterview.route.js'
 import {app, io, server} from './SocketIO/server.js'
+import resumeUploadRoute from './route/resumeUpload.route.js'
 
 dotenv.config();
 app.use(express.json());
@@ -58,6 +59,7 @@ app.use('/interview', interviewSection);
 app.use('/quiz', quizRoute);
 app.use('/resume', resumeRoute);
 app.use('/profileInterview', profileInterviewRoute);
+app.use('/resume-upload', resumeUploadRoute);
 
 app.get('/verify-token', secureRoute, (req, res) => {
   res.status(200).json({

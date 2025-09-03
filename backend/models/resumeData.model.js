@@ -6,7 +6,8 @@ const resumeDataSchema = new Schema(
     userId : {
       type : mongoose.Schema.Types.ObjectId,
       ref : 'User',
-      required : true
+      required : true,
+      unique: true,
     },
 
     resumeLink: {
@@ -19,10 +20,6 @@ const resumeDataSchema = new Schema(
       required: true,
     },
 
-    resumeDetails: {
-      type : String,
-      required: true
-    }
   },
   {
     timestamps: true,
@@ -30,9 +27,9 @@ const resumeDataSchema = new Schema(
 );
 
 
-const resumeData = mongoose.model('resumeData', resumeDataSchema);
+const ResumeData = mongoose.model('resumeData', resumeDataSchema);
 
-export default resumeData;
+export default ResumeData;
 
 
 

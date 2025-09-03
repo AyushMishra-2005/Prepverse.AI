@@ -5,36 +5,33 @@ def parse_resume_with_llm(text):
   prompt = f"""
 You are an intelligent and structured JSON resume parser.
 
-Given the raw text of a candidate's resume, extract **only the technical information** relevant for generating technical interview questions. Ignore personal details like name, email, phone, etc.
+Your task is to read the raw text of a candidate's resume and extract **only the professional, academic, and domain-relevant information**.  
+Ignore personal details such as name, email, phone, or address.
 
-### Instructions:
-- Return a well-structured JSON object.
-- Do NOT include any comments, explanations, or introductory text.
-- Only extract content that is useful to generate technical interview questions.
-- If a section is missing, return an empty list for it.
-- Start and end with curly braces {{}} for a valid JSON object.
-- Extract ONLY the following fields, even if the heading in the resume is named differently (e.g., "Technical Background" instead of "Skills", or "Hands-on with Open Source" instead of "Open Source Contributions").
+### General Rules:
+- Output must be a valid JSON object.
+- Do **not** include explanations, comments, or extra text.
+- If a section is missing, return an empty list or empty string for its fields.
+- Always preserve the schema structure exactly as given below.
+- Capture **hands-on skills and applications** from experience/projects separately from general skills.
+- The `skills` field must be grouped by category, where each category has a `name` and a list of `items`.
+- Be flexible across domains (e.g., software, science, arts, finance, law, teaching, medicine).
 
-### Extract this schema:
+### Schema to Extract:
 
 {{
-  "skills": {{
-    "frontend": [],
-    "backend": [],
-    "mobile": [],
-    "devops": [],
-    "databases": [],
-    "tools_and_platforms": [],
-    "cloud_services": [],
-    "testing_frameworks": [],
-    "languages": []
-  }},
+  "skills": [
+    {{
+      "name": "",
+      "items": []
+    }}
+  ],
   "experience": [
     {{
-      "company": "",
+      "organization": "",
       "role": "",
       "duration": "",
-      "technologies": [],
+      "skills_used": [],
       "responsibilities": []
     }}
   ],
@@ -43,8 +40,8 @@ Given the raw text of a candidate's resume, extract **only the technical informa
       "name": "",
       "role": "",
       "description": "",
-      "technologies": [],
-      "github_link": ""
+      "skills_used": [],
+      "link": ""
     }}
   ],
   "certifications": [
@@ -55,19 +52,35 @@ Given the raw text of a candidate's resume, extract **only the technical informa
       "certificate_link": ""
     }}
   ],
-  "open_source_contributions": [
+  "publications": [
     {{
-      "project_name": "",
+      "title": "",
+      "journal_or_publisher": "",
+      "publication_date": "",
+      "link": ""
+    }}
+  ],
+  "contributions": [
+    {{
+      "project_or_activity": "",
       "description": "",
-      "technologies": [],
+      "skills_used": [],
       "contribution_link": ""
+    }}
+  ],
+  "education": [
+    {{
+      "degree": "",
+      "field_of_study": "",
+      "institution": "",
+      "graduation_year": ""
     }}
   ]
 }}
 
 Here is the resume content:
-\"\"\"
-{text}
+\"\"\" 
+{text} 
 \"\"\"
 
 Respond ONLY with the final JSON object.

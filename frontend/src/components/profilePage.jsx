@@ -1,25 +1,309 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
+import axios from "axios";
+import { useAuth } from '../context/AuthProvider.jsx';
+import { toast } from 'react-hot-toast';
+import server from "../environment.js";
 
 function ProfilePage() {
-  const [resumeLink, setResumeLink] = useState(""); 
+  const { authUser } = useAuth();
+  const [resumeLink, setResumeLink] = useState(authUser.user.resumeLink || "");
+  const [isUploading, setIsUploading] = useState(false);
+  const [selectedFile, setSelectedFile] = useState(null);
   const [resumeDetails, setResumeDetails] = useState({
-    Education: "B.Tech in CSE from VIT-AP University",
-    Skills: "React, Node.js, MongoDB, TailwindCSS",
-    Projects: "AI Interview Assistant, Resume Builder, Gas Detection System",
-    Experience: "Intern at Discount Fabrics Limited as Web Developer",
+    skills: [],
+    projects: [],
+    education: [],
+    experience: []
   });
 
-  const handleFileUpload = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setResumeLink(URL.createObjectURL(file));
+  useEffect(() => {
+    const getResumeData = async () => {
+      try {
+        const { data } = await axios.post(
+          `${server}/resume-upload/getResumeData`,
+          {},
+          {withCredentials: true}
+          
+        );
+
+        console.log("working");
+        if (data.resume_data) {
+          setResumeLink(data.resume_data.resumeLink);
+          const filteredData = {
+            skills: data.resume_data.resumeJSONdata.skills || [],
+            projects: data.resume_data.resumeJSONdata.projects || [],
+            education: data.resume_data.resumeJSONdata.education || [],
+            experience: data.resume_data.resumeJSONdata.experience || []
+          };
+          setResumeDetails(filteredData);
+        }
+      } catch (err) {
+        console.log(err);
+      }
     }
+
+    getResumeData();
+  }, []);
+
+  const handleFileSelect = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const validTypes = ['.pdf', '.doc', '.docx'];
+    const fileExtension = file.name.substring(file.name.lastIndexOf('.')).toLowerCase();
+
+    if (!validTypes.includes(fileExtension)) {
+      toast.error("Please select a PDF, DOC, or DOCX file");
+      return;
+    }
+
+    setSelectedFile(file);
+  };
+
+  const handleFileUpload = async () => {
+    if (!selectedFile) {
+      return toast.error("Please select a resume file first!");
+    }
+
+    setIsUploading(true);
+    const formData = new FormData();
+    formData.append('file', selectedFile);
+
+    try {
+      const { data } = await axios.post(
+        `${server}/resume-upload/upload`,
+        formData,
+        {
+          withCredentials: true,
+        }
+      );
+
+      console.log(data);
+
+      if (data.newResume) {
+        setResumeLink(data.newResume.resumeLink);
+        const filteredData = {
+          skills: data.newResume.resumeJSONdata.skills || [],
+          projects: data.newResume.resumeJSONdata.projects || [],
+          education: data.newResume.resumeJSONdata.education || [],
+          experience: data.newResume.resumeJSONdata.experience || []
+        };
+        setResumeDetails(filteredData);
+        console.log(filteredData);
+        toast.success("Resume uploaded successfully!");
+        setSelectedFile(null);
+      }
+
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to upload resume");
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const handleDeleteResume = async () => {
+    if (!resumeLink) return;
+
+    try {
+      const { data } = await axios.delete(
+        `${server}/resume-upload/delete`,
+        { withCredentials: true }
+      );
+
+      if (data.success) {
+        setResumeLink("");
+        setResumeDetails({
+          skills: [],
+          projects: [],
+          education: [],
+          experience: []
+        });
+        toast.success("Resume deleted successfully!");
+      }
+
+    } catch (err) {
+      console.error(err);
+      toast.error("Server error");
+    }
+  };
+
+  const cancelUpload = () => {
+    setSelectedFile(null);
+  };
+
+  const renderSkills = (skills) => {
+    if (!skills || !Array.isArray(skills) || skills.length === 0) return null;
+
+    const validSkills = skills.filter(skillCategory =>
+      skillCategory &&
+      skillCategory.name &&
+      skillCategory.items &&
+      Array.isArray(skillCategory.items) &&
+      skillCategory.items.length > 0
+    );
+
+    if (validSkills.length === 0) return null;
+
+    return (
+      <div className="mb-6">
+        <h3 className="text-lg font-semibold text-white mb-3">Skills</h3>
+        {validSkills.map((skillCategory, index) => (
+          <div key={index} className="mb-3">
+            <h4 className="text-md font-semibold text-blue-300 capitalize">
+              {skillCategory.name}:
+            </h4>
+            <p className="text-slate-300">{skillCategory.items.join(', ')}</p>
+          </div>
+        ))}
+      </div>
+    );
+  };
+
+  const renderEducation = (education) => {
+    if (!education || !Array.isArray(education) || education.length === 0) return null;
+
+    const validEducation = education.filter(edu =>
+      edu && (
+        (edu.degree && edu.degree.trim() !== '') ||
+        (edu.field_of_study && edu.field_of_study.trim() !== '') ||
+        (edu.institution && edu.institution.trim() !== '') ||
+        (edu.graduation_year && edu.graduation_year.trim() !== '')
+      )
+    );
+
+    if (validEducation.length === 0) return null;
+
+    return (
+      <div className="mb-6">
+        <h3 className="text-lg font-semibold text-white mb-3">Education</h3>
+        {validEducation.map((edu, index) => (
+          <motion.div
+            key={index}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: index * 0.1 }}
+            className="mb-4"
+          >
+            {edu?.degree && <h4 className="text-md font-semibold text-white">{edu.degree}</h4>}
+            {edu?.field_of_study && <p className="text-slate-300">{edu.field_of_study}</p>}
+            {edu?.institution && <p className="text-slate-300">{edu.institution}</p>}
+            {edu?.graduation_year && <p className="text-slate-400 text-sm">{edu.graduation_year}</p>}
+          </motion.div>
+        ))}
+      </div>
+    );
+  };
+
+  const renderExperience = (experience) => {
+    if (!experience || !Array.isArray(experience) || experience.length === 0) return null;
+
+    const validExperience = experience.filter(exp =>
+      exp && (
+        (exp.organization && exp.organization.trim() !== '') ||
+        (exp.role && exp.role.trim() !== '') ||
+        (exp.duration && exp.duration.trim() !== '') ||
+        (exp.skills_used && Array.isArray(exp.skills_used) && exp.skills_used.length > 0) ||
+        (exp.responsibilities && Array.isArray(exp.responsibilities) && exp.responsibilities.length > 0)
+      )
+    );
+
+    if (validExperience.length === 0) return null;
+
+    return (
+      <div className="mb-6">
+        <h3 className="text-lg font-semibold text-white mb-3">Experience</h3>
+        {validExperience.map((exp, index) => (
+          <motion.div
+            key={index}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: index * 0.1 }}
+            className="mb-4"
+          >
+            {exp?.organization && <h4 className="text-md font-semibold text-white">{exp.organization}</h4>}
+            {exp?.role && <p className="text-slate-300">{exp.role}</p>}
+            {exp?.duration && <p className="text-slate-400 text-sm">{exp.duration}</p>}
+            {exp?.skills_used && exp.skills_used.length > 0 && (
+              <p className="text-slate-400 text-sm">Skills used: {exp.skills_used.join(', ')}</p>
+            )}
+            {exp?.responsibilities && exp.responsibilities.length > 0 && (
+              <div className="mt-2">
+                <p className="text-slate-300 text-sm font-medium">Responsibilities:</p>
+                <ul className="text-slate-400 text-sm list-disc list-inside">
+                  {exp.responsibilities.map((responsibility, i) => (
+                    <li key={i}>{responsibility}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </motion.div>
+        ))}
+      </div>
+    );
+  };
+
+  const renderProjects = (projects) => {
+    if (!projects || !Array.isArray(projects) || projects.length === 0) return null;
+
+    const validProjects = projects.filter(project =>
+      project && (
+        (project.name && project.name.trim() !== '') ||
+        (project.role && project.role.trim() !== '') ||
+        (project.description && project.description.trim() !== '') ||
+        (project.skills_used && Array.isArray(project.skills_used) && project.skills_used.length > 0) ||
+        (project.link && project.link.trim() !== '')
+      )
+    );
+
+    if (validProjects.length === 0) return null;
+
+    return (
+      <div className="mb-6">
+        <h3 className="text-lg font-semibold text-white mb-3">Projects</h3>
+        {validProjects.map((project, index) => (
+          <motion.div
+            key={index}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: index * 0.1 + 0.4 }}
+            className="mb-4"
+          >
+            {project?.name && <h4 className="text-md font-semibold text-white">{project.name}</h4>}
+            {project?.role && <p className="text-slate-300">Role: {project.role}</p>}
+            {project?.description && <p className="text-slate-300">{project.description}</p>}
+            {project?.skills_used && project.skills_used.length > 0 && (
+              <p className="text-slate-400 text-sm">Skills used: {project.skills_used.join(', ')}</p>
+            )}
+            {project?.link && (
+              <a href={project.link} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 text-sm">
+                View Project
+              </a>
+            )}
+          </motion.div>
+        ))}
+      </div>
+    );
+  };
+
+  const hasResumeData = () => {
+    const { skills, projects, education, experience } = resumeDetails;
+
+    const hasSkills = skills && skills.length > 0 && skills.some(skillCategory =>
+      skillCategory.items && skillCategory.items.length > 0
+    );
+
+    const hasProjects = projects && projects.length > 0;
+    const hasEducation = education && education.length > 0;
+    const hasExperience = experience && experience.length > 0;
+
+    return hasSkills || hasProjects || hasEducation || hasExperience;
   };
 
   return (
     <div className="min-h-screen w-full bg-gradient-to-br from-slate-900 text-white overflow-x-hidden p-4 md:p-8">
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
@@ -29,34 +313,44 @@ function ProfilePage() {
           <div className="flex-shrink-0 mb-6 md:mb-0">
             <div className="relative">
               <img
-                src="https://t4.ftcdn.net/jpg/03/83/25/83/360_F_383258331_D8imaEMl8Q3lf7EKU2Pi78Cn0R7KkW9o.jpg"
+                src={`${authUser.user.profilePicURL}`}
                 alt="User"
                 className="h-32 w-32 rounded-full object-cover border-4 border-slate-600"
               />
             </div>
           </div>
-          
+
           <div className="md:ml-8 text-center md:text-left">
             <h1 className="text-2xl md:text-3xl font-bold text-white">
-              Ayush Mishra
+              {authUser.user.name}
             </h1>
-            <p className="text-slate-300 mt-1">@ayushm</p>
-            <p className="text-slate-300">ayush@example.com</p>
-            
-            <div className="mt-4">
+            <p className="text-slate-300 mt-1">{authUser.user.username}</p>
+            <p className="text-slate-300">{authUser.user.email}</p>
+
+            <div className="mt-4 flex flex-wrap gap-2">
               {resumeLink ? (
-                <motion.a
-                  whileHover={{ scale: 1.03 }}
-                  href={resumeLink}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center px-4 py-2 rounded-md bg-blue-600 hover:bg-blue-700 text-white font-medium transition-colors"
-                >
-                  <span>View Resume</span>
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-2" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
-                  </svg>
-                </motion.a>
+                <>
+                  <motion.button
+                    whileHover={{ scale: 1.03 }}
+                    onClick={() => window.open(resumeLink, '_blank')}
+                    className="inline-flex items-center px-4 py-2 rounded-md bg-blue-600 hover:bg-blue-700 text-white font-medium transition-colors"
+                  >
+                    <span>View Resume</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-2" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
+                    </svg>
+                  </motion.button>
+                  <motion.button
+                    whileHover={{ scale: 1.03 }}
+                    onClick={handleDeleteResume}
+                    className="inline-flex items-center px-4 py-2 rounded-md bg-red-600 hover:bg-red-700 text-white font-medium transition-colors"
+                  >
+                    <span>Delete Resume</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-2" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
+                    </svg>
+                  </motion.button>
+                </>
               ) : (
                 <p className="text-red-400 flex items-center justify-center md:justify-start">
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
@@ -70,8 +364,7 @@ function ProfilePage() {
         </div>
       </motion.div>
 
-      {/* Content Section */}
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.1 }}
@@ -84,26 +377,49 @@ function ProfilePage() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
             </div>
-            <h3 className="text-xl font-semibold text-white mb-2">Complete Your Profile</h3>
+            <h3 className="text-xl font-semibold text-red-400 mb-2">Complete Your Profile</h3>
             <p className="text-slate-300 mb-6">
               Upload your resume to complete your profile and unlock all features.
             </p>
-            
-            <motion.label 
-              whileHover={{ scale: 1.03 }}
-              className="inline-flex items-center px-6 py-3 rounded-md bg-blue-600 hover:bg-blue-700 text-white font-medium cursor-pointer transition-colors"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd" />
-              </svg>
-              Upload Resume
-              <input
-                type="file"
-                accept=".pdf,.doc,.docx"
-                onChange={handleFileUpload}
-                className="hidden"
-              />
-            </motion.label>
+
+            {!selectedFile ? (
+              <motion.label
+                whileHover={{ scale: 1.03 }}
+                className="inline-flex items-center px-6 py-3 rounded-md bg-blue-600 hover:bg-blue-700 text-white font-medium cursor-pointer transition-colors"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd" />
+                </svg>
+                Select Resume
+                <input
+                  type="file"
+                  accept=".pdf,.doc,.docx"
+                  onChange={handleFileSelect}
+                  className="hidden"
+                />
+              </motion.label>
+            ) : (
+              <div className="flex flex-col items-center">
+                <p className="text-slate-300 mb-4">Selected file: {selectedFile.name}</p>
+                <div className="flex gap-2">
+                  <motion.button
+                    whileHover={{ scale: 1.03 }}
+                    onClick={handleFileUpload}
+                    disabled={isUploading}
+                    className="inline-flex items-center px-4 py-2 rounded-md bg-green-600 hover:bg-green-700 text-white font-medium transition-colors disabled:opacity-50"
+                  >
+                    {isUploading ? "Uploading..." : "Upload Resume"}
+                  </motion.button>
+                  <motion.button
+                    whileHover={{ scale: 1.03 }}
+                    onClick={cancelUpload}
+                    className="inline-flex items-center px-4 py-2 rounded-md bg-gray-600 hover:bg-gray-700 text-white font-medium transition-colors"
+                  >
+                    Cancel
+                  </motion.button>
+                </div>
+              </div>
+            )}
             <p className="text-slate-400 text-sm mt-2">Supported formats: PDF, DOC, DOCX</p>
           </div>
         ) : (
@@ -112,39 +428,77 @@ function ProfilePage() {
               <h2 className="text-2xl font-bold text-white mb-4 md:mb-0">
                 Resume Details
               </h2>
-              
-              <motion.label 
+
+              <motion.label
                 whileHover={{ scale: 1.03 }}
                 className="inline-flex items-center px-4 py-2 rounded-md bg-slate-700 border border-slate-600 text-slate-200 text-sm cursor-pointer hover:bg-slate-600 transition-colors"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
-                  <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                  <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.380-8.379-2.83-2.828z" />
                 </svg>
                 Update Resume
                 <input
                   type="file"
                   accept=".pdf,.doc,.docx"
-                  onChange={handleFileUpload}
+                  onChange={handleFileSelect}
                   className="hidden"
                 />
               </motion.label>
             </div>
-            
-            {/* All resume details inside one box */}
-            <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-xl p-6">
-              {Object.entries(resumeDetails).map(([field, content], index) => (
-                <motion.div 
-                  key={field}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4, delay: index * 0.1 }}
-                  className="mb-4 last:mb-0"
-                >
-                  <h3 className="text-lg font-semibold text-white">{field}</h3>
-                  <p className="text-slate-300 mt-1">{content}</p>
-                </motion.div>
-              ))}
-            </div>
+
+            {selectedFile && (
+              <div className="mb-4 p-4 bg-slate-700 rounded-lg flex items-center justify-between">
+                <p className="text-slate-300">Selected file: {selectedFile.name}</p>
+                <div className="flex gap-2">
+                  <motion.button
+                    whileHover={{ scale: 1.03 }}
+                    onClick={handleFileUpload}
+                    disabled={isUploading}
+                    className="px-3 py-1 bg-green-600 hover:bg-green-700 rounded text-sm disabled:opacity-50"
+                  >
+                    {isUploading ? "Uploading..." : "Upload"}
+                  </motion.button>
+                  <motion.button
+                    whileHover={{ scale: 1.03 }}
+                    onClick={cancelUpload}
+                    className="px-3 py-1 bg-gray-600 hover:bg-gray-700 rounded text-sm"
+                  >
+                    Cancel
+                  </motion.button>
+                </div>
+              </div>
+            )}
+
+            {hasResumeData() ? (
+              <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-xl p-6">
+                {renderEducation(resumeDetails.education)}
+
+                {renderExperience(resumeDetails.experience)}
+
+                {renderSkills(resumeDetails.skills)}
+
+                {renderProjects(resumeDetails.projects)}
+
+                <div className="mt-8 p-4 bg-slate-700/50 rounded-lg">
+                  <p className="text-slate-300 text-sm italic">
+                    These are the important details extracted from your resume. Other information like certifications,
+                    publications, and open source contributions have also been parsed and stored in our database.
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-xl p-6 text-center">
+                <div className="flex justify-center mb-4">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                </div>
+                <h3 className="text-xl font-semibold text-blue-400 mb-2">Resume Uploaded</h3>
+                <p className="text-slate-300">
+                  Your resume has been uploaded successfully, but no structured data could be extracted.
+                </p>
+              </div>
+            )}
           </div>
         )}
       </motion.div>
