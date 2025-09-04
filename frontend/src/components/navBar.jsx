@@ -26,8 +26,9 @@ export function NavbarDemo() {
 
   const navItems = [
     { name: "Home", link: "/" },
+    { name: "Home2", link: "/Home2" },
     { name: "AI Hire", link: "/aiInterviews" },
-    { name: "Internships", link: "/mockInterviewLandingPage" },
+    { name: "Internships", link: "/Internships" },
   ];
 
   const features = [
@@ -110,10 +111,14 @@ export function NavbarDemo() {
             </Menu>
 
             {!authUser && (
-              <NavbarButton variant="secondary" onClick={() => navigate("/login")}>
-                Login
-              </NavbarButton>
-            )}
+  <button
+    onClick={() => navigate("/login")}
+    className="bg-transparent border border-[#FF6900] text-[#FF6900] font-poppins font-bold py-3 px-8 rounded-full secondary-btn-hover"
+  >
+    Login
+  </button>
+)}
+
 
             {authUser && (
               <>
