@@ -1,245 +1,179 @@
 // InternshipPage.jsx
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import {
-  MapPin,
   DollarSign,
   Calendar,
   ArrowRight,
+  Briefcase,
   Rocket,
 } from "lucide-react";
-import { ColourfulText } from "../components/ui/colourful-text.jsx";
-import TechCorpLogo from "../assets/TechCrop.png";
-import DataVisionLogo from "../assets/images.png";
-import CreativeStudiosLogo from "../assets/cs.png";
 import { Link } from "react-router-dom";
+import { ThemeContext } from "../context/ThemeContext";
+import internshipsData from "./internshipsData";
 
-const generateInternships = () => {
-  return [
-    {
-      id: 1,
-      title: "Frontend Developer Intern",
-      company: "TechCorp Inc.",
-      skills: ["React", "JavaScript", "CSS"],
-      location: "San Francisco, CA",
-      salary: "$25-35/hr",
-      posted: "2 days ago",
-      top3: true,
-      logo: TechCorpLogo,
-    },
-    {
-      id: 2,
-      title: "Data Science Intern",
-      company: "DataVision Analytics",
-      skills: ["Python", "Machine Learning", "SQL"],
-      location: "Remote",
-      salary: "$22-30/hr",
-      posted: "5 days ago",
-      top3: true,
-      logo: DataVisionLogo,
-    },
-    {
-      id: 3,
-      title: "UX Design Intern",
-      company: "Creative Studios",
-      skills: ["Figma", "UI/UX", "Wireframing"],
-      location: "New York, NY",
-      salary: "$24-32/hr",
-      posted: "1 week ago",
-      top3: true,
-      logo: CreativeStudiosLogo,
-    },
-    {
-      id: 4,
-      title: "Backend Developer Intern",
-      company: "ServerStack Solutions",
-      skills: ["Node.js", "Python", "API"],
-      location: "Austin, TX",
-      salary: "$26-34/hr",
-      posted: "3 days ago",
-      top3: false,
-      logo: DataVisionLogo,
-    },
-    {
-      id: 5,
-      title: "Marketing Intern",
-      company: "Growth Hackers",
-      skills: ["SEO", "Content", "Social Media"],
-      location: "Chicago, IL",
-      salary: "$20-28/hr",
-      posted: "4 days ago",
-      top3: false,
-      logo: CreativeStudiosLogo,
-    },
-    {
-      id: 6,
-      title: "DevOps Intern",
-      company: "CloudInfra Inc.",
-      skills: ["Docker", "Kubernetes", "AWS"],
-      location: "Remote",
-      salary: "$28-36/hr",
-      posted: "6 days ago",
-      top3: false,
-      logo: TechCorpLogo,
-    },
-    {
-      id: 7,
-      title: "Mobile App Developer Intern",
-      company: "AppWorks",
-      skills: ["React Native", "iOS", "Android"],
-      location: "Seattle, WA",
-      salary: "$26-34/hr",
-      posted: "1 day ago",
-      top3: false,
-      logo: DataVisionLogo,
-    },
-    {
-      id: 8,
-      title: "Product Management Intern",
-      company: "Innovate Labs",
-      skills: ["Strategy", "Research", "Analysis"],
-      location: "Boston, MA",
-      salary: "$24-30/hr",
-      posted: "1 week ago",
-      top3: false,
-      logo: CreativeStudiosLogo,
-    },
-    {
-      id: 9,
-      title: "Cybersecurity Intern",
-      company: "SecureNet",
-      skills: ["Security", "Networking", "Encryption"],
-      location: "Washington, DC",
-      salary: "$27-35/hr",
-      posted: "3 days ago",
-      top3: false,
-      logo: DataVisionLogo,
-    },
-    {
-      id: 10,
-      title: "AI Research Intern",
-      company: "NeuralMind",
-      skills: ["Python", "TensorFlow", "NLP"],
-      location: "Remote",
-      salary: "$30-40/hr",
-      posted: "2 days ago",
-      top3: false,
-      logo: TechCorpLogo,
-    },
-  ];
-};
 
-const InternshipCard = ({ internship, isTopPick }) => (
-  <div
-    className={`
-      relative p-6 rounded-3xl border border-gray-800 backdrop-blur-sm
-      hover:border-indigo-500/50 transition-all duration-300 transform hover:-translate-y-1 hover:shadow-xl
-      bg-gradient-to-br from-gray-900/20 to-gray-800/20
-    `}
-  >
-    <div className="flex items-center justify-between mb-4">
-      <div className="w-12 h-12 rounded-xl flex items-center justify-center overflow-hidden border border-gray-700 bg-gray-800">
-        <img
-          src={internship.logo}
-          alt="Company Logo"
-          className="w-full h-full object-cover"
-        />
-      </div>
-      {isTopPick && (
-        <span className="px-3 py-1 text-xs font-bold rounded-full bg-gradient-to-r from-emerald-500/20 to-teal-500/20 text-emerald-300 border border-emerald-500/30">
-          Top Match
-        </span>
-      )}
-    </div>
-    <h3 className="text-xl font-bold mb-1 text-white">{internship.title}</h3>
-    <p className="text-gray-400 mb-4">{internship.company}</p>
+// ---------------- Internship Card ----------------
+const InternshipCard = ({ internship, isTopPick }) => {
+  const { theme } = useContext(ThemeContext);
 
-    <div className="flex flex-wrap gap-2 mb-6">
-      {internship.skills.map((skill, index) => (
-        <span
-          key={index}
-          className="px-3 py-1 rounded-full text-xs font-medium text-gray-300 bg-gray-800/70 backdrop-blur-sm"
-        >
-          {skill}
-        </span>
-      ))}
-    </div>
-
-    <div className="flex flex-col space-y-3 text-sm text-gray-400 mb-6">
-      <div className="flex items-center">
-        <MapPin size={16} className="mr-2 text-indigo-400" />
-        <span>{internship.location}</span>
-      </div>
-      <div className="flex items-center">
-        <DollarSign size={16} className="mr-2 text-indigo-400" />
-        <span>{internship.salary}</span>
-      </div>
-      <div className="flex items-center">
-        <Calendar size={16} className="mr-2 text-indigo-400" />
-        <span>Posted {internship.posted}</span>
-      </div>
-    </div>
-
-    <button
-      className={`w-full py-3 font-semibold rounded-xl transition-all duration-300 transform hover:-translate-y-0.5 hover:shadow-lg
+  return (
+    <div
+      className={`relative p-4 rounded-lg border 
         ${
-          isTopPick
-            ? "bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500"
-            : "bg-gray-800 hover:bg-gray-700 text-white border border-gray-700"
+          theme === "dark"
+            ? "bg-[#141414]/90 border-[#2A2A2A] shadow-sm"
+            : "bg-white/90 border-[#EAEAEA] shadow-md"
         }
+        transition-all duration-300 ease-out 
+        hover:border-[#FF6900]/70 hover:shadow-md hover:-translate-y-1
       `}
     >
-      {isTopPick ? "Apply Now" : "View & Apply"}
-      <ArrowRight size={16} className="inline-block ml-2" />
-    </button>
-  </div>
-);
+      {/* Header */}
+      <div className="flex items-center justify-between mb-3">
+        <div
+          className={`w-10 h-10 rounded-md flex items-center justify-center border 
+            ${
+              theme === "dark"
+                ? "border-[#2A2A2A] bg-[#1f1f1f]"
+                : "border-[#EAEAEA] bg-[#F5F5F5]"
+            }`}
+        >
+          <span className="text-[#FF6900] text-xl font-poppins font-bold">◆</span>
+        </div>
+        {isTopPick && (
+          <span className="px-2 py-0.5 text-[11px] font-medium rounded-md 
+            bg-[#FF690010] text-[#FF6900] border border-[#FF690030]">
+            Top Match
+          </span>
+        )}
+      </div>
 
+      {/* Job Info */}
+      <h3
+        className={`text-lg font-semibold mb-1 ${
+          theme === "dark" ? "text-white" : "text-black"
+        }`}
+      >
+        {internship.jobTitle}
+      </h3>
+      <p
+        className={`text-sm mb-3 ${
+          theme === "dark" ? "text-[#B3B3B3]" : "text-[#555555]"
+        }`}
+      >
+        {internship.company}
+      </p>
+
+      {/* Topics */}
+      <div className="flex flex-wrap gap-1.5 mb-4">
+        {internship.jobTopic.split(",").map((topic, index) => (
+          <span
+            key={index}
+            className={`px-2 py-0.5 rounded-md text-xs
+              ${
+                theme === "dark"
+                  ? "text-[#E2E2E2] bg-[#1f1f1f] border border-[#2A2A2A]"
+                  : "text-[#555] bg-[#F5F5F5] border border-[#EAEAEA]"
+              }`}
+          >
+            {topic.trim()}
+          </span>
+        ))}
+      </div>
+
+      {/* Meta Info */}
+      <div
+        className={`flex flex-col space-y-2 text-xs mb-4 ${
+          theme === "dark" ? "text-[#B3B3B3]" : "text-[#555555]"
+        }`}
+      >
+        <div className="flex items-center">
+          <Briefcase size={14} className="mr-2 text-[#FF6900]" />
+          <span>
+            {internship.jobType} • {internship.duration}
+          </span>
+        </div>
+        <div className="flex items-center">
+          <DollarSign size={14} className="mr-2 text-[#FF6900]" />
+          <span>
+            {internship.stipend === "0" ? "Unpaid" : internship.stipend}
+          </span>
+        </div>
+        <div className="flex items-center">
+          <Calendar size={14} className="mr-2 text-[#FF6900]" />
+          <span>Apply by {internship.lastDate}</span>
+        </div>
+      </div>
+
+      {/* Action */}
+      <Link to={`/internship/${internship.id}`}>
+        <button
+          className={`w-full py-2.5 text-sm font-medium rounded-md transition-colors duration-300
+            ${
+              isTopPick
+                ? "bg-[#FF6900] text-white hover:bg-[#e65f00]"
+                : "bg-transparent text-[#FF6900] border border-[#FF6900]/50 hover:bg-[#FF6900]/10"
+            }`}
+        >
+          {isTopPick ? "Apply Now" : "View & Apply"}
+          <ArrowRight size={14} className="inline-block ml-2" />
+        </button>
+      </Link>
+    </div>
+  );
+};
+
+// ---------------- Main Internship Page ----------------
 const InternshipPage = () => {
   const [internships, setInternships] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showAll, setShowAll] = useState(false);
+  const { theme } = useContext(ThemeContext);
 
   useEffect(() => {
     setTimeout(() => {
-      setInternships(generateInternships());
+      setInternships(internshipsData);
       setLoading(false);
     }, 1000);
   }, []);
 
-  const handleLoadMore = () => {
-    setShowAll(true);
-  };
-
-  const topInternships = internships.filter((i) => i.top3);
-  const otherInternships = internships.filter((i) => !i.top3);
+  const topInternships = internships.slice(0, 3);
+  const otherInternships = internships.slice(3);
 
   return (
-    <div className="min-h-screen w-full bg-gradient-to-br from-black to-gray-900 text-white font-sans overflow-x-hidden">
-      <main className="w-full px-8 py-16">
+    <div
+      className={`min-h-screen w-full font-inter overflow-x-hidden transition-colors duration-500
+        ${theme === "dark" ? "bg-[#0D0D0D] text-white" : "bg-[#FFFFFF] text-[#1A1A1A]"}`}
+    >
+      <main className="w-full px-6 py-12">
         {/* Header Section */}
-        <section className="text-center mb-20 pt-20">
-          <h1 className="text-5xl md:text-7xl font-bold tracking-tight mb-4 leading-tight">
-            Find Your <ColourfulText text="Next Opportunity" />
+        <section className="text-center mb-16 pt-16">
+          <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-4 font-poppins">
+            Find Your <span className="text-[#FF6900]">Next Opportunity</span>
           </h1>
-          <p className="text-lg md:text-xl text-neutral-400 mb-8">
-            Our intelligent system curates the best internships, tailored to your unique skills and aspirations.
+          <p
+            className={`text-base md:text-lg max-w-xl mx-auto ${
+              theme === "dark" ? "text-[#B3B3B3]" : "text-[#555555]"
+            }`}
+          >
+            Our intelligent system curates the best internships, tailored to
+            your unique skills and aspirations.
           </p>
         </section>
 
+        {/* Loader */}
         {loading ? (
           <div className="flex justify-center items-center h-64">
-            <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-indigo-500"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#FF6900]"></div>
           </div>
         ) : (
           <>
-            {/* Top Matches Section */}
-            <section className="mb-20">
-              <h2 className="text-4xl font-bold mb-12 text-center text-white">
-                <span className="bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">
-                  Top Matches for You
-                </span>
+            {/* Top Matches */}
+            <section className="mb-16">
+              <h2 className="text-2xl font-semibold mb-8 text-center font-poppins">
+                Top Matches for You
               </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 w-full">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {topInternships.map((internship) => (
                   <InternshipCard
                     key={internship.id}
@@ -251,25 +185,25 @@ const InternshipPage = () => {
             </section>
 
             {!showAll && (
-              <div className="text-center my-16">
+              <div className="text-center my-12">
                 <button
-                  onClick={handleLoadMore}
-                  className="px-10 py-5 rounded-full font-semibold bg-gradient-to-r from-indigo-500 to-purple-500 text-white hover:from-indigo-600 hover:to-purple-600 transition-all duration-300 transform hover:-translate-y-1 hover:shadow-xl"
+                  onClick={() => setShowAll(true)}
+                  className="px-6 py-2.5 rounded-md font-medium 
+                    bg-[#FF6900] text-white hover:bg-[#e65f00] 
+                    transition-colors duration-300"
                 >
                   Load More Internships
-                  <ArrowRight size={20} className="inline-block ml-2" />
+                  <ArrowRight size={16} className="inline-block ml-2" />
                 </button>
               </div>
             )}
 
             {showAll && (
-              <section className="mt-20">
-                <h2 className="text-4xl font-bold mb-12 text-center text-white">
-                  <span className="bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">
-                    More Opportunities
-                  </span>
+              <section className="mt-16">
+                <h2 className="text-2xl font-semibold mb-8 text-center font-poppins">
+                  More <span className="text-[#FF6900]">Opportunities</span>
                 </h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 w-full">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {otherInternships.map((internship) => (
                     <InternshipCard
                       key={internship.id}
@@ -283,21 +217,31 @@ const InternshipPage = () => {
           </>
         )}
 
-        {/* Call to Action section */}
-        <section className="py-20 text-center w-full">
-          <div className="relative p-12 rounded-3xl bg-gradient-to-br from-indigo-900/20 to-purple-900/20 border border-indigo-500/30 backdrop-blur-sm max-w-6xl mx-auto">
-            <h2 className="text-4xl md:text-5xl font-extrabold mb-6">
-              <span className="bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
-                Ready to find your future?
-              </span>
+        {/* Call to Action */}
+        <section className="py-16 text-center w-full">
+          <div
+            className={`p-8 rounded-xl max-w-4xl mx-auto shadow-md border 
+              ${theme === "dark" ? "bg-[#141414] border-[#2A2A2A]" : "bg-white border-[#EAEAEA]"}`}
+          >
+            <h2 className="text-3xl md:text-4xl font-bold mb-4 font-poppins">
+              Ready to <span className="text-[#FF6900]">Launch?</span>
             </h2>
-            <p className="text-lg text-neutral-400 mb-10">
-              Don't just look for a job, find the perfect launchpad for your career with Prepverse.AI.
+            <p
+              className={`text-base mb-8 max-w-lg mx-auto ${
+                theme === "dark" ? "text-[#B3B3B3]" : "text-[#555555]"
+              }`}
+            >
+              Don’t just look for a job, find the perfect launchpad for your
+              career with Prepverse.AI.
             </p>
-            <Link to="/">
-              <button className="px-12 py-5 rounded-full font-bold bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white transition-all duration-300 transform hover:-translate-y-1 hover:shadow-xl">
+            <Link to="/internships">
+              <button
+                className="px-8 py-3 rounded-md font-medium 
+                  bg-[#FF6900] text-white hover:bg-[#e65f00] 
+                  transition-colors duration-300"
+              >
                 Get Started Now
-                <Rocket size={20} className="inline-block ml-2" />
+                <Rocket size={18} className="inline-block ml-2" />
               </button>
             </Link>
           </div>
@@ -306,5 +250,6 @@ const InternshipPage = () => {
     </div>
   );
 };
+
 
 export default InternshipPage;

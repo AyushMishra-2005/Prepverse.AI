@@ -15,7 +15,7 @@ import ResumeProcessingPage from "./components/resumeProgressPage";
 import ProfilePage from "./components/profilePage";
 
 import HomeComponent from "./home/home";
-import Home2 from "./Home2/home2";   // ✅ New import
+import Home2 from "./Home2/home2";
 
 import InterviewPage from "./interview/interviewPage";
 import InterviewForm from "./interview/interviewForm";
@@ -43,6 +43,11 @@ import useResumeStore from "./stateManage/useResumeStore";
 
 import server from "./environment";
 import pageNotFound from "./assets/animations/errorAnimation.json";
+import InternshipPage from "./internships/InternshipPage";
+import InternshipDetail from "./internships/InternshipDetail";
+
+// 🔥 NEW: import ThemeProvider
+import { ThemeProvider } from "./context/ThemeContext";
 
 function App() {
   const { authUser, setAuthUser } = useAuth();
@@ -62,134 +67,136 @@ function App() {
   }, []);
 
   return (
-    <div className="flex flex-col min-h-screen">
-      <Toaster
-        toastOptions={{
-          style: { zIndex: 9999 },
-        }}
-      />
+    <ThemeProvider>
+      <div className="flex flex-col min-h-screen">
+        <Toaster toastOptions={{ style: { zIndex: 9999 } }} />
 
-      <div className="fixed top-0 left-0 w-full z-30">
-        <NavbarDemo />
+        {/* Navbar always visible */}
+        <div className="fixed top-0 left-0 w-full z-30">
+          <NavbarDemo />
+        </div>
+
+        {/* Main Content */}
+        <div className="flex flex-col items-center h-[100%] w-[100vw]">
+          <Routes>
+            {/* Home Pages */}
+            <Route path="/" element={<HomeComponent />} />
+            <Route path="/home2" element={<Home2 />} />
+
+            {/* Interview */}
+            <Route
+              path="/interviewPage"
+              element={
+                authUser && interviewModelId ? <InterviewPage /> : <Navigate to="/" replace />
+              }
+            />
+            <Route
+              path="/interviewForm"
+              element={authUser ? <InterviewForm /> : <Navigate to="/login" replace />}
+            />
+            <Route
+              path="/profileInterviewForm"
+              element={
+                authUser ? <ProfileInterviewForm /> : <Navigate to="/mockInterviewLandingPage" replace />
+              }
+            />
+            <Route
+              path="/interview/result"
+              element={authUser ? <InterviewFeedback /> : <Navigate to="/" replace />}
+            />
+
+            {/* Auth */}
+            <Route path="/signup" element={authUser ? <HomeComponent /> : <SignupForm />} />
+            <Route path="/login" element={authUser ? <HomeComponent /> : <Login />} />
+            <Route path="/logout" element={authUser ? <Logout /> : <HomeComponent />} />
+
+            {/* Quiz */}
+            <Route path="/quiz" element={authUser ? <QuizPage /> : <Navigate to="/login" replace />} />
+            <Route path="/quiz/start" element={authUser ? <QuizStart /> : <Navigate to="/login" replace />} />
+
+            {/* Resume */}
+            <Route path="/resume" element={authUser ? <ResumeLandingPage /> : <Navigate to="/login" replace />} />
+            <Route
+              path="/resume/selectResume"
+              element={
+                authUser ? (
+                  <ResumesProvider>
+                    <SelectResume />
+                  </ResumesProvider>
+                ) : (
+                  <Navigate to="/resume" replace />
+                )
+              }
+            />
+            <Route
+              path="/resume/resumeForm"
+              element={
+                authUser && resumeData?.title ? <ResumeForm /> : <Navigate to="/resume/selectResume" replace />
+              }
+            />
+            <Route
+              path="/ResumeProcessingPage"
+              element={authUser ? <ResumeProcessingPage /> : <Navigate to="/" replace />}
+            />
+
+            {/* AI Interviews */}
+            <Route
+              path="/aiInterviews"
+              element={authUser ? <AiInterviewLandingPage /> : <Navigate to="/" replace />}
+            />
+            <Route
+              path="/aiInterviews/attendInterview"
+              element={authUser ? <AttendInterviews /> : <Navigate to="/" replace />}
+            />
+            <Route path="/internship/:id" element={<InternshipDetail />} />
+
+            <Route
+              path="/aiInterviews/createInterview"
+              element={
+                authUser ? (
+                  <InterviewsProvider>
+                    <CreateInterviewPage />
+                  </InterviewsProvider>
+                ) : (
+                  <Navigate to="/" replace />
+                )
+              }
+            />
+            <Route
+              path="/aiInterviews/createInterview/attandants"
+              element={authUser ? <AttandantPage /> : <Navigate to="/" replace />}
+            />
+
+            {/* Mock Interview */}
+            <Route
+              path="/mockInterviewLandingPage"
+              element={authUser ? <MockInterviewLandingPage /> : <Navigate to="/" replace />}
+            />
+
+            {/* Profile */}
+            <Route path="/profilePage" element={authUser ? <ProfilePage /> : <Navigate to="/" replace />} />
+
+            {/* Internships */}
+            <Route
+              path="/internships"
+              element={authUser ? <InternshipPage /> : <Navigate to="/login" replace />}
+            />
+
+            {/* Page Not Found */}
+            <Route
+              path="*"
+              element={
+                <div className="h-[100vh] w-[100vw] flex flex-col justify-center items-center bg-black text-white">
+                  <Lottie animationData={pageNotFound} loop={true} className="w-[400px] h-[400px]" />
+                </div>
+              }
+            />
+          </Routes>
+        </div>
+
+        <Footer />
       </div>
-
-      <div className="flex flex-col items-center h-[100%] w-[100vw] bg-black">
-        <Routes>
-          {/* Home Pages */}
-          <Route path="/" element={<HomeComponent />} />
-          <Route path="/home2" element={<Home2 />} />   {/* ✅ Added new route */}
-
-          {/* Interview */}
-          <Route
-            path="/interviewPage"
-            element={
-              authUser && interviewModelId ? <InterviewPage /> : <Navigate to="/" replace />
-            }
-          />
-          <Route
-            path="/interviewForm"
-            element={authUser ? <InterviewForm /> : <Navigate to="/login" replace />}
-          />
-          <Route
-            path="/profileInterviewForm"
-            element={
-              authUser ? <ProfileInterviewForm /> : <Navigate to="/mockInterviewLandingPage" replace />
-            }
-          />
-          <Route
-            path="/interview/result"
-            element={authUser ? <InterviewFeedback /> : <Navigate to="/" replace />}
-          />
-
-          {/* Auth */}
-          <Route path="/signup" element={authUser ? <HomeComponent /> : <SignupForm />} />
-          <Route path="/login" element={authUser ? <HomeComponent /> : <Login />} />
-          <Route path="/logout" element={authUser ? <Logout /> : <HomeComponent />} />
-
-          {/* Quiz */}
-          <Route path="/quiz" element={authUser ? <QuizPage /> : <Navigate to="/login" replace />} />
-          <Route path="/quiz/start" element={authUser ? <QuizStart /> : <Navigate to="/login" replace />} />
-
-          {/* Resume */}
-          <Route path="/resume" element={authUser ? <ResumeLandingPage /> : <Navigate to="/login" replace />} />
-          <Route
-            path="/resume/selectResume"
-            element={
-              authUser ? (
-                <ResumesProvider>
-                  <SelectResume />
-                </ResumesProvider>
-              ) : (
-                <Navigate to="/resume" replace />
-              )
-            }
-          />
-          <Route
-            path="/resume/resumeForm"
-            element={
-              authUser && resumeData?.title ? <ResumeForm /> : <Navigate to="/resume/selectResume" replace />
-            }
-          />
-          <Route
-            path="/ResumeProcessingPage"
-            element={authUser ? <ResumeProcessingPage /> : <Navigate to="/" replace />}
-          />
-
-          {/* AI Interviews */}
-          <Route
-            path="/aiInterviews"
-            element={authUser ? <AiInterviewLandingPage /> : <Navigate to="/" replace />}
-          />
-          <Route
-            path="/aiInterviews/attendInterview"
-            element={authUser ? <AttendInterviews /> : <Navigate to="/" replace />}
-          />
-          <Route
-            path="/aiInterviews/createInterview"
-            element={
-              authUser ? (
-                <InterviewsProvider>
-                  <CreateInterviewPage />
-                </InterviewsProvider>
-              ) : (
-                <Navigate to="/" replace />
-              )
-            }
-          />
-          <Route
-            path="/aiInterviews/createInterview/attandants"
-            element={authUser ? <AttandantPage /> : <Navigate to="/" replace />}
-          />
-
-          {/* Mock Interview */}
-          <Route
-            path="/mockInterviewLandingPage"
-            element={authUser ? <MockInterviewLandingPage /> : <Navigate to="/" replace />}
-          />
-
-          {/* Profile */}
-          <Route path="/profilePage" element={authUser ? <ProfilePage /> : <Navigate to="/" replace />} />
-
-          {/* Internships */}
-          <Route
-            path="/internships"
-            element={authUser ? <InternshipPage /> : <Navigate to="/login" replace />}
-          />
-
-          {/* Page Not Found */}
-          <Route
-            path="*"
-            element={
-              <div className="h-[100vh] w-[100vw] flex flex-col justify-center items-center bg-black text-white">
-                <Lottie animationData={pageNotFound} loop={true} className="w-[400px] h-[400px]" />
-              </div>
-            }
-          />
-        </Routes>
-      </div>
-
-      <Footer />
-    </div>
+    </ThemeProvider>
   );
 }
 
