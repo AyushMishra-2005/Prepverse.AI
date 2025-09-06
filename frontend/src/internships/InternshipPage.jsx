@@ -6,11 +6,11 @@ import {
   ArrowRight,
   Briefcase,
   Rocket,
+  RefreshCw,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { ThemeContext } from "../context/ThemeContext";
 import internshipsData from "./internshipsData";
-
 
 // ---------------- Internship Card ----------------
 const InternshipCard = ({ internship, isTopPick }) => {
@@ -18,7 +18,7 @@ const InternshipCard = ({ internship, isTopPick }) => {
 
   return (
     <div
-      className={`relative p-4 rounded-lg border 
+      className={`relative p-4 rounded-lg border flex flex-col justify-between
         ${
           theme === "dark"
             ? "bg-[#141414]/90 border-[#2A2A2A] shadow-sm"
@@ -28,84 +28,86 @@ const InternshipCard = ({ internship, isTopPick }) => {
         hover:border-[#FF6900]/70 hover:shadow-md hover:-translate-y-1
       `}
     >
-      {/* Header */}
-      <div className="flex items-center justify-between mb-3">
-        <div
-          className={`w-10 h-10 rounded-md flex items-center justify-center border 
-            ${
-              theme === "dark"
-                ? "border-[#2A2A2A] bg-[#1f1f1f]"
-                : "border-[#EAEAEA] bg-[#F5F5F5]"
-            }`}
-        >
-          <span className="text-[#FF6900] text-xl font-poppins font-bold">◆</span>
-        </div>
-        {isTopPick && (
-          <span className="px-2 py-0.5 text-[11px] font-medium rounded-md 
-            bg-[#FF690010] text-[#FF6900] border border-[#FF690030]">
-            Top Match
-          </span>
-        )}
-      </div>
-
-      {/* Job Info */}
-      <h3
-        className={`text-lg font-semibold mb-1 ${
-          theme === "dark" ? "text-white" : "text-black"
-        }`}
-      >
-        {internship.jobTitle}
-      </h3>
-      <p
-        className={`text-sm mb-3 ${
-          theme === "dark" ? "text-[#B3B3B3]" : "text-[#555555]"
-        }`}
-      >
-        {internship.company}
-      </p>
-
-      {/* Topics */}
-      <div className="flex flex-wrap gap-1.5 mb-4">
-        {internship.jobTopic.split(",").map((topic, index) => (
-          <span
-            key={index}
-            className={`px-2 py-0.5 rounded-md text-xs
+      <div>
+        {/* Header */}
+        <div className="flex items-center justify-between mb-3">
+          <div
+            className={`w-10 h-10 rounded-md flex items-center justify-center border 
               ${
                 theme === "dark"
-                  ? "text-[#E2E2E2] bg-[#1f1f1f] border border-[#2A2A2A]"
-                  : "text-[#555] bg-[#F5F5F5] border border-[#EAEAEA]"
+                  ? "border-[#2A2A2A] bg-[#1f1f1f]"
+                  : "border-[#EAEAEA] bg-[#F5F5F5]"
               }`}
           >
-            {topic.trim()}
-          </span>
-        ))}
+            <span className="text-[#FF6900] text-xl font-poppins font-bold">◆</span>
+          </div>
+          {isTopPick && (
+            <span className="px-2 py-0.5 text-[11px] font-medium rounded-md 
+              bg-[#FF690010] text-[#FF6900] border border-[#FF690030]">
+              Top Match
+            </span>
+          )}
+        </div>
+
+        {/* Job Info */}
+        <h3
+          className={`text-lg font-semibold mb-1 ${
+            theme === "dark" ? "text-white" : "text-black"
+          }`}
+        >
+          {internship.jobTitle}
+        </h3>
+        <p
+          className={`text-sm mb-3 ${
+            theme === "dark" ? "text-[#B3B3B3]" : "text-[#555555]"
+          }`}
+        >
+          {internship.company}
+        </p>
+
+        {/* Topics */}
+        <div className="flex flex-wrap gap-1.5 mb-4">
+          {internship.jobTopic.split(",").map((topic, index) => (
+            <span
+              key={index}
+              className={`px-2 py-0.5 rounded-md text-xs
+                ${
+                  theme === "dark"
+                    ? "text-[#E2E2E2] bg-[#1f1f1f] border border-[#2A2A2A]"
+                    : "text-[#555] bg-[#F5F5F5] border border-[#EAEAEA]"
+                }`}
+            >
+              {topic.trim()}
+            </span>
+          ))}
+        </div>
+
+        {/* Meta Info */}
+        <div
+          className={`flex flex-col space-y-2 text-xs mb-4 ${
+            theme === "dark" ? "text-[#B3B3B3]" : "text-[#555555]"
+          }`}
+        >
+          <div className="flex items-center">
+            <Briefcase size={14} className="mr-2 text-[#FF6900]" />
+            <span>
+              {internship.jobType} • {internship.duration}
+            </span>
+          </div>
+          <div className="flex items-center">
+            <DollarSign size={14} className="mr-2 text-[#FF6900]" />
+            <span>
+              {internship.stipend === "0" ? "Unpaid" : internship.stipend}
+            </span>
+          </div>
+          <div className="flex items-center">
+            <Calendar size={14} className="mr-2 text-[#FF6900]" />
+            <span>Apply by {internship.lastDate}</span>
+          </div>
+        </div>
       </div>
 
-      {/* Meta Info */}
-      <div
-        className={`flex flex-col space-y-2 text-xs mb-4 ${
-          theme === "dark" ? "text-[#B3B3B3]" : "text-[#555555]"
-        }`}
-      >
-        <div className="flex items-center">
-          <Briefcase size={14} className="mr-2 text-[#FF6900]" />
-          <span>
-            {internship.jobType} • {internship.duration}
-          </span>
-        </div>
-        <div className="flex items-center">
-          <DollarSign size={14} className="mr-2 text-[#FF6900]" />
-          <span>
-            {internship.stipend === "0" ? "Unpaid" : internship.stipend}
-          </span>
-        </div>
-        <div className="flex items-center">
-          <Calendar size={14} className="mr-2 text-[#FF6900]" />
-          <span>Apply by {internship.lastDate}</span>
-        </div>
-      </div>
-
-      {/* Action */}
+      {/* Action Button (fixed bottom) */}
       <Link to={`/internship/${internship.id}`}>
         <button
           className={`w-full py-2.5 text-sm font-medium rounded-md transition-colors duration-300
@@ -140,6 +142,16 @@ const InternshipPage = () => {
   const topInternships = internships.slice(0, 3);
   const otherInternships = internships.slice(3);
 
+  const handleResuggest = () => {
+    setLoading(true);
+    setTimeout(() => {
+      // Simulate fetching new relevant internships
+      setInternships([...internshipsData].sort(() => Math.random() - 0.5));
+      setLoading(false);
+      setShowAll(false);
+    }, 1000);
+  };
+
   return (
     <div
       className={`min-h-screen w-full font-inter overflow-x-hidden transition-colors duration-500
@@ -159,6 +171,19 @@ const InternshipPage = () => {
             Our intelligent system curates the best internships, tailored to
             your unique skills and aspirations.
           </p>
+
+          {/* Resuggest Button */}
+          <div className="mt-6">
+            <button
+              onClick={handleResuggest}
+              className="px-6 py-2.5 rounded-md font-medium 
+                bg-[#FF6900] text-white hover:bg-[#e65f00] 
+                transition-colors duration-300 flex items-center justify-center mx-auto"
+            >
+              <RefreshCw size={16} className="mr-2" />
+              Resuggest Internships
+            </button>
+          </div>
         </section>
 
         {/* Loader */}
@@ -250,6 +275,5 @@ const InternshipPage = () => {
     </div>
   );
 };
-
 
 export default InternshipPage;

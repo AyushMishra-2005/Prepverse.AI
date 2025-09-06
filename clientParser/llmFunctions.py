@@ -168,11 +168,11 @@ def evaluate_resume(resume_json, job_title, topics):
 
 
     response = requests.post("http://localhost:11434/api/generate", json={
-        "model": "llama3.1:8b",
-        "prompt": prompt,
-        "stream": False,
-        "temperature": 0.5,
-        "format": "json"
+      "model": "llama3.1:8b",
+      "prompt": prompt,
+      "stream": False,
+      "temperature": 0.5,
+      "format": "json"
     })
 
     resp_json = response.json()
@@ -186,3 +186,61 @@ def evaluate_resume(resume_json, job_title, topics):
     except json.JSONDecodeError as e:
       print("Failed to parse LLM response:", e)
       return {"error": "Invalid JSON from LLM", "raw": raw_output}
+    
+def generate_user_summary(user_data: dict) -> str:
+  """
+  Generates a professional summary of a user's profile using a local LLM via Ollama.
+
+  Args:
+      user_data: A dictionary containing the user's profile information.
+
+  Returns:
+      A string containing the generated summary, or an error message.
+  """
+  user_data_str = json.dumps(user_data, indent=2)
+
+  prompt = f"""
+  You are an expert system that generates a structured, factual professional summary for internship recommendation purposes.
+
+  Instructions:
+  1. Analyze the provided JSON profile of a candidate.
+  2. Extract all relevant factual information: education, programming languages, frameworks/libraries, databases, tools, project experience, technical stacks, and transferable strengths (problem-solving, research, leadership, teamwork, design, communication).
+  3. Do NOT include subjective praise, filler text, bullet points, headings, or any special symbols other than periods and commas.
+  4. Write a concise, structured summary of 3–4 sentences with only factual data suitable for machine learning-based internship recommendation.
+  5. Explicitly mention project names, technologies, and skills used in projects.
+  6. At the end of the summary, list all relevant domains/tech stacks based on the candidate's experience and skills, including both technical domains (e.g., Web Development, Data Science, Machine Learning, Generative AI) and non-technical domains (e.g., Leadership, Teamwork, Research, Communication, Design), separated by commas.
+
+  Candidate JSON Profile:
+  {user_data_str}
+
+  Structured Factual Summary:
+  """
+
+
+
+  payload = {
+    "model": "llama3.1:8b",
+    "prompt": prompt,
+    "stream": False,
+    "options": {
+      "temperature": 0.5
+    }
+  }
+
+  try:
+    print("Sending request to Ollama...")
+    response = requests.post("http://localhost:11434/api/generate", json=payload, timeout=60) 
+    response.raise_for_status()
+    
+    response_data = response.json()
+    summary = response_data.get("response", "").strip()
+    
+    if not summary:
+      return "Error: Received an empty summary from the model."
+        
+    return summary
+
+  except requests.exceptions.RequestException as e:
+    return f"Error: Could not connect to Ollama"
+  except Exception as e:
+    return f"Error: An unexpected error occurred. Details: {e}"

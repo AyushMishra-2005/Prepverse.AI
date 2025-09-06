@@ -1,5 +1,3 @@
-// internshipsData.jsx
-
 const internshipsData = [
   {
     id: 1,

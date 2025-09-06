@@ -29,6 +29,20 @@ export const uploadResume = async (req, res) => {
 
     const resume_data = JSON.parse(data.resume_data);
 
+    const resumeReview_data = await axios.post(
+      "http://127.0.0.1:3000/summarize",
+      {resume_data},
+    );
+
+    if(!resumeReview_data.data){
+      deleteFile(filePath);
+      return res.status(400).json({ message: "Parsing Resume Failed!" });
+    }
+
+    const resumeReview = resumeReview_data.data.summary;
+
+    console.log(resumeReview);
+
     const timestamp = Math.floor(Date.now() / 1000);
 
     const paramsToSign = {
@@ -63,6 +77,7 @@ export const uploadResume = async (req, res) => {
       {
         resumeLink: cloudinaryRes.data.secure_url,
         resumeJSONdata: resume_data,
+        resumeReview: resumeReview
       },
       { new: true, upsert: true }
     );
