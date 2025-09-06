@@ -10,7 +10,11 @@ import {
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { ThemeContext } from "../context/ThemeContext";
-import internshipsData from "./internshipsData";
+import axios from 'axios'
+import server from '../environment.js'
+import { useNavigate } from "react-router-dom";
+import useInternships from '../stateManage/useInternships.js';
+import {toast} from 'react-hot-toast';
 
 // ---------------- Internship Card ----------------
 const InternshipCard = ({ internship, isTopPick }) => {
@@ -19,10 +23,9 @@ const InternshipCard = ({ internship, isTopPick }) => {
   return (
     <div
       className={`relative p-4 rounded-lg border flex flex-col justify-between
-        ${
-          theme === "dark"
-            ? "bg-[#141414]/90 border-[#2A2A2A] shadow-sm"
-            : "bg-white/90 border-[#EAEAEA] shadow-md"
+        ${theme === "dark"
+          ? "bg-[#141414]/90 border-[#2A2A2A] shadow-sm"
+          : "bg-white/90 border-[#EAEAEA] shadow-md"
         }
         transition-all duration-300 ease-out 
         hover:border-[#FF6900]/70 hover:shadow-md hover:-translate-y-1
@@ -33,10 +36,9 @@ const InternshipCard = ({ internship, isTopPick }) => {
         <div className="flex items-center justify-between mb-3">
           <div
             className={`w-10 h-10 rounded-md flex items-center justify-center border 
-              ${
-                theme === "dark"
-                  ? "border-[#2A2A2A] bg-[#1f1f1f]"
-                  : "border-[#EAEAEA] bg-[#F5F5F5]"
+              ${theme === "dark"
+                ? "border-[#2A2A2A] bg-[#1f1f1f]"
+                : "border-[#EAEAEA] bg-[#F5F5F5]"
               }`}
           >
             <span className="text-[#FF6900] text-xl font-poppins font-bold">◆</span>
@@ -51,16 +53,14 @@ const InternshipCard = ({ internship, isTopPick }) => {
 
         {/* Job Info */}
         <h3
-          className={`text-lg font-semibold mb-1 ${
-            theme === "dark" ? "text-white" : "text-black"
-          }`}
+          className={`text-lg font-semibold mb-1 ${theme === "dark" ? "text-white" : "text-black"
+            }`}
         >
           {internship.jobTitle}
         </h3>
         <p
-          className={`text-sm mb-3 ${
-            theme === "dark" ? "text-[#B3B3B3]" : "text-[#555555]"
-          }`}
+          className={`text-sm mb-3 ${theme === "dark" ? "text-[#B3B3B3]" : "text-[#555555]"
+            }`}
         >
           {internship.company}
         </p>
@@ -71,10 +71,9 @@ const InternshipCard = ({ internship, isTopPick }) => {
             <span
               key={index}
               className={`px-2 py-0.5 rounded-md text-xs
-                ${
-                  theme === "dark"
-                    ? "text-[#E2E2E2] bg-[#1f1f1f] border border-[#2A2A2A]"
-                    : "text-[#555] bg-[#F5F5F5] border border-[#EAEAEA]"
+                ${theme === "dark"
+                  ? "text-[#E2E2E2] bg-[#1f1f1f] border border-[#2A2A2A]"
+                  : "text-[#555] bg-[#F5F5F5] border border-[#EAEAEA]"
                 }`}
             >
               {topic.trim()}
@@ -84,9 +83,8 @@ const InternshipCard = ({ internship, isTopPick }) => {
 
         {/* Meta Info */}
         <div
-          className={`flex flex-col space-y-2 text-xs mb-4 ${
-            theme === "dark" ? "text-[#B3B3B3]" : "text-[#555555]"
-          }`}
+          className={`flex flex-col space-y-2 text-xs mb-4 ${theme === "dark" ? "text-[#B3B3B3]" : "text-[#555555]"
+            }`}
         >
           <div className="flex items-center">
             <Briefcase size={14} className="mr-2 text-[#FF6900]" />
@@ -108,13 +106,12 @@ const InternshipCard = ({ internship, isTopPick }) => {
       </div>
 
       {/* Action Button (fixed bottom) */}
-      <Link to={`/internship/${internship.id}`}>
+      <Link to={`/internship/${internship._id}`}>
         <button
           className={`w-full py-2.5 text-sm font-medium rounded-md transition-colors duration-300
-            ${
-              isTopPick
-                ? "bg-[#FF6900] text-white hover:bg-[#e65f00]"
-                : "bg-transparent text-[#FF6900] border border-[#FF6900]/50 hover:bg-[#FF6900]/10"
+            ${isTopPick
+              ? "bg-[#FF6900] text-white hover:bg-[#e65f00]"
+              : "bg-transparent text-[#FF6900] border border-[#FF6900]/50 hover:bg-[#FF6900]/10"
             }`}
         >
           {isTopPick ? "Apply Now" : "View & Apply"}
@@ -131,12 +128,38 @@ const InternshipPage = () => {
   const [loading, setLoading] = useState(true);
   const [showAll, setShowAll] = useState(false);
   const { theme } = useContext(ThemeContext);
+  const {internshipsData, setInternshipsData } = useInternships();
+  const navigate = useNavigate();
+
 
   useEffect(() => {
-    setTimeout(() => {
-      setInternships(internshipsData);
-      setLoading(false);
-    }, 1000);
+    const internshipDetails = async () => {
+      setLoading(true);
+      try {
+        const { data } = await axios.post(
+          `${server}/internships/get-recomended-internships`,
+          {},
+          { withCredentials: true }
+        );
+
+        if(!data.recommend_internships){
+          toast.error("Please complete your profile to access Internships!");
+          return navigate("/profilePage");
+        }
+
+        const recommend_internships = data.recommend_internships;
+        setInternships(recommend_internships);
+        setInternshipsData(recommend_internships);
+        setLoading(false);
+      } catch (err) {
+        console.log(err);
+        setLoading(false);
+      }finally{
+        setLoading(false);
+      }
+    }
+
+    internshipDetails();
   }, []);
 
   const topInternships = internships.slice(0, 3);
@@ -164,9 +187,8 @@ const InternshipPage = () => {
             Find Your <span className="text-[#FF6900]">Next Opportunity</span>
           </h1>
           <p
-            className={`text-base md:text-lg max-w-xl mx-auto ${
-              theme === "dark" ? "text-[#B3B3B3]" : "text-[#555555]"
-            }`}
+            className={`text-base md:text-lg max-w-xl mx-auto ${theme === "dark" ? "text-[#B3B3B3]" : "text-[#555555]"
+              }`}
           >
             Our intelligent system curates the best internships, tailored to
             your unique skills and aspirations.
@@ -201,7 +223,7 @@ const InternshipPage = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {topInternships.map((internship) => (
                   <InternshipCard
-                    key={internship.id}
+                    key={internship._id}
                     internship={internship}
                     isTopPick={true}
                   />
@@ -231,7 +253,7 @@ const InternshipPage = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {otherInternships.map((internship) => (
                     <InternshipCard
-                      key={internship.id}
+                      key={internship._id}
                       internship={internship}
                       isTopPick={false}
                     />
@@ -252,9 +274,8 @@ const InternshipPage = () => {
               Ready to <span className="text-[#FF6900]">Launch?</span>
             </h2>
             <p
-              className={`text-base mb-8 max-w-lg mx-auto ${
-                theme === "dark" ? "text-[#B3B3B3]" : "text-[#555555]"
-              }`}
+              className={`text-base mb-8 max-w-lg mx-auto ${theme === "dark" ? "text-[#B3B3B3]" : "text-[#555555]"
+                }`}
             >
               Don’t just look for a job, find the perfect launchpad for your
               career with Prepverse.AI.

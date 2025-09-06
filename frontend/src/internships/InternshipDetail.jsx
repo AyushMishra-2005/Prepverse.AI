@@ -1,15 +1,14 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { MapPin, DollarSign, Calendar, Briefcase, Rocket } from "lucide-react";
 import { ThemeContext } from "../context/ThemeContext";
-import internshipsData from "./internshipsData";
+import useInternships from '../stateManage/useInternships.js';
 
 const InternshipDetail = () => {
   const { id } = useParams();
-  const internship = internshipsData.find(
-    (item) => item.id === parseInt(id, 10)
-  );
-
+  const { internshipsData } = useInternships();
+  const internship = internshipsData.find((item) => item._id === id);
+  
   const { theme } = useContext(ThemeContext);
 //   const { id } = useParams();
 //   const internship = internshipsData.find((item) => item.id.toString() === id);

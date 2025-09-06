@@ -13,6 +13,7 @@ import resumeRoute from './route/resume.route.js'
 import profileInterviewRoute from './route/profileInterview.route.js'
 import {app, io, server} from './SocketIO/server.js'
 import resumeUploadRoute from './route/resumeUpload.route.js'
+import internshipRoute from './route/internships.route.js'
 
 dotenv.config();
 app.use(express.json());
@@ -22,7 +23,7 @@ const port = process.env.PORT || 8000;
 const MONGO_URI = process.env.MONGODB_URI;
 
 
-const allowedOrigins = ['http://localhost:5173', 'https://prepverse-ai-python-server.onrender.com', 'https://prepverse-ai.onrender.com', 'http://127.0.0.1:3000'];
+const allowedOrigins = ['http://localhost:5173', 'https://prepverse-ai-python-server.onrender.com', 'https://prepverse-ai.onrender.com', 'http://127.0.0.1:3000', ' http://127.0.0.1:5000'];
 
 app.use(cors({
   origin: (origin, callback) => {
@@ -60,6 +61,7 @@ app.use('/quiz', quizRoute);
 app.use('/resume', resumeRoute);
 app.use('/profileInterview', profileInterviewRoute);
 app.use('/resume-upload', resumeUploadRoute);
+app.use('/internships', internshipRoute);
 
 app.get('/verify-token', secureRoute, (req, res) => {
   res.status(200).json({

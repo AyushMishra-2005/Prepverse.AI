@@ -4,7 +4,7 @@ import express from 'express'
 
 const app = express();
 
-const allowedOrigins = ['http://localhost:5173', 'https://prepverse-ai-python-server.onrender.com', 'https://prepverse-ai.onrender.com', 'http://127.0.0.1:3000'];
+const allowedOrigins = ['http://localhost:5173', 'https://prepverse-ai-python-server.onrender.com', 'https://prepverse-ai.onrender.com', 'http://127.0.0.1:3000', ' http://127.0.0.1:5000'];
 
 const server = http.createServer(app);
 const io = new Server(server, {
