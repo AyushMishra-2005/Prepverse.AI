@@ -20,6 +20,11 @@ const resumeDataSchema = new Schema(
       required: true,
     },
 
+    resumeReview: {
+      type: String,
+      required: true,
+    }
+
   },
   {
     timestamps: true,

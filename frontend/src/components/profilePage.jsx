@@ -27,7 +27,6 @@ function ProfilePage() {
           
         );
 
-        console.log("working");
         if (data.resume_data) {
           setResumeLink(data.resume_data.resumeLink);
           const filteredData = {
