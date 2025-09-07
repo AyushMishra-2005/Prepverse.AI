@@ -29,18 +29,15 @@ const getUserSocketId = (receiverId) => {
 
 io.on("connection", (socket) => {
   const userId = socket.handshake.query.userId;
-  console.log("New client connected:", socket.id, "User ID:", userId);
 
   if (userId) {
     users[userId] = socket.id;
   }
 
   socket.on("disconnect", () => {
-    console.log("Client disconnected:", socket.id);
     for (let id in users) {
       if (users[id] === socket.id) {
         delete users[id];
-        console.log(`Removed user ${id}`);
         break;
       }
     }

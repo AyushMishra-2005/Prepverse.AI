@@ -1,14 +1,14 @@
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { ThemeContext } from "../context/ThemeContext";
-import { Briefcase, Users, BarChart3, Settings } from "lucide-react";
+import { Briefcase, BarChart3, Settings } from "lucide-react";
 
 function CompanyDashboard() {
   const navigate = useNavigate();
   const { theme } = useContext(ThemeContext);
+  const [createInterview, setCreateInterview] = useState(false);
 
-  // Colors based on theme
   const bgMain = theme === "dark" ? "bg-black" : "bg-gray-50";
   const headerText = theme === "dark" ? "text-white" : "text-gray-900";
   const subText = theme === "dark" ? "text-gray-400" : "text-gray-600";
@@ -27,15 +27,9 @@ function CompanyDashboard() {
       icon: <Briefcase className="w-8 h-8 text-[#FF6900]" />,
     },
     {
-      title: "Manage Candidates",
-      description: "View attendants and send invitations.",
-      path: "/aiInterviews/createInterview/attandants",
-      icon: <Users className="w-8 h-8 text-[#FF6900]" />,
-    },
-    {
       title: "Performance Reports",
       description: "Check candidate scores and AI analytics.",
-      path: "/company/reports",
+      path: "/company/createInterview",
       icon: <BarChart3 className="w-8 h-8 text-[#FF6900]" />,
     },
     {
@@ -46,9 +40,13 @@ function CompanyDashboard() {
     },
   ];
 
+  if (createInterview) {
+    return navigate("/company/createInterviewForm");
+  }
+
   return (
     <div className={`${bgMain} w-full min-h-screen text-white flex flex-col items-center px-6 pt-30 py-16 transition-colors duration-500`}>
-      
+
       {/* Header */}
       <motion.h1
         initial={{ opacity: 0, y: 30 }}
@@ -68,8 +66,8 @@ function CompanyDashboard() {
         Manage everything from one place: interviews, candidates, and performance reports.
       </motion.p>
 
-      {/* Dashboard Actions */}
-      <div className="mt-16 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 w-full max-w-7xl">
+      {/* Dashboard Actions - Adjusted for 3 boxes */}
+      <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8 w-full max-w-5xl">
         {actions.map((action, index) => (
           <motion.div
             key={index}
@@ -77,8 +75,14 @@ function CompanyDashboard() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 + index * 0.1, duration: 0.6 }}
             whileHover={{ scale: 1.05, y: -5 }}
-            className={`p-6 rounded-2xl ${cardBg} border ${cardBorder} shadow-lg ${cardHoverShadow} ${cardHoverBorder} backdrop-blur-md cursor-pointer transition`}
-            onClick={() => navigate(action.path)}
+            className={`p-6 rounded-2xl ${cardBg} border ${cardBorder} shadow-lg ${cardHoverShadow} ${cardHoverBorder} backdrop-blur-md cursor-pointer transition h-full`}
+            onClick={() => {
+              if (action.title === "Create Interview") {
+                setCreateInterview(true);   
+              } else {
+                navigate(action.path);      
+              }
+            }}
           >
             <div className="flex items-center gap-4 mb-4">
               <div className="p-3 bg-[#FF6900]/10 rounded-xl">
@@ -88,6 +92,7 @@ function CompanyDashboard() {
             </div>
             <p className={`text-sm leading-relaxed ${cardSubText}`}>{action.description}</p>
           </motion.div>
+
         ))}
       </div>
     </div>

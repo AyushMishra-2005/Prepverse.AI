@@ -32,11 +32,11 @@ import SelectResume from "./resumeBuilder/selectResume";
 // Candidate pages
 import AttendInterviews from "./candidateInterview/attendInterviewsPage";
 import CandidateLandingPage from "./candidateInterview/CandidateLandingPage";
-import { AttandantPage } from "./candidateInterview/attandantPage";
 
 // Company pages
 import CreateInterviewPage from "./companyInterview/createInterviewPage";
 import CompanyLandingPage from "./companyInterview/CompanyLandingPage";
+import { AttandantPage } from "./companyInterview/attandantPage";
 
 import { ResumesProvider } from "./context/getAllResume";
 import { InterviewsProvider } from "./context/getAllInterviews";
@@ -49,6 +49,7 @@ import server from "./environment";
 import pageNotFound from "./assets/animations/errorAnimation.json";
 import InternshipPage from "./internships/InternshipPage";
 import InternshipDetail from "./internships/InternshipDetail";
+import CreateInterviewForm from './companyInterview/createInterviewForm.jsx';
 
 // Theme
 import { ThemeProvider } from "./context/ThemeContext";
@@ -140,7 +141,7 @@ function App() {
             {/* Candidate Interview Routes */}
             <Route path="/candidate/dashboard" element={authUser ? <CandidateLandingPage /> : <Navigate to="/" replace />} />
             <Route path="/candidate/attend" element={authUser ? <AttendInterviews /> : <Navigate to="/" replace />} />
-            <Route path="/candidate/attendants" element={authUser ? <AttandantPage /> : <Navigate to="/" replace />} />
+            
 
             {/* Company Interview Routes */}
             <Route path="/company/dashboard" element={authUser ? <CompanyLandingPage /> : <Navigate to="/" replace />} />
@@ -154,6 +155,9 @@ function App() {
                 <Navigate to="/" replace />
               )}
             />
+            <Route path="/aiInterviews/createInterview/attandants" element={authUser ? <AttandantPage /> : <Navigate to="/" replace />} />
+
+            <Route path="/company/createInterviewForm" element={authUser ? <CreateInterviewForm /> : <Navigate to="/" replace />} />
 
             {/* Mock Interview */}
             <Route path="/mockInterviewLandingPage" element={authUser ? <MockInterviewLandingPage /> : <Navigate to="/" replace />} />

@@ -54,11 +54,11 @@ function CreateInterviewForm() {
     <div
       className={`flex items-center justify-center px-4 py-10 ${
         theme === "dark" ? "bg-black" : "bg-gray-50"
-      }`}
+      } h-[100vh] w-screen`}
     >
       <form
         onSubmit={handleSubmit}
-        className={`relative max-w-2xl max-h-[60vh] overflow-y-auto p-6 rounded-2xl shadow-lg w-full ${
+        className={`relative max-w-[30vw] max-h-[90vh] overflow-y-auto p-6 rounded-2xl shadow-lg w-full ${
           theme === "dark"
             ? "bg-gray-900 border border-gray-700 text-white"
             : "bg-white border border-gray-300 text-gray-900"
@@ -88,6 +88,7 @@ function CreateInterviewForm() {
             required
           />
         </div>
+        
 
         {/* Number of Questions */}
         <div className="mb-4">

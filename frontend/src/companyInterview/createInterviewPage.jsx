@@ -1,7 +1,6 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { Plus, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import CreateInterviewForm from './createInterviewForm.jsx';
 import { useGetAllInterviews } from '../context/getAllInterviews.jsx';
 import axios from 'axios';
 import server from '../environment.js';
@@ -10,18 +9,9 @@ import { ThemeContext } from '../context/ThemeContext';
 
 function CreateInterviewPage() {
   const navigate = useNavigate();
-  const [createInterview, setCreateInterview] = useState(false);
   const { interviews } = useGetAllInterviews();
-  const { setReportData } = useConversation();
+  const { reportData, setReportData } = useConversation();
   const { theme } = useContext(ThemeContext);
-
-  if (createInterview) {
-    return (
-      <div className="w-full">
-        <CreateInterviewForm />
-      </div>
-    );
-  }
 
   const handleOpenClick = async (interviewId) => {
     try {
@@ -56,30 +46,6 @@ function CreateInterviewPage() {
       </h1>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10 w-full max-w-7xl">
-        {/* Add New Interview Card */}
-        <div
-          className={`rounded-2xl border-2 border-dashed flex flex-col items-center justify-center h-64 transition cursor-pointer ${
-            theme === 'dark'
-              ? 'bg-gray-900 border-gray-600 hover:border-[#ff6900]'
-              : 'bg-white border-gray-300 hover:border-[#ff6900]'
-          }`}
-          onClick={() => setCreateInterview(true)}
-        >
-          <div
-            className={`w-16 h-16 rounded-full flex items-center justify-center transition duration-300 ${
-              theme === 'dark'
-                ? 'bg-gray-700 hover:bg-[#ff6900] text-white'
-                : 'bg-gray-200 hover:bg-[#ff6900] text-black'
-            }`}
-          >
-            <Plus className="w-8 h-8" />
-          </div>
-          <p className="mt-4 text-lg font-medium">
-            Add New Interview
-          </p>
-        </div>
-
-        {/* Existing Interviews */}
         {interviews.map((interview) => (
           <div
             key={interview._id}
@@ -116,7 +82,9 @@ function CreateInterviewPage() {
               }`}
               onClick={() => {
                 navigate('/aiInterviews/createInterview/attandants');
-                handleOpenClick(interview._id);
+                console.log(interview._id);
+                const interviewId = interview._id;
+                handleOpenClick(interviewId);
               }}
             >
               Open <ArrowRight size={18} />
