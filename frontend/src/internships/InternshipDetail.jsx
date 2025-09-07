@@ -8,11 +8,8 @@ const InternshipDetail = () => {
   const { id } = useParams();
   const { internshipsData } = useInternships();
   const internship = internshipsData.find((item) => item._id === id);
-  
-  const { theme } = useContext(ThemeContext);
-//   const { id } = useParams();
-//   const internship = internshipsData.find((item) => item.id.toString() === id);
 
+  const { theme } = useContext(ThemeContext);
   if (!internship) {
     return (
       <div
@@ -25,7 +22,6 @@ const InternshipDetail = () => {
     );
   }
 
-  // Accent component for reusability
   const Accent = ({ children }) => (
     <span className="text-[#FF6900]">{children}</span>
   );

@@ -1,4 +1,3 @@
-// InternshipPage.jsx
 import React, { useState, useEffect, useContext } from "react";
 import {
   DollarSign,
@@ -16,7 +15,6 @@ import { useNavigate } from "react-router-dom";
 import useInternships from '../stateManage/useInternships.js';
 import {toast} from 'react-hot-toast';
 
-// ---------------- Internship Card ----------------
 const InternshipCard = ({ internship, isTopPick }) => {
   const { theme } = useContext(ThemeContext);
 
@@ -122,7 +120,6 @@ const InternshipCard = ({ internship, isTopPick }) => {
   );
 };
 
-// ---------------- Main Internship Page ----------------
 const InternshipPage = () => {
   const [internships, setInternships] = useState([]);
   const [loading, setLoading] = useState(true);

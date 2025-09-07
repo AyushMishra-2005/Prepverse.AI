@@ -5,6 +5,7 @@ from bson import ObjectId
 import numpy as np
 import torch
 import os
+import re
 
 from dotenv import load_dotenv
 
@@ -51,6 +52,30 @@ def startup():
     except Exception as e:
         print(f"CRITICAL STARTUP ERROR: {e}")
         bi_encoder, cross_encoder, collection = None, None, None
+
+def clean_text(text: str) -> str:
+    """Cleans and normalizes text for better embeddings."""
+    if not isinstance(text, str):
+        return ""
+    text = text.lower()
+    text = re.sub(r"\s+", " ", text)
+    text = re.sub(r"[^a-zA-Z0-9.,;:!?()\- ]", "", text)
+    return text.strip()
+
+def build_combined_text(data: dict) -> str:
+    """Builds semantically rich text for a single internship."""
+    parts = []
+
+    if data.get("jobTitle"):
+        parts.append(("Internship Title: " + clean_text(data["jobTitle"]) + ". ") * 2)
+    if data.get("jobRole"):
+        parts.append(f"Role: {clean_text(data['jobRole'])}.")
+    if data.get("jobTopic"):
+        parts.append(("Topic: " + clean_text(data["jobTopic"]) + ". ") * 3)
+    if data.get("description"):
+        parts.append(("Responsibilities include: " + clean_text(data["description"]) + ". ") * 3)
+
+    return " ".join(parts)
 
 @app.route("/recommend", methods=["POST"])
 def recommend():
@@ -124,6 +149,36 @@ def recommend():
 
     except Exception as e:
         return jsonify({"error": f"Cross-encoder re-ranking failed: {e}"}), 500
+
+
+@app.route("/embed", methods=["POST"])
+def embed_job():
+    if bi_encoder is None:
+        return jsonify({"error": "Bi-encoder model not loaded."}), 503
+
+    data = request.get_json()
+
+    if not data or not isinstance(data, dict):
+        return jsonify({"error": "Invalid input. Expected a JSON object with job details."}), 400
+
+    try:
+        combined_text = build_combined_text(data)
+        if not combined_text:
+            return jsonify({"error": "No valid text to generate embedding."}), 400
+
+        print("Generating embedding for job data...")
+        embedding = bi_encoder.encode(
+            combined_text,
+            normalize_embeddings=True
+        ).tolist()
+
+        result = data.copy()
+        result["embedding"] = embedding
+
+        return jsonify(result)
+
+    except Exception as e:
+        return jsonify({"error": f"Failed to generate embedding: {e}"}), 500
 
 
 if __name__ == "__main__":

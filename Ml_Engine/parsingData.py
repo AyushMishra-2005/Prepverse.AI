@@ -6,6 +6,7 @@ import os
 import re
 import numpy as np
 from dotenv import load_dotenv
+import random
 
 load_dotenv()
 
@@ -32,15 +33,13 @@ def build_combined_text(row: pd.Series) -> str:
     parts = []
 
     if row.get("Job Title"):
-        parts.append(f"Internship Title: {clean_text(row['Job Title'])}.")
+        parts.append(("Internship Title: " + clean_text(row["Job Title"]) + ". ") * 2)
     if row.get("Job Role"):
         parts.append(f"Role: {clean_text(row['Job Role'])}.")
-    if row.get("Job Topic"):
+    if row.get("Job Topics"):
         parts.append(("Topic: " + clean_text(row["Job Topics"]) + ". ") * 3)
-    if row.get("Job Descriptions"):
-        parts.append(("Responsibilities include: " + clean_text(row["Job Descriptions"]) + ". ") * 3)
-    if row.get("Skills"):
-        parts.append(f"Skills required: {clean_text(row['Skills'])}.")
+    if row.get("Job Description"):
+        parts.append(("Responsibilities include: " + clean_text(row["Job Description"]) + ". ") * 3)
 
     return " ".join(parts)
 
@@ -97,17 +96,19 @@ def main():
             "lastDate": row.get("Last Date"),
             "description": row.get("Job Description"),
             "jobRole": row.get("Job Role"),
-            "skills": row.get("Skills", "")
+            "numOfQns": random.randint(2, 6),
         })
 
     print("Generating embeddings in batches...")
     embeddings = model.encode(
-        internship_texts,
-        batch_size=32,  
-        convert_to_tensor=False,
-        normalize_embeddings=True,
-        show_progress_bar=True
-    )
+    internship_texts,
+    batch_size=32,
+    convert_to_numpy=True,
+    show_progress_bar=True
+)
+
+    from sklearn.preprocessing import normalize
+    embeddings = normalize(embeddings)
 
     internships_to_insert = []
     for meta, emb in zip(internship_metadata, embeddings):
