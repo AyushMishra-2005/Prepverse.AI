@@ -241,8 +241,8 @@ const Home2 = () => {
                 key={i}
                 className={`p-8 rounded-lg border flex flex-col space-y-4 transition-all hover:-translate-y-1 ${
                   theme === "dark"
-                    ? "bg-[#141414] border-[#2A2A2A] hover:border-[#FF6900]"
-                    : "bg-[#FFFFFF] border-[#EAEAEA] shadow-md hover:border-[#FF6900]"
+                    ? "bg-[#141414] border-[#2A2A2A] hover:border-[#FF6900] hover:shadow-[0_0_25px_#FF690040]"
+                    : "bg-[#FFFFFF] border-[#EAEAEA] shadow-md hover:border-[#FF6900] hover:shadow-[0_0_25px_#FF690020]"
                 }`}
               >
                 <span className="text-[#FF6900] text-3xl">◆</span>
@@ -319,11 +319,21 @@ const Home2 = () => {
         <section className="container mx-auto py-20">
           <div className="grid md:grid-cols-2 gap-12">
             <div>
-              <span className="text-sm text-[#8A8A8A]">AI Hire</span>
-              <h2 className="text-h2 font-poppins mt-2 mb-6">
-                Smarter <PrimaryAccentText text="recruitment" />
+              <h1 className="text-5xl font-poppins font-extrabold text-[#FF6900]">
+                AI Hire
+              </h1>
+              <h2
+                className={`text-4xl font-poppins mt-2 mb-6 font-bold ${
+                  theme === "dark" ? "text-white" : "text-[#1A1A1A]"
+                }`}
+              >
+                Smarter recruitment
               </h2>
-              <p className="text-base text-[#B3B3B3] font-inter mb-8 leading-relaxed">
+              <p
+                className={`text-base font-inter mb-8 leading-relaxed ${
+                  theme === "dark" ? "text-[#B3B3B3]" : "text-[#555]"
+                }`}
+              >
                 Empower your hiring process with AI-driven interview design,
                 seamless candidate invites, and performance evaluation.
               </p>
@@ -345,7 +355,7 @@ const Home2 = () => {
                     <div>
                       <h4
                         className={`text-xl font-poppins font-medium ${
-                          theme === "dark" ? "text-[#E2E2E2]" : "text-[#1A1A1A]"
+                          theme === "dark" ? "text-white" : "text-[#1A1A1A]"
                         }`}
                       >
                         {item.title}
@@ -362,12 +372,22 @@ const Home2 = () => {
                 ))}
               </div>
             </div>
-            <div className="bg-[#141414] rounded-lg p-6 flex items-center justify-center border border-[#2A2A2A] card-shadow">
+            <div
+              className={`rounded-lg p-6 flex items-center justify-center border transition-all duration-300 ${
+                theme === "dark"
+                  ? "bg-[#141414] border-[#2A2A2A] shadow-black/30 hover:shadow-[0_0_40px_#FF6900]"
+                  : "bg-[#F9F9F9] border-[#EAEAEA] shadow-md hover:shadow-[0_0_40px_rgba(255,105,0,0.4)]"
+              }`}
+            >
               <div className="text-center">
                 <span className="text-[#FF6900] text-6xl font-poppins font-bold">
                   90%
                 </span>
-                <p className="text-base text-[#B3B3B3] font-inter">
+                <p
+                  className={`text-base font-inter ${
+                    theme === "dark" ? "text-[#B3B3B3]" : "text-[#555]"
+                  }`}
+                >
                   Faster hiring efficiency
                 </p>
               </div>

@@ -1,64 +1,93 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { Plus, ArrowRight } from 'lucide-react';
-import { useNavigate } from 'react-router-dom'
-import CreateInterviewForm from './createInterviewForm';
-import { useGetAllInterviews } from '../context/getAllInterviews';
+import { useNavigate } from 'react-router-dom';
+import CreateInterviewForm from './createInterviewForm.jsx';
+import { useGetAllInterviews } from '../context/getAllInterviews.jsx';
 import axios from 'axios';
-import server from '../environment.js'
+import server from '../environment.js';
 import useConversation from '../stateManage/useConversation.js';
+import { ThemeContext } from '../context/ThemeContext';
 
 function CreateInterviewPage() {
   const navigate = useNavigate();
-
   const [createInterview, setCreateInterview] = useState(false);
-  const {interviews} = useGetAllInterviews();
-  const {setReportData} = useConversation();
+  const { interviews } = useGetAllInterviews();
+  const { setReportData } = useConversation();
+  const { theme } = useContext(ThemeContext);
 
-  if (createInterview === true) {
+  if (createInterview) {
     return (
-      <div className='w-full'>
+      <div className="w-full">
         <CreateInterviewForm />
       </div>
-    )
+    );
   }
 
   const handleOpenClick = async (interviewId) => {
-    try{
-      const {data} = await axios.post(
+    try {
+      const { data } = await axios.post(
         `${server}/interview/getAllCandidates`,
-        {interviewId},
-        {withCredentials : true}
+        { interviewId },
+        { withCredentials: true }
       );
 
-      if(data?.candidates){
+      if (data?.candidates) {
         setReportData(data.candidates);
       }
-
-    }catch(err){
+    } catch (err) {
       console.log(err);
     }
-  }
-
+  };
 
   return (
-    <div className="dark-mystic-bg w-full min-h-screen flex flex-col items-center py-14 px-4 text-white relative z-10">
-      <h1 className="text-6xl font-extrabold mb-12 text-center bg-gradient-to-r from-purple-400 to-indigo-500 bg-clip-text text-transparent leading-tight md:leading-snug">
+    <div
+      className={`w-full min-h-screen flex flex-col items-center py-14 px-4 relative z-10 ${
+        theme === 'dark' ? 'bg-black text-white' : 'bg-gray-50 text-orange-900'
+      }`}
+    >
+      <h1
+        className={`text-6xl font-extrabold mb-12 text-center leading-tight md:leading-snug ${
+          theme === 'dark'
+            ? 'text-transparent bg-clip-text bg-gradient-to-r from-[#ff6900] to-gray-400'
+            : 'text-gray-900'
+        }`}
+      >
         Manage Your Interviews
       </h1>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10 w-full max-w-7xl">
-        <div className="rounded-2xl bg-[#0f172a] border-2 border-dashed border-gray-500 flex flex-col items-center justify-center h-64 hover:border-indigo-500 transition cursor-pointer"
+        {/* Add New Interview Card */}
+        <div
+          className={`rounded-2xl border-2 border-dashed flex flex-col items-center justify-center h-64 transition cursor-pointer ${
+            theme === 'dark'
+              ? 'bg-gray-900 border-gray-600 hover:border-[#ff6900]'
+              : 'bg-white border-gray-300 hover:border-[#ff6900]'
+          }`}
           onClick={() => setCreateInterview(true)}
         >
-          <div className="w-16 h-16 rounded-full bg-gray-600 hover:bg-indigo-600 flex items-center justify-center text-white transition duration-300">
+          <div
+            className={`w-16 h-16 rounded-full flex items-center justify-center transition duration-300 ${
+              theme === 'dark'
+                ? 'bg-gray-700 hover:bg-[#ff6900] text-white'
+                : 'bg-gray-200 hover:bg-[#ff6900] text-black'
+            }`}
+          >
             <Plus className="w-8 h-8" />
           </div>
-          <p className="mt-4 text-lg font-medium text-white">Add New Interview</p>
+          <p className="mt-4 text-lg font-medium">
+            Add New Interview
+          </p>
         </div>
 
+        {/* Existing Interviews */}
         {interviews.map((interview) => (
-          <div key={interview._id}
-            className="bg-[#0f172a] rounded-2xl p-6 flex flex-col justify-between shadow-md hover:shadow-lg transition h-64"
+          <div
+            key={interview._id}
+            className={`rounded-2xl p-6 flex flex-col justify-between shadow-md transition h-64 ${
+              theme === 'dark'
+                ? 'bg-gray-900 hover:shadow-[0_0_20px_rgba(255,105,0,0.15)]'
+                : 'bg-white hover:shadow-md'
+            }`}
           >
             <div>
               <h2 className="text-xl font-semibold mb-4">{interview.interview.role}</h2>
@@ -66,29 +95,33 @@ function CreateInterviewPage() {
                 {interview.interview.topics.map((topic, idx) => (
                   <span
                     key={idx}
-                    className="px-3 py-1 text-sm rounded-full bg-gray-700 text-gray-100"
+                    className={`px-3 py-1 text-sm rounded-full ${
+                      theme === 'dark' ? 'bg-gray-800 text-gray-200' : 'bg-gray-200 text-gray-700'
+                    }`}
                   >
                     {topic}
                   </span>
                 ))}
               </div>
-              <p className="text-sm text-gray-300">
-                Number of Questions: <span className="font-medium text-white">{interview.interview.numOfQns}</span>
+              <p className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+                Number of Questions: <span className="font-medium">{interview.interview.numOfQns}</span>
               </p>
             </div>
+
             <button
-              className="mt-5 w-full py-2 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:opacity-90 transition text-white font-semibold flex items-center justify-center gap-2 cursor-pointer"
+              className={`mt-5 w-full py-2 rounded-xl flex items-center justify-center gap-2 font-semibold transition cursor-pointer ${
+                theme === 'dark'
+                  ? 'bg-[#ff6900] text-black hover:bg-[#ff6900]'
+                  : 'bg-[#ff6900] text-black hover:bg-[#ff6900]'
+              }`}
               onClick={() => {
                 navigate('/aiInterviews/createInterview/attandants');
-                console.log(interview._id);
-                const interviewId = interview._id;
-                handleOpenClick(interviewId);
+                handleOpenClick(interview._id);
               }}
             >
               Open <ArrowRight size={18} />
             </button>
           </div>
-
         ))}
       </div>
     </div>

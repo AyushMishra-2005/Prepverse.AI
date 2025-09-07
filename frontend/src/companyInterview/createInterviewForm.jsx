@@ -1,10 +1,13 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { X } from "lucide-react";
-import axios from 'axios'
-import server from '../environment.js'
-import {toast} from 'react-hot-toast'
+import axios from 'axios';
+import server from '../environment.js';
+import { toast } from 'react-hot-toast';
+import { ThemeContext } from '../context/ThemeContext';
 
 function CreateInterviewForm() {
+  const { theme } = useContext(ThemeContext);
+
   const [role, setRole] = useState("");
   const [numOfQns, setNumOfQns] = useState(2);
   const [topics, setTopics] = useState([""]);
@@ -27,38 +30,45 @@ function CreateInterviewForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if(!role || !numOfQns || topics.length === 0 || !topics){
-      return;
-    }
+    if (!role || !numOfQns || topics.length === 0 || !topics) return;
 
-    try{
-      const {data} = await axios.post(
+    try {
+      await axios.post(
         `${server}/interview/create-companyInterview`,
-        {role, numOfQns, topics},
-        {withCredentials : true}
+        { role, numOfQns, topics },
+        { withCredentials: true }
       );
 
       setRole("");
       setNumOfQns(2);
       setTopics([""]);
-
-      return toast.success("Interview Created");
-
-    }catch(err){
+      toast.success("Interview Created");
+    } catch (err) {
       console.log(err);
       const errorMessage = err?.response?.data?.message || "Something went wrong!";
       toast.error(errorMessage);
     }
-
   };
 
   return (
-    <div className="dark-mystic-bg flex items-center justify-center px-4 py-10">
+    <div
+      className={`flex items-center justify-center px-4 py-10 ${
+        theme === "dark" ? "bg-black" : "bg-gray-50"
+      }`}
+    >
       <form
         onSubmit={handleSubmit}
-        className="relative bg-white/5 backdrop-blur-md border border-white/10 text-white max-w-2xl max-h-[60vh] overflow-y-auto p-6 rounded-2xl shadow-lg z-10"
+        className={`relative max-w-2xl max-h-[60vh] overflow-y-auto p-6 rounded-2xl shadow-lg w-full ${
+          theme === "dark"
+            ? "bg-gray-900 border border-gray-700 text-white"
+            : "bg-white border border-gray-300 text-gray-900"
+        }`}
       >
-        <h2 className="text-2xl font-bold text-center mb-6 text-blue-300 drop-shadow">
+        <h2
+          className={`text-2xl font-bold text-center mb-6 drop-shadow ${
+            theme === "dark" ? "text-[#ff6900]" : "text-[#ff6900]"
+          }`}
+        >
           Create Your Custom AI Interview
         </h2>
 
@@ -70,23 +80,29 @@ function CreateInterviewForm() {
             value={role}
             onChange={(e) => setRole(e.target.value)}
             placeholder="e.g., Frontend Developer"
-            className="w-full px-4 py-2 rounded-lg bg-white/10 border border-white/20 placeholder-gray-300 text-white focus:outline-none focus:ring focus:ring-blue-400"
+            className={`w-full px-4 py-2 rounded-lg border placeholder-gray-400 focus:outline-none focus:ring-2 ${
+              theme === "dark"
+                ? "bg-gray-800 border-gray-600 text-white focus:ring-[#ff6900]"
+                : "bg-gray-100 border-gray-300 text-black focus:ring-[#ff6900]"
+            }`}
             required
           />
         </div>
 
         {/* Number of Questions */}
         <div className="mb-4">
-          <label className="block mb-1 text-sm font-medium">
-            Number of Questions
-          </label>
+          <label className="block mb-1 text-sm font-medium">Number of Questions</label>
           <input
             type="number"
             min={2}
             max={25}
             value={numOfQns}
             onChange={(e) => setNumOfQns(e.target.value)}
-            className="w-full px-4 py-2 rounded-lg bg-white/10 border border-white/20 placeholder-gray-300 text-white focus:outline-none focus:ring focus:ring-blue-400"
+            className={`w-full px-4 py-2 rounded-lg border placeholder-gray-400 focus:outline-none focus:ring-2 ${
+              theme === "dark"
+                ? "bg-gray-800 border-gray-600 text-white focus:ring-[#ff6900]"
+                : "bg-gray-100 border-gray-300 text-black focus:ring-[#ff6900]"
+            }`}
             required
           />
         </div>
@@ -101,7 +117,11 @@ function CreateInterviewForm() {
                 value={topic}
                 onChange={(e) => handleTopicChange(index, e.target.value)}
                 placeholder={`Topic ${index + 1}`}
-                className="w-full px-4 py-2 pr-10 rounded-lg bg-white/10 border border-white/20 placeholder-gray-300 text-white focus:outline-none focus:ring focus:ring-blue-400"
+                className={`w-full px-4 py-2 pr-10 rounded-lg border placeholder-gray-400 focus:outline-none focus:ring-2 ${
+                  theme === "dark"
+                    ? "bg-gray-800 border-gray-600 text-white focus:ring-[#ff6900]"
+                    : "bg-gray-100 border-gray-300 text-black focus:ring-[#ff6900]"
+                }`}
                 required
               />
               {index !== 0 && (
@@ -118,7 +138,11 @@ function CreateInterviewForm() {
           <button
             type="button"
             onClick={handleAddTopic}
-            className="text-sm mt-2 px-4 py-1.5 rounded-md border border-blue-400 text-blue-300 hover:bg-blue-400/20 transition"
+            className={`text-sm mt-2 px-4 py-1.5 rounded-md border transition ${
+              theme === "dark"
+                ? "border-[#ff6900] text-[#ff6900] hover:bg-[#ff6900]/20"
+                : "border-[#ff6900] text-[#ff6900] hover:bg-[#ff6900]/20"
+            }`}
           >
             + Add New Topic
           </button>
@@ -127,7 +151,11 @@ function CreateInterviewForm() {
         {/* Submit */}
         <button
           type="submit"
-          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 rounded-lg shadow-lg transition duration-200"
+          className={`w-full py-2.5 rounded-lg font-semibold shadow-lg transition duration-200 ${
+            theme === "dark"
+              ? "bg-[#ff6900] text-black hover:bg-[#ff7f33]"
+              : "bg-[#ff6900] text-black hover:bg-[#ff7f33]"
+          }`}
         >
           Submit Interview Request
         </button>

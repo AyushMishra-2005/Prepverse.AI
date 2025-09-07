@@ -29,10 +29,14 @@ import ResumeLandingPage from "./resumeBuilder/resumeLandingPage";
 import ResumeForm from "./resumeBuilder/resumeForm";
 import SelectResume from "./resumeBuilder/selectResume";
 
-import AttendInterviews from "./companyInterview/attendInterviewsPage";
-import { AiInterviewLandingPage } from "./companyInterview/aiInterviewLandingPage";
+// Candidate pages
+import AttendInterviews from "./candidateInterview/attendInterviewsPage";
+import CandidateLandingPage from "./candidateInterview/CandidateLandingPage";
+import { AttandantPage } from "./candidateInterview/attandantPage";
+
+// Company pages
 import CreateInterviewPage from "./companyInterview/createInterviewPage";
-import { AttandantPage } from "./companyInterview/attandantPage";
+import CompanyLandingPage from "./companyInterview/CompanyLandingPage";
 
 import { ResumesProvider } from "./context/getAllResume";
 import { InterviewsProvider } from "./context/getAllInterviews";
@@ -46,7 +50,7 @@ import pageNotFound from "./assets/animations/errorAnimation.json";
 import InternshipPage from "./internships/InternshipPage";
 import InternshipDetail from "./internships/InternshipDetail";
 
-// 🔥 NEW: import ThemeProvider
+// Theme
 import { ThemeProvider } from "./context/ThemeContext";
 
 function App() {
@@ -77,7 +81,7 @@ function App() {
         </div>
 
         {/* Main Content */}
-        <div className="flex flex-col items-center h-[100%] w-[100vw]">
+        <div className="flex flex-col items-center h-[100%] w-[100vw] mt-[80px]">
           <Routes>
             {/* Home Pages */}
             <Route path="/" element={<HomeComponent />} />
@@ -86,9 +90,7 @@ function App() {
             {/* Interview */}
             <Route
               path="/interviewPage"
-              element={
-                authUser && interviewModelId ? <InterviewPage /> : <Navigate to="/" replace />
-              }
+              element={authUser && interviewModelId ? <InterviewPage /> : <Navigate to="/" replace />}
             />
             <Route
               path="/interviewForm"
@@ -96,9 +98,7 @@ function App() {
             />
             <Route
               path="/profileInterviewForm"
-              element={
-                authUser ? <ProfileInterviewForm /> : <Navigate to="/mockInterviewLandingPage" replace />
-              }
+              element={authUser ? <ProfileInterviewForm /> : <Navigate to="/mockInterviewLandingPage" replace />}
             />
             <Route
               path="/interview/result"
@@ -130,57 +130,40 @@ function App() {
             />
             <Route
               path="/resume/resumeForm"
-              element={
-                authUser && resumeData?.title ? <ResumeForm /> : <Navigate to="/resume/selectResume" replace />
-              }
+              element={authUser && resumeData?.title ? <ResumeForm /> : <Navigate to="/resume/selectResume" replace />}
             />
             <Route
               path="/ResumeProcessingPage"
               element={authUser ? <ResumeProcessingPage /> : <Navigate to="/" replace />}
             />
 
-            {/* AI Interviews */}
-            <Route
-              path="/aiInterviews"
-              element={authUser ? <AiInterviewLandingPage /> : <Navigate to="/" replace />}
-            />
-            <Route
-              path="/aiInterviews/attendInterview"
-              element={authUser ? <AttendInterviews /> : <Navigate to="/" replace />}
-            />
-            <Route path="/internship/:id" element={<InternshipDetail />} />
+            {/* Candidate Interview Routes */}
+            <Route path="/candidate/dashboard" element={authUser ? <CandidateLandingPage /> : <Navigate to="/" replace />} />
+            <Route path="/candidate/attend" element={authUser ? <AttendInterviews /> : <Navigate to="/" replace />} />
+            <Route path="/candidate/attendants" element={authUser ? <AttandantPage /> : <Navigate to="/" replace />} />
 
+            {/* Company Interview Routes */}
+            <Route path="/company/dashboard" element={authUser ? <CompanyLandingPage /> : <Navigate to="/" replace />} />
             <Route
-              path="/aiInterviews/createInterview"
-              element={
-                authUser ? (
-                  <InterviewsProvider>
-                    <CreateInterviewPage />
-                  </InterviewsProvider>
-                ) : (
-                  <Navigate to="/" replace />
-                )
-              }
-            />
-            <Route
-              path="/aiInterviews/createInterview/attandants"
-              element={authUser ? <AttandantPage /> : <Navigate to="/" replace />}
+              path="/company/createInterview"
+              element={authUser ? (
+                <InterviewsProvider>
+                  <CreateInterviewPage />
+                </InterviewsProvider>
+              ) : (
+                <Navigate to="/" replace />
+              )}
             />
 
             {/* Mock Interview */}
-            <Route
-              path="/mockInterviewLandingPage"
-              element={authUser ? <MockInterviewLandingPage /> : <Navigate to="/" replace />}
-            />
+            <Route path="/mockInterviewLandingPage" element={authUser ? <MockInterviewLandingPage /> : <Navigate to="/" replace />} />
 
             {/* Profile */}
             <Route path="/profilePage" element={authUser ? <ProfilePage /> : <Navigate to="/" replace />} />
 
             {/* Internships */}
-            <Route
-              path="/internships"
-              element={authUser ? <InternshipPage /> : <Navigate to="/login" replace />}
-            />
+            <Route path="/internships" element={authUser ? <InternshipPage /> : <Navigate to="/login" replace />} />
+            <Route path="/internship/:id" element={<InternshipDetail />} />
 
             {/* Page Not Found */}
             <Route

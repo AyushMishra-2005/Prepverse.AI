@@ -13,6 +13,7 @@
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
     "@google-cloud/text-to-speech": "^6.1.0",
+    "@heroicons/react": "^2.2.0",
     "@mediapipe/camera_utils": "^0.3.1675466862",
     "@mediapipe/face_mesh": "^0.4.1633559619",
     "@mui/icons-material": "^7.3.1",
