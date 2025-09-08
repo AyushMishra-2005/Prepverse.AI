@@ -1,12 +1,14 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { motion } from "framer-motion";
 import axios from "axios";
 import { useAuth } from '../context/AuthProvider.jsx';
+import { ThemeContext } from '../context/ThemeContext.jsx';
 import { toast } from 'react-hot-toast';
 import server from "../environment.js";
 
 function ProfilePage() {
   const { authUser } = useAuth();
+  const { theme } = useContext(ThemeContext);
   const [resumeLink, setResumeLink] = useState(authUser.user.resumeLink || "");
   const [isUploading, setIsUploading] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
@@ -24,7 +26,6 @@ function ProfilePage() {
           `${server}/resume-upload/getResumeData`,
           {},
           {withCredentials: true}
-          
         );
 
         if (data.resume_data) {
@@ -78,8 +79,6 @@ function ProfilePage() {
         }
       );
 
-      console.log(data);
-
       if (data.newResume) {
         setResumeLink(data.newResume.resumeLink);
         const filteredData = {
@@ -89,7 +88,6 @@ function ProfilePage() {
           experience: data.newResume.resumeJSONdata.experience || []
         };
         setResumeDetails(filteredData);
-        console.log(filteredData);
         toast.success("Resume uploaded successfully!");
         setSelectedFile(null);
       }
@@ -150,10 +148,10 @@ function ProfilePage() {
         <h3 className="text-lg font-semibold text-white mb-3">Skills</h3>
         {validSkills.map((skillCategory, index) => (
           <div key={index} className="mb-3">
-            <h4 className="text-md font-semibold text-blue-300 capitalize">
+            <h4 className="text-md font-semibold text-orange-400 capitalize">
               {skillCategory.name}:
             </h4>
-            <p className="text-slate-300">{skillCategory.items.join(', ')}</p>
+            <p className="text-gray-300">{skillCategory.items.join(', ')}</p>
           </div>
         ))}
       </div>
@@ -183,12 +181,12 @@ function ProfilePage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: index * 0.1 }}
-            className="mb-4"
+            className="mb-4 p-4 bg-gray-800 rounded-lg"
           >
             {edu?.degree && <h4 className="text-md font-semibold text-white">{edu.degree}</h4>}
-            {edu?.field_of_study && <p className="text-slate-300">{edu.field_of_study}</p>}
-            {edu?.institution && <p className="text-slate-300">{edu.institution}</p>}
-            {edu?.graduation_year && <p className="text-slate-400 text-sm">{edu.graduation_year}</p>}
+            {edu?.field_of_study && <p className="text-gray-300">{edu.field_of_study}</p>}
+            {edu?.institution && <p className="text-gray-300">{edu.institution}</p>}
+            {edu?.graduation_year && <p className="text-gray-400 text-sm">{edu.graduation_year}</p>}
           </motion.div>
         ))}
       </div>
@@ -219,18 +217,18 @@ function ProfilePage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: index * 0.1 }}
-            className="mb-4"
+            className="mb-4 p-4 bg-gray-800 rounded-lg"
           >
             {exp?.organization && <h4 className="text-md font-semibold text-white">{exp.organization}</h4>}
-            {exp?.role && <p className="text-slate-300">{exp.role}</p>}
-            {exp?.duration && <p className="text-slate-400 text-sm">{exp.duration}</p>}
+            {exp?.role && <p className="text-gray-300">{exp.role}</p>}
+            {exp?.duration && <p className="text-gray-400 text-sm">{exp.duration}</p>}
             {exp?.skills_used && exp.skills_used.length > 0 && (
-              <p className="text-slate-400 text-sm">Skills used: {exp.skills_used.join(', ')}</p>
+              <p className="text-gray-400 text-sm">Skills used: {exp.skills_used.join(', ')}</p>
             )}
             {exp?.responsibilities && exp.responsibilities.length > 0 && (
               <div className="mt-2">
-                <p className="text-slate-300 text-sm font-medium">Responsibilities:</p>
-                <ul className="text-slate-400 text-sm list-disc list-inside">
+                <p className="text-gray-300 text-sm font-medium">Responsibilities:</p>
+                <ul className="text-gray-400 text-sm list-disc list-inside">
                   {exp.responsibilities.map((responsibility, i) => (
                     <li key={i}>{responsibility}</li>
                   ))}
@@ -267,16 +265,21 @@ function ProfilePage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: index * 0.1 + 0.4 }}
-            className="mb-4"
+            className="mb-4 p-4 bg-gray-800 rounded-lg"
           >
             {project?.name && <h4 className="text-md font-semibold text-white">{project.name}</h4>}
-            {project?.role && <p className="text-slate-300">Role: {project.role}</p>}
-            {project?.description && <p className="text-slate-300">{project.description}</p>}
+            {project?.role && <p className="text-gray-300">Role: {project.role}</p>}
+            {project?.description && <p className="text-gray-300">{project.description}</p>}
             {project?.skills_used && project.skills_used.length > 0 && (
-              <p className="text-slate-400 text-sm">Skills used: {project.skills_used.join(', ')}</p>
+              <p className="text-gray-400 text-sm">Skills used: {project.skills_used.join(', ')}</p>
             )}
             {project?.link && (
-              <a href={project.link} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 text-sm">
+              <a 
+                href={project.link} 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="text-orange-500 hover:text-orange-400 text-sm transition-colors"
+              >
                 View Project
               </a>
             )}
@@ -301,12 +304,12 @@ function ProfilePage() {
   };
 
   return (
-    <div className="min-h-screen w-full bg-gradient-to-br from-slate-900 text-white overflow-x-hidden p-4 md:p-8">
+    <div className="min-h-screen w-full bg-gray-900 text-white overflow-x-hidden p-4 md:p-8">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="max-w-4xl mx-auto rounded-xl bg-slate-800/50 backdrop-blur-sm border border-slate-700 mt-8 md:mt-16 p-6 md:p-8"
+        className="max-w-4xl mx-auto rounded-xl bg-gray-800 border border-gray-700 mt-8 md:mt-16 p-6 md:p-8 shadow-xl"
       >
         <div className="flex flex-col md:flex-row items-center">
           <div className="flex-shrink-0 mb-6 md:mb-0">
@@ -314,8 +317,13 @@ function ProfilePage() {
               <img
                 src={`${authUser.user.profilePicURL}`}
                 alt="User"
-                className="h-32 w-32 rounded-full object-cover border-4 border-slate-600"
+                className="h-32 w-32 rounded-full object-cover border-4 border-orange-500"
               />
+              <div className="absolute -bottom-2 -right-2 bg-orange-500 rounded-full p-1">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+              </div>
             </div>
           </div>
 
@@ -323,16 +331,23 @@ function ProfilePage() {
             <h1 className="text-2xl md:text-3xl font-bold text-white">
               {authUser.user.name}
             </h1>
-            <p className="text-slate-300 mt-1">{authUser.user.username}</p>
-            <p className="text-slate-300">{authUser.user.email}</p>
+            <p className="text-gray-300 mt-1">@{authUser.user.username}</p>
+            <p className="text-gray-300 flex items-center mt-1">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
+                <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
+              </svg>
+              {authUser.user.email}
+            </p>
 
-            <div className="mt-4 flex flex-wrap gap-2">
+            <div className="mt-4 flex flex-wrap gap-2 justify-center md:justify-start">
               {resumeLink ? (
                 <>
                   <motion.button
                     whileHover={{ scale: 1.03 }}
+                    whileTap={{ scale: 0.98 }}
                     onClick={() => window.open(resumeLink, '_blank')}
-                    className="inline-flex items-center px-4 py-2 rounded-md bg-blue-600 hover:bg-blue-700 text-white font-medium transition-colors"
+                    className="inline-flex items-center px-4 py-2 rounded-md bg-orange-500 hover:bg-orange-600 text-white font-medium transition-colors shadow-md"
                   >
                     <span>View Resume</span>
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-2" viewBox="0 0 20 20" fill="currentColor">
@@ -341,8 +356,9 @@ function ProfilePage() {
                   </motion.button>
                   <motion.button
                     whileHover={{ scale: 1.03 }}
+                    whileTap={{ scale: 0.98 }}
                     onClick={handleDeleteResume}
-                    className="inline-flex items-center px-4 py-2 rounded-md bg-red-600 hover:bg-red-700 text-white font-medium transition-colors"
+                    className="inline-flex items-center px-4 py-2 rounded-md bg-gray-700 hover:bg-gray-600 text-white font-medium transition-colors shadow-md"
                   >
                     <span>Delete Resume</span>
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-2" viewBox="0 0 20 20" fill="currentColor">
@@ -351,7 +367,7 @@ function ProfilePage() {
                   </motion.button>
                 </>
               ) : (
-                <p className="text-red-400 flex items-center justify-center md:justify-start">
+                <p className="text-orange-400 flex items-center justify-center md:justify-start">
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
                     <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                   </svg>
@@ -370,21 +386,24 @@ function ProfilePage() {
         className="max-w-4xl mx-auto mt-6 mb-12"
       >
         {!resumeLink ? (
-          <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-xl p-6 text-center">
+          <div className="bg-gray-800 border border-gray-700 rounded-xl p-6 text-center shadow-lg">
             <div className="flex justify-center mb-4">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
+              <div className="p-3 bg-orange-500/10 rounded-full">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+              </div>
             </div>
-            <h3 className="text-xl font-semibold text-red-400 mb-2">Complete Your Profile</h3>
-            <p className="text-slate-300 mb-6">
+            <h3 className="text-xl font-semibold text-orange-500 mb-2">Complete Your Profile</h3>
+            <p className="text-gray-300 mb-6">
               Upload your resume to complete your profile and unlock all features.
             </p>
 
             {!selectedFile ? (
               <motion.label
                 whileHover={{ scale: 1.03 }}
-                className="inline-flex items-center px-6 py-3 rounded-md bg-blue-600 hover:bg-blue-700 text-white font-medium cursor-pointer transition-colors"
+                whileTap={{ scale: 0.98 }}
+                className="inline-flex items-center px-6 py-3 rounded-md bg-orange-500 hover:bg-orange-600 text-white font-medium cursor-pointer transition-colors shadow-md"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
                   <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd" />
@@ -399,27 +418,29 @@ function ProfilePage() {
               </motion.label>
             ) : (
               <div className="flex flex-col items-center">
-                <p className="text-slate-300 mb-4">Selected file: {selectedFile.name}</p>
+                <p className="text-gray-300 mb-4">Selected file: {selectedFile.name}</p>
                 <div className="flex gap-2">
                   <motion.button
                     whileHover={{ scale: 1.03 }}
+                    whileTap={{ scale: 0.98 }}
                     onClick={handleFileUpload}
                     disabled={isUploading}
-                    className="inline-flex items-center px-4 py-2 rounded-md bg-green-600 hover:bg-green-700 text-white font-medium transition-colors disabled:opacity-50"
+                    className="inline-flex items-center px-4 py-2 rounded-md bg-orange-500 hover:bg-orange-600 text-white font-medium transition-colors disabled:opacity-50 shadow-md"
                   >
                     {isUploading ? "Uploading..." : "Upload Resume"}
                   </motion.button>
                   <motion.button
                     whileHover={{ scale: 1.03 }}
+                    whileTap={{ scale: 0.98 }}
                     onClick={cancelUpload}
-                    className="inline-flex items-center px-4 py-2 rounded-md bg-gray-600 hover:bg-gray-700 text-white font-medium transition-colors"
+                    className="inline-flex items-center px-4 py-2 rounded-md bg-gray-700 hover:bg-gray-600 text-white font-medium transition-colors shadow-md"
                   >
                     Cancel
                   </motion.button>
                 </div>
               </div>
             )}
-            <p className="text-slate-400 text-sm mt-2">Supported formats: PDF, DOC, DOCX</p>
+            <p className="text-gray-400 text-sm mt-2">Supported formats: PDF, DOC, DOCX</p>
           </div>
         ) : (
           <div>
@@ -430,7 +451,8 @@ function ProfilePage() {
 
               <motion.label
                 whileHover={{ scale: 1.03 }}
-                className="inline-flex items-center px-4 py-2 rounded-md bg-slate-700 border border-slate-600 text-slate-200 text-sm cursor-pointer hover:bg-slate-600 transition-colors"
+                whileTap={{ scale: 0.98 }}
+                className="inline-flex items-center px-4 py-2 rounded-md bg-gray-700 border border-gray-600 text-gray-200 text-sm cursor-pointer hover:bg-gray-600 transition-colors shadow-md"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
                   <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.380-8.379-2.83-2.828z" />
@@ -446,21 +468,23 @@ function ProfilePage() {
             </div>
 
             {selectedFile && (
-              <div className="mb-4 p-4 bg-slate-700 rounded-lg flex items-center justify-between">
-                <p className="text-slate-300">Selected file: {selectedFile.name}</p>
+              <div className="mb-4 p-4 bg-gray-800 rounded-lg flex items-center justify-between shadow-md">
+                <p className="text-gray-300">Selected file: {selectedFile.name}</p>
                 <div className="flex gap-2">
                   <motion.button
                     whileHover={{ scale: 1.03 }}
+                    whileTap={{ scale: 0.98 }}
                     onClick={handleFileUpload}
                     disabled={isUploading}
-                    className="px-3 py-1 bg-green-600 hover:bg-green-700 rounded text-sm disabled:opacity-50"
+                    className="px-3 py-1 bg-orange-500 hover:bg-orange-600 rounded text-sm disabled:opacity-50 shadow-md"
                   >
                     {isUploading ? "Uploading..." : "Upload"}
                   </motion.button>
                   <motion.button
                     whileHover={{ scale: 1.03 }}
+                    whileTap={{ scale: 0.98 }}
                     onClick={cancelUpload}
-                    className="px-3 py-1 bg-gray-600 hover:bg-gray-700 rounded text-sm"
+                    className="px-3 py-1 bg-gray-700 hover:bg-gray-600 rounded text-sm shadow-md"
                   >
                     Cancel
                   </motion.button>
@@ -469,31 +493,30 @@ function ProfilePage() {
             )}
 
             {hasResumeData() ? (
-              <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-xl p-6">
+              <div className="bg-gray-800 border border-gray-700 rounded-xl p-6 shadow-lg">
                 {renderEducation(resumeDetails.education)}
-
                 {renderExperience(resumeDetails.experience)}
-
                 {renderSkills(resumeDetails.skills)}
-
                 {renderProjects(resumeDetails.projects)}
 
-                <div className="mt-8 p-4 bg-slate-700/50 rounded-lg">
-                  <p className="text-slate-300 text-sm italic">
+                <div className="mt-8 p-4 bg-gray-700/50 rounded-lg border border-gray-600">
+                  <p className="text-gray-300 text-sm italic">
                     These are the important details extracted from your resume. Other information like certifications,
                     publications, and open source contributions have also been parsed and stored in our database.
                   </p>
                 </div>
               </div>
             ) : (
-              <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-xl p-6 text-center">
+              <div className="bg-gray-800 border border-gray-700 rounded-xl p-6 text-center shadow-lg">
                 <div className="flex justify-center mb-4">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                  </svg>
+                  <div className="p-3 bg-orange-500/10 rounded-full">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                  </div>
                 </div>
-                <h3 className="text-xl font-semibold text-blue-400 mb-2">Resume Uploaded</h3>
-                <p className="text-slate-300">
+                <h3 className="text-xl font-semibold text-orange-500 mb-2">Resume Uploaded</h3>
+                <p className="text-gray-300">
                   Your resume has been uploaded successfully, but no structured data could be extracted.
                 </p>
               </div>
