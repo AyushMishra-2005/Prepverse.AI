@@ -33,9 +33,9 @@ def build_combined_text(row: pd.Series) -> str:
     parts = []
 
     if row.get("Job Title"):
-        parts.append(("Internship Title: " + clean_text(row["Job Title"]) + ". ") * 2)
+        parts.append("Internship Title: " + clean_text(row["Job Title"]) + ". ")
     if row.get("Job Role"):
-        parts.append(f"Role: {clean_text(row['Job Role'])}.")
+        parts.append(("Role: " + clean_text(row["Job Role"]) + ". ") * 2)
     if row.get("Job Topics"):
         parts.append(("Topic: " + clean_text(row["Job Topics"]) + ". ") * 3)
     if row.get("Job Description"):
@@ -96,7 +96,8 @@ def main():
             "lastDate": row.get("Last Date"),
             "description": row.get("Job Description"),
             "jobRole": row.get("Job Role"),
-            "numOfQns": random.randint(2, 6),
+            "numOfQns": random.randint(2, 5),
+            "participants" : []
         })
 
     print("Generating embeddings in batches...")

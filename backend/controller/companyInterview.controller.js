@@ -105,8 +105,8 @@ export const sendAllInterviews = async (req, res) => {
 
   try {
     const internships = await Internship.aggregate([
-      { $sample: { size: 5 } },   
-      { $project: { embedding: 0 } } 
+      { $sample: { size: 5 } },
+      { $project: { embedding: 0 } }
     ]);
 
     return res.status(200).json({ message: 'Interview Data Fetched', internships });
@@ -118,37 +118,21 @@ export const sendAllInterviews = async (req, res) => {
 }
 
 
-
 export const searchInterviews = async (req, res) => {
-  const { username } = req.body;
-  const { _id: currentUserId } = req.user;
-
+  const { companyName } = req.body;
+  
   try {
-    if (!username || username.trim() === '') {
+    if (!companyName || companyName.trim() === '') {
       return res.status(400).json({ message: 'Username is required' });
     }
 
-    const users = await User.find({
-      username: { $regex: `^${username}`, $options: 'i' }
-    });
+    const internships = await Internship.find(
+      { company: { $regex: "^" + companyName, $options: "i" } },
+      { embedding: 0 }
+    ).limit(5);
 
-    if (users.length === 0) {
-      return res.status(200).json({ interviews: [] });
-    }
+    return res.status(200).json({ interviews: internships });
 
-    const userIds = users
-      .map(user => user._id.toString())
-      .filter(id => id !== currentUserId.toString());
-
-    if (userIds.length === 0) {
-      return res.status(200).json({ interviews: [] });
-    }
-
-    const interviews = await CompanyInterviewData.find({
-      userId: { $in: userIds }
-    }).populate('userId');
-
-    return res.status(200).json({ interviews });
 
   } catch (err) {
     console.error(err);

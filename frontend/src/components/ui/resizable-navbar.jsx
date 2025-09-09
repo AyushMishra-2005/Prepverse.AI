@@ -2,11 +2,10 @@ import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "../../lib/utils.js";
 
-// ================= Navbar Wrapper =================
 const Navbar = ({ children, className }) => (
   <nav
     className={cn(
-      "w-full flex items-center justify-between px-6 py-3 sticky top-0 z-50 transition-colors duration-300",
+      "w-full flex items-center justify-between px-6 h-16 sticky top-0 z-50 transition-colors duration-300",
       className
     )}
   >
@@ -14,15 +13,12 @@ const Navbar = ({ children, className }) => (
   </nav>
 );
 
-// ================= Inner Body =================
 export const NavBody = ({ children, className }) => (
-  <div className={cn("flex w-full items-center justify-between px-40", className)}>
+  <div className={cn("hidden lg:flex w-full items-center justify-between px-40", className)}>
     {children}
   </div>
 );
 
-
-// ================= Desktop Nav Items =================
 export const NavItems = ({ items, className, onItemClick, theme, currentPath }) => {
   const [hovered, setHovered] = useState(null);
 
@@ -75,7 +71,7 @@ export const MobileNav = ({ children, className }) => (
 );
 
 export const MobileNavHeader = ({ children, className }) => (
-  <div className={cn("flex w-full items-center justify-between px-4 py-3", className)}>
+  <div className={cn("flex w-full items-center justify-between px-4 h-16", className)}>
     {children}
   </div>
 );
@@ -122,7 +118,6 @@ export const MobileNavMenu = ({ children, className, isOpen, theme }) => (
   </AnimatePresence>
 );
 
-// ================= Logo =================
 export const NavbarLogo = ({ theme }) => (
   <div className="flex items-center gap-1 font-bold text-xl">
     <span className="text-sm text-[#FF6900]">◆</span>
@@ -131,7 +126,6 @@ export const NavbarLogo = ({ theme }) => (
   </div>
 );
 
-// ================= Buttons =================
 export const NavbarButton = ({ children, className, variant = "default", ...props }) => {
   const base =
     "px-4 py-2 rounded-md font-medium transition focus:outline-none focus:ring-2 focus:ring-offset-1";
@@ -148,5 +142,4 @@ export const NavbarButton = ({ children, className, variant = "default", ...prop
   );
 };
 
-// ================= Default Export =================
 export default Navbar;

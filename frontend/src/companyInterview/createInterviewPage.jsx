@@ -16,45 +16,6 @@ function CreateInterviewPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
 
-  const exampleInterviews = [
-    {
-      _id: 'ex1',
-      jobTitle: 'Frontend Developer',
-      company: 'TechCorp Inc.',
-      jobTopic: 'React, JavaScript, CSS',
-      duration: '60 mins',
-      type: 'Internship',
-      stipend: '$2,000',
-      jobType: 'Remote',
-      lastDate: '2023-12-15',
-      numOfQns: 10
-    },
-    {
-      _id: 'ex2',
-      jobTitle: 'Data Analyst',
-      company: 'DataSystems Ltd',
-      jobTopic: 'SQL, Python, Data Visualization',
-      duration: '45 mins',
-      type: 'Full-time',
-      stipend: '$3,500',
-      jobType: 'Hybrid',
-      lastDate: '2023-12-20',
-      numOfQns: 8
-    },
-    {
-      _id: 'ex3',
-      jobTitle: 'UX Designer',
-      company: 'CreativeMinds',
-      jobTopic: 'Figma, User Research, Prototyping',
-      duration: '75 mins',
-      type: 'Contract',
-      stipend: '$4,000',
-      jobType: 'On-site',
-      lastDate: '2023-12-10',
-      numOfQns: 12
-    }
-  ];
-
   const handleOpenClick = async (interviewId) => {
     try {
       const { data } = await axios.post(
@@ -76,13 +37,31 @@ function CreateInterviewPage() {
     setSearchQuery(query);
   };
 
-  const handleSearchClick = () => {
+  const handleSearchClick = async () => {
     console.log(searchQuery);
     if (!searchQuery || searchQuery.trim() == "") {
       setSearchResults([]);
       return toast.error("search is empty!");
     }
-    setSearchResults(exampleInterviews);
+
+
+    try {
+      const { data } = await axios.post(
+        `${server}/interview/search-Interviews`,
+        { companyName: searchQuery },
+        { withCredentials: true }
+      );
+
+      if(!data.interviews){
+        return toast.error("Interview not found!");
+      }
+
+      setSearchResults(data.interviews);
+    } catch (err) {
+      console.log(err);
+    }
+
+
   }
 
   return (
@@ -110,13 +89,13 @@ function CreateInterviewPage() {
           onChange={handleSearch}
           onKeyDown={(e) => {
             if (e.key === "Enter") {
-              handleSearchClick(); 
+              handleSearchClick();
             }
           }}
           placeholder="Search by job title, company, or topic..."
           className={`w-full py-3 pl-10 pr-4 rounded-xl border focus:outline-none focus:ring-2 focus:ring-[#ff6900] ${theme === 'dark'
-              ? 'bg-gray-800 border-gray-700 text-white placeholder-gray-400'
-              : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+            ? 'bg-gray-800 border-gray-700 text-white placeholder-gray-400'
+            : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
             }`}
         />
       </div>

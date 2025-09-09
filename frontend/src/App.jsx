@@ -50,6 +50,7 @@ import pageNotFound from "./assets/animations/errorAnimation.json";
 import InternshipPage from "./internships/InternshipPage";
 import InternshipDetail from "./internships/InternshipDetail";
 import CreateInterviewForm from './companyInterview/createInterviewForm.jsx';
+import InternshipDetails from './candidateInterview/internshipDetails.jsx'
 
 // Theme
 import { ThemeProvider } from "./context/ThemeContext";
@@ -82,7 +83,7 @@ function App() {
         </div>
 
         {/* Main Content */}
-        <div className="flex flex-col items-center h-[100%] w-[100vw] mt-[80px]">
+        <div className="flex flex-col items-center h-[100%] w-[100vw] mt-[60px]">
           <Routes>
             {/* Home Pages */}
             <Route path="/" element={<HomeComponent />} />
@@ -168,6 +169,8 @@ function App() {
             {/* Internships */}
             <Route path="/internships" element={authUser ? <InternshipPage /> : <Navigate to="/login" replace />} />
             <Route path="/internship/:id" element={<InternshipDetail />} />
+            <Route path="/internships/:id" element={<InternshipDetails />} />
+
 
             {/* Page Not Found */}
             <Route
