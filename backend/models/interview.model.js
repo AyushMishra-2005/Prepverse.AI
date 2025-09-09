@@ -5,7 +5,7 @@ const interviewSchema = new Schema(
   {
     interviewId: {
       type : mongoose.Schema.Types.ObjectId,
-      ref : 'CompanyInterviewData'
+      ref : 'Internship'
     },
     participant: {
       type : mongoose.Schema.Types.ObjectId,

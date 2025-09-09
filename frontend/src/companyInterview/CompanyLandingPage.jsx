@@ -45,7 +45,7 @@ function CompanyDashboard() {
   }
 
   return (
-    <div className={`${bgMain} w-full min-h-screen text-white flex flex-col items-center px-6 pt-30 py-16 transition-colors duration-500`}>
+    <div className={`${bgMain} w-full h-[100vh] max-h-screen text-white flex flex-col items-center px-6 pt-30 py-16 transition-colors duration-500`}>
 
       {/* Header */}
       <motion.h1

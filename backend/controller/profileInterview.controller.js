@@ -137,8 +137,10 @@ export const checkRoleValidity = async (req, res) => {
 
 
 export const profileBasedInterview = async (req, res) => {
-  let { role, topics, numberOfQns } = req.body;
+  let { role, topics, numberOfQns, interviewId } = req.body;
   const participant = req.user._id;
+
+  console.log(numberOfQns);
 
   if (typeof topics === "string") {
     topics = [topics];
@@ -149,9 +151,22 @@ export const profileBasedInterview = async (req, res) => {
     !Array.isArray(topics) ||
     topics.length === 0 ||
     !topics.some(topic => topic.trim() !== "") ||
-    !numberOfQns
+    !numberOfQns ||
+    !interviewId
   ) {
     return res.status(400).json({ message: "Please provide a valid role and at least one non-empty topic." });
+  }
+
+  try {
+    const existing = await InterviewData.findOne({ interviewId, participant });
+    if (existing) {
+      return res.status(409).json({
+        message: 'Already attended the Interview!'
+      });
+    }
+  } catch (err) {
+    console.log(err);
+    return res.status(400).json({ message: "Server issue." });
   }
 
 
@@ -208,6 +223,7 @@ export const profileBasedInterview = async (req, res) => {
 
     if (questions) {
       const newData = new InterviewData({
+        interviewId,
         participant,
         questions,
         answers: questions.map(() => "Answer Not Provided.")

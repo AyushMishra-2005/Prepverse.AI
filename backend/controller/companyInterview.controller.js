@@ -144,6 +144,8 @@ export const searchInterviews = async (req, res) => {
 export const generateInterviewQuestions = async (req, res) => {
   const { role, numOfQns, topic, interviewId } = req.body;
 
+  console.log("Number of questions");
+
   const participant = req.user._id;
 
   if (!interviewId || !role || !numOfQns || !topic) {
