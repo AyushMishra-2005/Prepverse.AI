@@ -129,7 +129,7 @@ def recommend():
     try:
         print("Re-ranking candidates with Cross-Encoder...")
         pairs = [
-            (user_summary, c.get("description", "") + " " + c.get("jobTitle", ""))
+            (user_summary, f"{c.get('jobTitle', '')}. {c.get('jobRole', '')}. {c.get('jobTopic', '')}. {c.get('description', '')}")
             for c in candidates
         ]
         
@@ -185,3 +185,10 @@ if __name__ == "__main__":
     startup() 
     print("Starting Flask server for recommendation engine...")
     app.run(host="0.0.0.0", port=5000, debug=True, use_reloader=False)
+
+
+
+
+
+
+

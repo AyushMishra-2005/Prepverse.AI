@@ -22,9 +22,6 @@ export const generateQuestions = async (req, res) => {
     });
   }
 
-  console.log("previousQuestions"+previousQuestions.length);
-  console.log("number of qns"+numOfQns);
-
   givenAnswer = givenAnswer?.trim() === "" ? "Answer Not Provided." : givenAnswer;
 
   try {

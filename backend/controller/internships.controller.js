@@ -12,8 +12,6 @@ export const getMatchedInternships = async (req, res) => {
       return res.status(200).json({message : "resume data not found!", resumeData});
     }
 
-    console.log(resumeData.resumeReview);
-
 
     const {data} = await axios.post(
       'http://127.0.0.1:5000/recommend',
