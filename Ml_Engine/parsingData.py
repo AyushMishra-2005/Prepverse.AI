@@ -1,12 +1,11 @@
-import pandas as pd
-from pymongo import MongoClient
-from sentence_transformers import SentenceTransformer
-from tqdm import tqdm
 import os
 import re
-import numpy as np
-from dotenv import load_dotenv
 import random
+import pandas as pd
+from tqdm import tqdm
+from dotenv import load_dotenv
+from pymongo import MongoClient
+from sentence_transformers import SentenceTransformer
 
 load_dotenv()
 
@@ -15,71 +14,87 @@ DB_NAME = os.getenv("DB_NAME")
 COLLECTION_NAME = os.getenv("COLLECTION_NAME")
 
 MODEL_NAME = "Alibaba-NLP/gte-large-en-v1.5"
-CSV_FILE_PATH = "cleaned_internships_dataset.csv"
+CSV_FILE_PATH = "Internship_Dataset_600.csv"
 
+random.seed(42)
 
 def clean_text(text: str) -> str:
     """Cleans and normalizes text for better embeddings."""
     if not isinstance(text, str):
         return ""
-    text = text.lower()
+    text = text.lower().strip()
     text = re.sub(r"\s+", " ", text)  
-    text = re.sub(r"[^a-zA-Z0-9.,;:!?()\- ]", "", text)  
-    return text.strip()
+    text = re.sub(r"[^a-z0-9.,;:!?()\- ]", "", text)  
+    return text
 
 
 def build_combined_text(row: pd.Series) -> str:
-    """Build a semantically rich text representation of an internship with weights."""
+    """Builds a semantically rich internship representation with weighted fields."""
     parts = []
 
     if row.get("Job Title"):
-        parts.append("Internship Title: " + clean_text(row["Job Title"]) + ". ")
+        parts.append(f"Internship Title: {clean_text(row['Job Title'])}. ")
     if row.get("Job Role"):
-        parts.append(("Role: " + clean_text(row["Job Role"]) + ". ") * 2)
+        parts.append((f"Role: {clean_text(row['Job Role'])}. ") * 2)
     if row.get("Job Topics"):
-        parts.append(("Topic: " + clean_text(row["Job Topics"]) + ". ") * 3)
+        parts.append((f"Topic: {clean_text(row['Job Topics'])}. ") * 3)
     if row.get("Job Description"):
-        parts.append(("Responsibilities include: " + clean_text(row["Job Description"]) + ". ") * 3)
+        parts.append((f"Responsibilities include: {clean_text(row['Job Description'])}. ") * 3)
 
-    return " ".join(parts)
+    return " ".join(parts).strip()
+
+
+def connect_mongo():
+    """Connect to MongoDB Atlas with validation."""
+    if not MONGO_URI:
+        raise RuntimeError("MONGO_URI not found in environment variables")
+
+    try:
+        client = MongoClient(MONGO_URI)
+        client.admin.command("ping")
+        print("MongoDB connection successful.")
+        return client
+    except Exception as e:
+        raise RuntimeError(f"MongoDB connection failed: {e}")
+
+
+def load_model():
+    """Load SentenceTransformer model."""
+    print(f"Loading model: {MODEL_NAME} ...")
+    try:
+        model = SentenceTransformer(MODEL_NAME, trust_remote_code=True)
+        print("Model loaded successfully.")
+        return model
+    except Exception as e:
+        raise RuntimeError(f"Error loading model: {e}")
+
+
+def process_csv():
+    """Load and preprocess internship dataset."""
+    if not os.path.exists(CSV_FILE_PATH):
+        raise FileNotFoundError(f"File not found: {CSV_FILE_PATH}")
+
+    print(f"Loading dataset: {CSV_FILE_PATH} ...")
+    df = pd.read_csv(CSV_FILE_PATH)
+    print(f"Loaded {len(df)} internships from CSV.")
+    return df
 
 
 def main():
-    """Main function to process CSV, generate embeddings, and store in MongoDB."""
-    print("Connecting to MongoDB Atlas...")
-    try:
-        client = MongoClient(MONGO_URI)
-        db = client[DB_NAME]
-        collection = db[COLLECTION_NAME]
-        client.admin.command("ping")
-        print("MongoDB connection successful.")
-    except Exception as e:
-        print(f"Error connecting to MongoDB: {e}")
-        return
+    client = connect_mongo()
+    db = client[DB_NAME]
+    collection = db[COLLECTION_NAME]
 
-    print(f"Loading Sentence Transformer model: {MODEL_NAME}...")
-    try:
-        model = SentenceTransformer(MODEL_NAME, trust_remote_code=True)  
-        print("Model loaded successfully.")
-    except Exception as e:
-        print(f"Error loading model: {e}")
-        return
+    model = load_model()
+    df = process_csv()
 
-    print(f"Loading data from {CSV_FILE_PATH}...")
-    if not os.path.exists(CSV_FILE_PATH):
-        print(f"Error: File {CSV_FILE_PATH} not found.")
-        return
-
-    df = pd.read_csv(CSV_FILE_PATH)
-
-    print(f"Clearing existing data in '{COLLECTION_NAME}' collection...")
+    print(f"Clearing existing data in collection '{COLLECTION_NAME}' ...")
     collection.delete_many({})
 
-    print("Preparing internship texts...")
-    internship_texts = []
-    internship_metadata = []
+    internship_texts, internship_metadata = [], []
 
-    for _, row in df.iterrows():
+    print("Preparing internship texts ...")
+    for _, row in tqdm(df.iterrows(), total=len(df)):
         combined_text = build_combined_text(row)
         if not combined_text:
             continue
@@ -97,35 +112,27 @@ def main():
             "description": row.get("Job Description"),
             "jobRole": row.get("Job Role"),
             "numOfQns": random.randint(2, 5),
-            "participants" : []
+            "participants": []
         })
 
-    print("Generating embeddings in batches...")
+    print("Generating embeddings in batches ...")
     embeddings = model.encode(
-    internship_texts,
-    batch_size=32,
-    convert_to_numpy=True,
-    show_progress_bar=True
-)
+        internship_texts,
+        batch_size=32,
+        convert_to_numpy=True,
+        normalize_embeddings=True,  
+        show_progress_bar=True
+    )
 
-    from sklearn.preprocessing import normalize
-    embeddings = normalize(embeddings)
-
-    internships_to_insert = []
+    print(f"Inserting {len(internship_metadata)} documents into MongoDB ...")
     for meta, emb in zip(internship_metadata, embeddings):
         meta["embedding"] = emb.tolist()
-        internships_to_insert.append(meta)
 
-    if internships_to_insert:
-        print(f"\nInserting {len(internships_to_insert)} documents into MongoDB...")
-        try:
-            collection.insert_many(internships_to_insert)
-            print("Data insertion complete!")
-            print(f"Total documents in collection: {collection.count_documents({})}")
-        except Exception as e:
-            print(f"Error during data insertion: {e}")
-    else:
-        print("No data to insert.")
+    try:
+        collection.insert_many(internship_metadata, ordered=False)
+        print(f"Data insertion complete! Total docs: {collection.count_documents({})}")
+    except Exception as e:
+        print(f"Error during insertion: {e}")
 
     client.close()
     print("MongoDB connection closed.")

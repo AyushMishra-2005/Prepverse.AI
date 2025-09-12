@@ -12,10 +12,10 @@ function CompanyDashboard() {
   const bgMain = theme === "dark" ? "bg-black" : "bg-gray-50";
   const headerText = theme === "dark" ? "text-white" : "text-gray-900";
   const subText = theme === "dark" ? "text-gray-400" : "text-gray-600";
-  const cardBg = theme === "dark" ? "bg-[#111111]/80" : "bg-white/80";
+  const cardBg = theme === "dark" ? "bg-orange-100" : "bg-orange-50";
   const cardBorder = theme === "dark" ? "border-[#2A2A2A]" : "border-gray-200";
-  const cardText = theme === "dark" ? "text-white" : "text-gray-900";
-  const cardSubText = theme === "dark" ? "text-gray-400" : "text-gray-600";
+  const cardText = theme === "dark" ? "text-black" : "text-gray-900";
+  const cardSubText = theme === "dark" ? "text-gray-700" : "text-gray-600";
   const cardHoverShadow = theme === "dark" ? "hover:shadow-[#FF6900]/30" : "hover:shadow-orange-400/30";
   const cardHoverBorder = theme === "dark" ? "hover:border-[#FF6900]" : "hover:border-orange-400";
 
@@ -45,7 +45,7 @@ function CompanyDashboard() {
   }
 
   return (
-    <div className={`${bgMain} w-full min-h-screen text-white flex flex-col items-center px-6 pt-30 py-16 transition-colors duration-500`}>
+    <div className={`${bgMain} w-full h-[100vh] max-h-screen text-white flex flex-col items-center px-6 pt-30 py-16 transition-colors duration-500`}>
 
       {/* Header */}
       <motion.h1

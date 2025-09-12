@@ -43,6 +43,19 @@ export const uploadResume = async (req, res) => {
 
     console.log(resumeReview);
 
+    const resume_embedding = await axios.post(
+      "http://127.0.0.1:5000/embed_candidate",
+      {summary : resumeReview},
+    );
+
+    if(!resume_embedding.data.embedding){
+      return res.status(501).json({message: "resume embedding failed"});
+    }
+
+    console.log(resume_embedding.data);
+
+    const embedding = resume_embedding.data.embedding;
+
     const timestamp = Math.floor(Date.now() / 1000);
 
     const paramsToSign = {
@@ -77,10 +90,11 @@ export const uploadResume = async (req, res) => {
       {
         resumeLink: cloudinaryRes.data.secure_url,
         resumeJSONdata: resume_data,
-        resumeReview: resumeReview
+        resumeReview: resumeReview,
+        embedding: embedding
       },
       { new: true, upsert: true }
-    );
+    ).select("-embedding");
 
     deleteFile(filePath);
 

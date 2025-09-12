@@ -33,11 +33,12 @@ const InternshipDetails = () => {
   }
 
   const handleAttendClick = async (topics, role, numOfQns, interviewId) => {
+    console.log("Number of questions are : "+ numOfQns);
     try {
       setOpenStepProgress(true);
       const { data } = await axios.post(
         `${server}/profileInterview/profileBasedInterview`,
-        {  topics, role, numberOfQns: numOfQns},
+        {  topics, role, numberOfQns: numOfQns, interviewId},
         { withCredentials: true }
       );
 
@@ -70,7 +71,7 @@ const InternshipDetails = () => {
 
   return (
     <div
-      className={`min-h-screen w-full font-inter mt-16 px-6 py-12 transition-colors duration-500 ${theme === "dark"
+      className={`min-h-screen w-full font-inter px-6 py-12 transition-colors duration-500 ${theme === "dark"
         ? "bg-[#0D0D0D] text-white"
         : "bg-[#FFFFFF] text-[#1A1A1A]"
         }`}

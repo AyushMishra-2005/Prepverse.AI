@@ -86,7 +86,7 @@ function App() {
         <div className="flex flex-col items-center h-[100%] w-[100vw] mt-[60px]">
           <Routes>
             {/* Home Pages */}
-            <Route path="/" element={<HomeComponent />} />
+            <Route path="/" element={<Home2 />} />
             <Route path="/home2" element={<Home2 />} />
 
             {/* Interview */}
