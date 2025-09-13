@@ -3,11 +3,13 @@ import React from "react";
 import Confetti from "react-confetti";
 import { useWindowSize } from "react-use";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthProvider.jsx";
 
 const QuizResult = ({ score, total, name, subject, level }) => {
   const percentage = Math.round((score / total) * 100);
   const { width, height } = useWindowSize();
   const navigate = useNavigate();
+  const { authUser } = useAuth();
 
   // Define score level description
   let performance = "";
@@ -28,8 +30,8 @@ const QuizResult = ({ score, total, name, subject, level }) => {
 
       {/* Title with performance */}
       <h2 className="text-4xl sm:text-5xl font-bold text-white text-center">
-        <span className="font-poppins">{performance}</span>{" "}
-        <span className="text-[#ff6900] font-bold">{name}</span>!
+        <span className="font-poppins">{performance},</span>{" "}
+        <span className="text-[#ff6900] font-bold">{authUser.user.name}</span>!
       </h2>
 
       {/* Subject & Level */}
