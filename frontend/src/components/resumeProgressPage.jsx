@@ -5,7 +5,7 @@ import { useSocketContext } from '../context/socketContext.jsx'
 
 const checklistSteps = [
   "Verifying job title and role",
-  "Parsing resume data",
+  "Fetching Resume Data",
   "Scoring resume",
   "Generating Questions",
   "Preparing interview",
@@ -50,8 +50,17 @@ export default function ResumeProcessingPage() {
 
     return () => {
       socket.off("validateRoleAndTopic");
+      socket.off("resumeParsed");
+      socket.off("resumeScore");
+      socket.off("questionsGenerated");
     };
   }, [socket]);
+
+  useEffect(() => {
+    setResumeAnalysis({});
+    setShowAnalysis(false);
+    setCurrentStep(0);
+  }, []);
 
 
   return (

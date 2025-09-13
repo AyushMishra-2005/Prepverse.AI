@@ -7,7 +7,7 @@ const InterviewContext = createContext();
 
 export const InterviewsProvider = ({ children }) => {
 
-  const [interviews, setInterviews] = useState([]);
+  const [internships, setInternships] = useState([]);
 
   useEffect(() => {
     const fetchInterviews = async () => {
@@ -18,8 +18,10 @@ export const InterviewsProvider = ({ children }) => {
           {withCredentials : true}
         );
 
-        if (data?.interviews) {
-          setInterviews(data.interviews);
+        console.log(data);
+
+        if (data?.internships) {
+          setInternships(data.internships);
         }
       } catch (err) {
         console.log(err);
@@ -30,7 +32,7 @@ export const InterviewsProvider = ({ children }) => {
   }, []);
 
   return(
-    <InterviewContext.Provider value={{interviews}}>
+    <InterviewContext.Provider value={{internships}}>
       {children}
     </InterviewContext.Provider>
   );

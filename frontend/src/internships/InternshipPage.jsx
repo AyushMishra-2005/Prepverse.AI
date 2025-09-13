@@ -1,4 +1,3 @@
-// InternshipPage.jsx
 import React, { useState, useEffect, useContext } from "react";
 import {
   DollarSign,
@@ -16,7 +15,6 @@ import { useNavigate } from "react-router-dom";
 import useInternships from '../stateManage/useInternships.js';
 import {toast} from 'react-hot-toast';
 
-// ---------------- Internship Card ----------------
 const InternshipCard = ({ internship, isTopPick }) => {
   const { theme } = useContext(ThemeContext);
 
@@ -122,7 +120,6 @@ const InternshipCard = ({ internship, isTopPick }) => {
   );
 };
 
-// ---------------- Main Internship Page ----------------
 const InternshipPage = () => {
   const [internships, setInternships] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -180,9 +177,9 @@ const InternshipPage = () => {
       className={`min-h-screen w-full font-inter overflow-x-hidden transition-colors duration-500
         ${theme === "dark" ? "bg-[#0D0D0D] text-white" : "bg-[#FFFFFF] text-[#1A1A1A]"}`}
     >
-      <main className="w-full px-6 py-12">
+      <main className="w-full px-6">
         {/* Header Section */}
-        <section className="text-center mb-16 pt-16">
+        <section className="text-center mb-16 pt-8">
           <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-4 font-poppins">
             Find Your <span className="text-[#FF6900]">Next Opportunity</span>
           </h1>

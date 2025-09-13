@@ -8,11 +8,8 @@ const InternshipDetail = () => {
   const { id } = useParams();
   const { internshipsData } = useInternships();
   const internship = internshipsData.find((item) => item._id === id);
-  
-  const { theme } = useContext(ThemeContext);
-//   const { id } = useParams();
-//   const internship = internshipsData.find((item) => item.id.toString() === id);
 
+  const { theme } = useContext(ThemeContext);
   if (!internship) {
     return (
       <div
@@ -25,14 +22,13 @@ const InternshipDetail = () => {
     );
   }
 
-  // Accent component for reusability
   const Accent = ({ children }) => (
     <span className="text-[#FF6900]">{children}</span>
   );
 
   return (
     <div
-      className={`min-h-screen w-full font-inter mt-16 px-6 py-12 transition-colors duration-500 ${
+      className={`min-h-screen w-full font-inter px-6 py-12 transition-colors duration-500 ${
         theme === "dark"
           ? "bg-[#0D0D0D] text-white"
           : "bg-[#FFFFFF] text-[#1A1A1A]"

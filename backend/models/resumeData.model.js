@@ -23,7 +23,12 @@ const resumeDataSchema = new Schema(
     resumeReview: {
       type: String,
       required: true,
-    }
+    },
+    embedding: {
+      type: [Number],
+      required: true,
+      index: "2dsphere"
+    },
 
   },
   {

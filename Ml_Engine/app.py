@@ -5,6 +5,7 @@ from bson import ObjectId
 import numpy as np
 import torch
 import os
+import re
 
 from dotenv import load_dotenv
 
@@ -52,25 +53,40 @@ def startup():
         print(f"CRITICAL STARTUP ERROR: {e}")
         bi_encoder, cross_encoder, collection = None, None, None
 
+def clean_text(text: str) -> str:
+    """Cleans and normalizes text for better embeddings."""
+    if not isinstance(text, str):
+        return ""
+    text = text.lower()
+    text = re.sub(r"\s+", " ", text)
+    text = re.sub(r"[^a-zA-Z0-9.,;:!?()\- ]", "", text)
+    return text.strip()
+
+def build_combined_text(data: dict) -> str:
+    """Builds semantically rich text for a single internship."""
+    parts = []
+
+    if data.get("jobTitle"):
+        parts.append(("Internship Title: " + clean_text(data["jobTitle"]) + ". ") * 2)
+    if data.get("jobRole"):
+        parts.append(f"Role: {clean_text(data['jobRole'])}.")
+    if data.get("jobTopic"):
+        parts.append(("Topic: " + clean_text(data["jobTopic"]) + ". ") * 3)
+    if data.get("description"):
+        parts.append(("Responsibilities include: " + clean_text(data["description"]) + ". ") * 3)
+
+    return " ".join(parts)
+
 @app.route("/recommend", methods=["POST"])
 def recommend():
     if bi_encoder is None or cross_encoder is None or collection is None:
         return jsonify({"error": "Server is not ready due to a startup failure."}), 503
 
     data = request.get_json()
-    user_summary = data.get("summary")
+    user_vector = data.get("embedding")
 
-    if not user_summary or not isinstance(user_summary, str):
-        return jsonify({"error": "Invalid input. Please provide a JSON object with a 'summary' key containing the text."}), 400
-
-    try:
-        print("Generating vector from user summary...")
-        user_vector = bi_encoder.encode(
-            user_summary,
-            normalize_embeddings=True
-        ).tolist()
-    except Exception as e:
-        return jsonify({"error": f"Failed to generate profile vector: {e}"}), 500
+    if not user_vector or not isinstance(user_vector, list):
+        return jsonify({"error": "Invalid input. Provide 'embedding' as a list of floats."}), 400
 
     pipeline = [
         {
@@ -104,10 +120,10 @@ def recommend():
     try:
         print("Re-ranking candidates with Cross-Encoder...")
         pairs = [
-            (user_summary, c.get("description", "") + " " + c.get("jobTitle", ""))
+            ("Candidate profile embedding", f"{c.get('jobTitle', '')}. {c.get('jobRole', '')}. {c.get('jobTopic', '')}. {c.get('description', '')}")
             for c in candidates
         ]
-        
+
         scores = cross_encoder.predict(pairs)
 
         for cand, score in zip(candidates, scores):
@@ -126,7 +142,75 @@ def recommend():
         return jsonify({"error": f"Cross-encoder re-ranking failed: {e}"}), 500
 
 
+
+@app.route("/embed", methods=["POST"])
+def embed_job():
+    if bi_encoder is None:
+        return jsonify({"error": "Bi-encoder model not loaded."}), 503
+
+    data = request.get_json()
+
+    if not data or not isinstance(data, dict):
+        return jsonify({"error": "Invalid input. Expected a JSON object with job details."}), 400
+
+    try:
+        combined_text = build_combined_text(data)
+        if not combined_text:
+            return jsonify({"error": "No valid text to generate embedding."}), 400
+
+        print("Generating embedding for job data...")
+        embedding = bi_encoder.encode(
+            combined_text,
+            normalize_embeddings=True
+        ).tolist()
+
+        result = data.copy()
+        result["embedding"] = embedding
+
+        return jsonify(result)
+
+    except Exception as e:
+        return jsonify({"error": f"Failed to generate embedding: {e}"}), 500
+
+
+@app.route("/embed_candidate", methods=["POST"])
+def embed_candidate():
+    if bi_encoder is None:
+        return jsonify({"error": "Bi-encoder model not loaded."}), 503
+
+    data = request.get_json()
+    summary = data.get("summary")
+
+    if not summary or not isinstance(summary, str):
+        return jsonify({"error": "Invalid input"}), 400
+
+    try:
+        print("Generating embedding for candidate summary...")
+        embedding = bi_encoder.encode(
+            summary,
+            normalize_embeddings=True
+        ).tolist()
+
+        result = {
+            "summary": summary,
+            "embedding": embedding
+        }
+
+        return jsonify(result)
+
+    except Exception as e:
+        return jsonify({"error": f"Failed to generate embedding: {e}"}), 500
+
+
+
 if __name__ == "__main__":
     startup() 
     print("Starting Flask server for recommendation engine...")
     app.run(host="0.0.0.0", port=5000, debug=True, use_reloader=False)
+
+
+
+
+
+
+

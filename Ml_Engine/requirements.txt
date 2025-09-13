@@ -6,3 +6,4 @@ numpy
 pandas
 tqdm
 python-dotenv
+scikit-learn

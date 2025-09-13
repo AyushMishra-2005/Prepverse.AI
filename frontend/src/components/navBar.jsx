@@ -1,10 +1,9 @@
-import React, { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import React, { useState, useContext } from "react";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 import Avatar from "@mui/material/Avatar";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
-import {
-  Navbar,
+import Navbar, {
   NavBody,
   NavItems,
   MobileNav,
@@ -18,23 +17,21 @@ import { useAuth } from "../context/AuthProvider.jsx";
 import SwipeableTemporaryDrawer from "../components/drawerComponent.jsx";
 import { Sun, Moon } from "lucide-react";
 import { ThemeContext } from "../context/ThemeContext";
-import { useContext } from "react";
 
 export function NavbarDemo() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { authUser } = useAuth();
-
   const { theme, toggleTheme } = useContext(ThemeContext);
 
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
 
-  /** --------- Nav links --------- */
   const navItems = [
-    { name: "Home", link: "/" },
-    { name: "Home2", link: "/home2" },
-    { name: "AI Hire", link: "/aiInterviews" },
+    { name: "Home", link: "/home2" },
+    { name: "CandidateInterview", link: "/candidate/dashboard" },
+    { name: "CompanyDashboard", link: "/company/dashboard" },
     { name: "Internships", link: "/internships" },
   ];
 
@@ -46,7 +43,6 @@ export function NavbarDemo() {
 
   const allNavFeatures = navItems.concat(features);
 
-  /** --------- MUI Menu + Drawer --------- */
   const handleMenuOpen = (event) => setAnchorEl(event.currentTarget);
   const handleMenuClose = () => setAnchorEl(null);
 
@@ -58,62 +54,47 @@ export function NavbarDemo() {
   return (
     <div className="relative w-full z-50">
       <Navbar
-        className={`relative z-50 transition-colors duration-300 ${
+        className={
           theme === "dark"
             ? "bg-[#141414] border-b border-[#2A2A2A]"
             : "bg-white border-b border-[#EAEAEA]"
-        }`}
+        }
       >
         <NavBody>
-          {/* Left: logo */}
-          <div className="flex items-center gap-2">
-  <Link
-    to="/"
-    className={`hidden sm:flex items-center space-x-1 px-3 py-1 text-xl font-bold tracking-tight transition-transform duration-200 hover:scale-105 ${
-      theme === "dark" ? "text-white" : "text-[#1A1A1A]"
-    }`}
-  >
-    <span className="text-sm text-[#FF6900]">◆</span>
-    <span className={theme === "dark" ? "text-white" : "text-[#1A1A1A]"}>
-      Prepverse.
-    </span>
-    <span className="text-[#FF6900]">AI</span>
-  </Link>
-</div>
+          {/* Logo */}
+          <Link to="/">
+            <NavbarLogo theme={theme} />
+          </Link>
 
+          {/* Desktop Nav */}
+          <NavItems items={navItems} theme={theme} currentPath={location.pathname} />
 
-          {/* Middle: desktop nav items */}
-          <NavItems items={navItems} />
-
-          {/* Right: actions */}
+          {/* Right Actions */}
           <div className="flex items-center gap-3 z-50">
-            {/* Theme toggle */}
+            {/* Theme Toggle */}
             <button
               onClick={toggleTheme}
-              aria-label="Toggle theme"
               className={`p-2 rounded-full border transition-colors ${
                 theme === "dark"
                   ? "border-[#FF6900] text-[#FF6900] hover:bg-[#FF6900] hover:text-white"
                   : "border-[#FF6900] text-[#FF6900] hover:bg-[#FF6900] hover:text-white"
               }`}
-              title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
             >
               {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
             </button>
 
-            {/* Features dropdown trigger */}
+            {/* Features Dropdown */}
             <button
               onClick={handleMenuOpen}
               className={`px-4 py-2 rounded-md font-medium shadow-sm transition-all duration-200 ${
                 theme === "dark"
-                  ? "bg-[#1f2937] text-white hover:bg-[#273244] hover:shadow-md"
-                  : "bg-white text-gray-800 hover:bg-gray-100 hover:shadow-md border border-[#EAEAEA]"
+                  ? "bg-[#1f2937] text-white hover:bg-[#273244]"
+                  : "bg-white text-gray-800 border border-[#EAEAEA] hover:bg-gray-100"
               }`}
             >
               Features
             </button>
 
-            {/* MUI Menu */}
             <Menu
               anchorEl={anchorEl}
               open={Boolean(anchorEl)}
@@ -122,17 +103,13 @@ export function NavbarDemo() {
                 sx: {
                   backgroundColor: theme === "dark" ? "#1f2937" : "#ffffff",
                   color: theme === "dark" ? "#ffffff" : "#111827",
-                  mt: 1,
-                  zIndex: 1400,
                   border: theme === "dark" ? "1px solid #374151" : "1px solid #E5E7EB",
                 },
               }}
-              anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
-              transformOrigin={{ vertical: "top", horizontal: "left" }}
             >
-              {features.map((item, index) => (
+              {features.map((item) => (
                 <MenuItem
-                  key={index}
+                  key={item.name}
                   onClick={() => {
                     handleMenuClose();
                     navigate(item.link);
@@ -148,11 +125,11 @@ export function NavbarDemo() {
               ))}
             </Menu>
 
-            {/* Login / Avatar + Drawer */}
+            {/* Auth */}
             {!authUser ? (
               <button
                 onClick={() => navigate("/login")}
-                className="bg-transparent border border-[#FF6900] text-[#FF6900] font-poppins font-bold py-2 px-5 rounded-full hover:bg-[#FF6900] hover:text-white transition-colors"
+                className="border border-[#FF6900] text-[#FF6900] font-bold py-2 px-5 rounded-full hover:bg-[#FF6900] hover:text-white transition"
               >
                 Login
               </button>
@@ -174,26 +151,15 @@ export function NavbarDemo() {
           </div>
         </NavBody>
 
-        {/* ========== Mobile Nav ========== */}
+        {/* Mobile Nav */}
         <MobileNav>
           <MobileNavHeader>
-            <div className="flex items-center gap-2">
-              <NavbarLogo />
-              <span
-                className={`text-base font-semibold ${
-                  theme === "dark" ? "text-white" : "text-[#1A1A1A]"
-                }`}
-              >
-                Prepverse.AI
-              </span>
-            </div>
+            <NavbarLogo theme={theme} />
 
             <div className="flex gap-4 items-center mr-3">
-              {/* Mobile theme toggle */}
               <button
                 onClick={toggleTheme}
-                aria-label="Toggle theme"
-                className={`p-2 rounded-full border transition-colors ${
+                className={`p-2 rounded-full border ${
                   theme === "dark"
                     ? "border-[#FF6900] text-[#FF6900] hover:bg-[#FF6900] hover:text-white"
                     : "border-[#FF6900] text-[#FF6900] hover:bg-[#FF6900] hover:text-white"
@@ -225,30 +191,31 @@ export function NavbarDemo() {
             </div>
           </MobileNavHeader>
 
-          <MobileNavMenu
-            isOpen={isMobileMenuOpen}
-            onClose={() => setIsMobileMenuOpen(false)}
-          >
-            {allNavFeatures.map((item, idx) => (
-              <a
-                key={idx}
-                href={item.link}
-                onClick={() => setIsMobileMenuOpen(false)}
-                className={`relative ${
-                  theme === "dark" ? "text-neutral-300" : "text-neutral-700"
-                }`}
-              >
-                <span className="block">{item.name}</span>
-              </a>
-            ))}
+          <MobileNavMenu isOpen={isMobileMenuOpen} theme={theme}>
+            {allNavFeatures.map((item) => {
+              const isActive = location.pathname === item.link;
+              return (
+                <a
+                  key={item.name}
+                  href={item.link}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className={`${
+                    isActive
+                      ? "text-[#FF6900] font-semibold"
+                      : theme === "dark"
+                      ? "text-neutral-300"
+                      : "text-neutral-700"
+                  }`}
+                >
+                  {item.name}
+                </a>
+              );
+            })}
 
             <div className="flex w-full flex-col gap-3 mt-2">
               {authUser ? (
                 <NavbarButton
-                  onClick={() => {
-                    setIsMobileMenuOpen(false);
-                    navigate("/logout");
-                  }}
+                  onClick={() => navigate("/logout")}
                   variant="primary"
                   className="w-full"
                 >
@@ -256,10 +223,7 @@ export function NavbarDemo() {
                 </NavbarButton>
               ) : (
                 <NavbarButton
-                  onClick={() => {
-                    setIsMobileMenuOpen(false);
-                    navigate("/login");
-                  }}
+                  onClick={() => navigate("/login")}
                   variant="primary"
                   className="w-full"
                 >
