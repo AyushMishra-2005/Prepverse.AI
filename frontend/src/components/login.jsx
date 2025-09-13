@@ -287,8 +287,8 @@ function Login() {
   return (
     <Box
       sx={{
-        minHeight: '100vh',
         width: '100vw',
+        height: 'calc(100vh - 60px)',
         display: 'flex',
         padding: 0,
         background: containerBackground,
@@ -305,7 +305,6 @@ function Login() {
           width: { xs: '95%', sm: '90%', md: '80%' },
           maxWidth: '1000px',
           height: { xs: 'auto', md: '550px' },
-          mt: { xs: 4, md: 8 },
           mb: { xs: 4, md: 0 },
           boxShadow: { xs: '0 4px 10px rgba(0, 0, 0, 0.2)', md: '0 10px 30px rgba(0, 0, 0, 0.3)' },
           borderRadius: '12px',

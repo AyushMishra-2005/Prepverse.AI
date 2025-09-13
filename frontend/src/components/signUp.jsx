@@ -446,16 +446,14 @@ function SignUp() {
   return (
     <Box
       sx={{
-        minHeight: '100vh',
         width: '100vw',
+        height: 'calc(100vh - 60px)',
         display: 'flex',
+        padding: 0,
+        background: containerBackground,
         justifyContent: 'center',
         alignItems: 'center',
-        padding: { xs: 1, sm: 2, md: 3 },
-        background: containerBackground,
-        backgroundSize: 'cover',
-        backgroundAttachment: 'fixed',
-        overflow: 'auto'
+        overflowX: 'hidden',
       }}
     >
       <Fade in={true} timeout={800}>
@@ -466,7 +464,6 @@ function SignUp() {
             borderRadius: { xs: 2, md: 4 },
             width: { xs: '100%', sm: '90%', md: '1000px' },
             height: { xs: 'auto', md: '80vh' },
-            mt: { xs: 6, md: 8 },
             boxShadow: '0 25px 50px rgba(0, 0, 0, 0.5)',
             display: 'flex',
             flexDirection: { xs: 'column', md: 'row' },
