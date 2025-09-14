@@ -1,4 +1,6 @@
-import React, { useState } from 'react';
+
+
+import React, { useState } from 'react'; 
 import {
   Box,
   Button,
@@ -6,19 +8,6 @@ import {
   Modal,
   TextField
 } from '@mui/material';
-
-const modalStyle = {
-  position: 'absolute',
-  top: '50%',
-  left: '50%',
-  transform: 'translate(-50%, -50%)',
-  width: 450,
-  bgcolor: '#1f2937',
-  borderRadius: '16px',
-  boxShadow: 24,
-  p: 4,
-  color: 'white',
-};
 
 const ResumeModal = ({ open, handleClose, title, setTitle, handleSubmit }) => {
   const [titleError, setTitleError] = useState(false);
@@ -40,7 +29,19 @@ const ResumeModal = ({ open, handleClose, title, setTitle, handleSubmit }) => {
       aria-labelledby="resume-modal-title"
       aria-describedby="resume-modal-description"
     >
-      <Box sx={modalStyle}>
+      <Box sx={{
+        position: 'absolute',
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+        width: 450,
+        bgcolor: '#000000', // black background
+        borderRadius: '12px',
+        boxShadow: 24,
+        p: 4,
+        color: 'white', // white text
+        border: '1px solid #333' // subtle border
+      }}>
         <Typography
           id="resume-modal-title"
           variant="h5"
@@ -48,9 +49,7 @@ const ResumeModal = ({ open, handleClose, title, setTitle, handleSubmit }) => {
           sx={{
             fontWeight: 'bold',
             mb: 3,
-            background: 'linear-gradient(to right, #4facfe, #00f2fe)',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
+            color: 'white', // white heading
             textAlign: 'center',
           }}
         >
@@ -69,32 +68,62 @@ const ResumeModal = ({ open, handleClose, title, setTitle, handleSubmit }) => {
           error={titleError}
           helperText={titleError ? "Resume title is required" : ""}
           sx={{
-            input: { color: 'white' },
-            label: { color: '#bbb' },
+            input: { 
+              color: 'white', // white text
+            },
+            label: { 
+              color: '#ccc' // light gray label
+            },
             '& .MuiOutlinedInput-root': {
-              '& fieldset': { borderColor: '#555' },
-              '&:hover fieldset': { borderColor: '#888' },
+              '& fieldset': { 
+                borderColor: '#555', // gray border
+              },
+              '&:hover fieldset': { 
+                borderColor: '#888', // lighter gray on hover
+              },
+              '&.Mui-focused fieldset': {
+                borderColor: '#aaa', // light gray when focused
+              },
             },
             mb: 3,
           }}
         />
 
-        <Button
-          variant="contained"
-          fullWidth
-          onClick={onSubmit}
-          sx={{
-            background: 'linear-gradient(to right, #4facfe, #00f2fe)',
-            color: 'white',
-            fontWeight: 'bold',
-            textTransform: 'none',
-            '&:hover': {
-              background: 'linear-gradient(to right, #3ea0ff, #00e6e6)',
-            },
-          }}
-        >
-          Submit
-        </Button>
+        <Box sx={{ display: 'flex', gap: 2, justifyContent: 'flex-end' }}>
+          <Button
+            variant="outlined"
+            onClick={handleClose}
+            sx={{
+              color: 'white', // white text
+              borderColor: '#555', // gray border
+              fontWeight: 'medium',
+              textTransform: 'none',
+              '&:hover': {
+                backgroundColor: '#1a1a1a',
+                borderColor: '#888', // lighter gray border on hover
+              },
+            }}
+          >
+            Cancel
+          </Button>
+          <Button
+            variant="contained"
+            onClick={onSubmit}
+            sx={{
+              backgroundColor: '#1a1a1a', // dark background
+              color: 'white', // white text
+              border: '1px solid #555', // subtle border
+              fontWeight: 'medium',
+              textTransform: 'none',
+              '&:hover': {
+                backgroundColor: '#2a2a2a', // slightly lighter black on hover
+                borderColor: '#888', // lighter gray border on hover
+              },
+            }}
+          >
+            Create Resume
+          </Button>
+        </Box>
       </Box>
     </Modal>
   );
