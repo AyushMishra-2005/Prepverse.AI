@@ -17,13 +17,7 @@ const InternshipSchema = new mongoose.Schema(
       type: [Number],
       required: true,
       index: "2dsphere"
-    },
-    participants: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-      }
-    ]
+    }
   },
   { timestamps: true }
 );

@@ -6,6 +6,7 @@ import numpy as np
 import torch
 import os
 import re
+from sklearn.preprocessing import MinMaxScaler
 
 from dotenv import load_dotenv
 
@@ -201,84 +202,128 @@ def embed_candidate():
     except Exception as e:
         return jsonify({"error": f"Failed to generate embedding: {e}"}), 500
     
-
+    
+    
 @app.route("/eligible_users", methods=["POST"])
 def eligible_users():
-    if bi_encoder is None or collection is None:
+    if bi_encoder is None or cross_encoder is None:
         return jsonify({"error": "Server not ready"}), 503
 
     data = request.get_json()
-    internship_embedding = data.get("embedding")
+    internship_id = data.get("internshipId")
 
-    if not internship_embedding or not isinstance(internship_embedding, list):
-        return jsonify({"error": "Invalid input. Provide 'embedding' as a list"}), 400
+    if not internship_id:
+        return jsonify({"error": "Invalid input. Provide 'internshipId'"}), 400
 
     try:
         client = MongoClient(MONGO_URI)
         db = client[DB_NAME]
-        resume_collection = db["resumedatas"] 
 
-        resumes = list(resume_collection.find(
-            {"embedding": {"$exists": True, "$ne": []}},
-            {"userId": 1, "embedding": 1}
-        ))
+        internship_collection = db["new_internships_data"]
+        resume_collection = db["resumedatas"]
+
+        internship = internship_collection.find_one(
+            {"_id": ObjectId(internship_id)},
+            {"embedding": 1, "description": 1, "jobTitle": 1, "jobRole": 1, "jobTopic": 1}
+        )
+
+        if not internship or "embedding" not in internship:
+            return jsonify({"error": "Internship not found or missing embedding"}), 404
+
+        internship_embedding = internship["embedding"]
+        internship_desc = internship.get("description", "Internship posting")
+
+        pipeline = [
+            {
+                "$vectorSearch": {
+                    "index": "vector_index2",
+                    "path": "embedding",
+                    "queryVector": internship_embedding,
+                    "numCandidates": 2000,
+                    "limit": 200
+                }
+            },
+            {
+                "$project": {
+                    "_id": 0,
+                    "userId": 1,
+                    "embedding": 1,
+                    "resumeJSONdata": 1,
+                    "resumeReview": 1,
+                    "vectorScore": {"$meta": "vectorSearchScore"}
+                }
+            }
+        ]
+
+        resumes = list(resume_collection.aggregate(pipeline))
+        if not resumes:
+            return jsonify({"eligible_users": [], "all_ranked_results": []})
+
+        keywords = f"{internship.get('jobTitle','')} {internship.get('jobRole','')} {internship.get('jobTopic','')} {internship.get('description','')}".lower().split()
+        filtered_resumes = []
+        for r in resumes:
+            resume_text = str(r.get("resumeJSONdata", "")).lower()
+            if any(k in resume_text for k in keywords):
+                filtered_resumes.append(r)
+
+        if not filtered_resumes:
+            return jsonify({"eligible_users": [], "all_ranked_results": []})
+
+        resumes = filtered_resumes
+
+
+        pairs = [(internship_desc, str(r.get("resumeJSONdata", ""))) for r in resumes]
+        raw_cross_scores = cross_encoder.predict(pairs)
+        cross_scores = np.array(raw_cross_scores).flatten()
+        if cross_scores.max() != cross_scores.min():
+            cross_scores = (cross_scores - cross_scores.min()) / (cross_scores.max() - cross_scores.min())
+        else:
+            cross_scores = np.ones_like(cross_scores) * 0.5
+
+        vector_scores = np.array([r["vectorScore"] for r in resumes])
+        hybrid_scores = 0.6 * vector_scores + 0.4 * cross_scores
+
+        percentile_threshold = np.percentile(hybrid_scores, 50)
+
+        min_vector_score = 0.5   
+        min_cross_score = 0.3
 
         eligible_users = []
-        internship_vector = np.array(internship_embedding)
+        ranked_results = []
 
-        for r in resumes:
-            user_vector = np.array(r["embedding"])
-            
-            score = np.dot(internship_vector, user_vector) / (
-                np.linalg.norm(internship_vector) * np.linalg.norm(user_vector)
-            )
+        for r, ce_score, hybrid_score in zip(resumes, cross_scores, hybrid_scores):
+            user_id = str(r["userId"])
+            vector_score = r["vectorScore"]
+            final_score = hybrid_score
 
-            if score >= 0.6: 
-                eligible_users.append(str(r["userId"]))
+            ranked_results.append({
+                "userId": user_id,
+                "vector_score": float(vector_score),
+                "cross_score": float(ce_score),
+                "final_score": float(final_score),
+                "resumeReview": r.get("resumeReview")
+            })
 
-        return jsonify({"eligible_users": eligible_users})
+            if final_score >= percentile_threshold and vector_score >= min_vector_score and ce_score >= min_cross_score:
+                eligible_users.append({
+                    "userId": user_id,
+                    "vector_score": float(vector_score),
+                    "cross_score": float(ce_score),
+                    "final_score": float(final_score),
+                    "resumeReview": r.get("resumeReview")
+                })
+
+        eligible_users = sorted(eligible_users, key=lambda x: x["final_score"], reverse=True)
+
+        return jsonify({
+            "eligible_users": eligible_users,
+            "all_ranked_results": ranked_results
+        })
 
     except Exception as e:
         return jsonify({"error": f"Failed to compute eligibility: {e}"}), 500
+
     
-    
-# @app.route("/sample_internship_embedding", methods=["GET"])
-# def sample_internship_embedding():
-#     try:
-#         client = MongoClient(MONGO_URI)
-#         db = client[DB_NAME]
-#         internship_collection = db["new_internships_data"]
-
-#         # Pick one random "Web Development" internship with an embedding
-#         sample = internship_collection.aggregate([
-#             {
-#                 "$match": {
-#                     "embedding": {"$exists": True, "$ne": []},
-#                     "jobTitle": {"$regex": "AI Hardware Intern", "$options": "i"}  
-#                 }
-#             },
-#             {"$sample": {"size": 1}}
-#         ])
-
-#         sample_doc = list(sample)
-#         if not sample_doc:
-#             return jsonify({"error": "No Web Development internship embeddings found"}), 404
-
-#         return jsonify({
-#             "internshipId": str(sample_doc[0]["_id"]),
-#             "jobTitle": sample_doc[0].get("jobTitle", ""),
-#             "company": sample_doc[0].get("company", ""),
-#             "embedding": sample_doc[0]["embedding"]  
-#         })
-
-#     except Exception as e:
-#         return jsonify({"error": f"Failed to fetch internship embedding: {e}"}), 500
-
-
-
-
-
-
 
 if __name__ == "__main__":
     startup() 

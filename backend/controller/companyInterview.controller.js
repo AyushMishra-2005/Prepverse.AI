@@ -85,18 +85,22 @@ export const createCompanyInterview = async (req, res) => {
     await newData.save();
 
     const eligibleUsers = await axios.post("http://127.0.0.1:5000/eligible_users", {
-      embedding: data.embedding,
+      internshipId: newData._id,
     });
 
     const eligible_users = eligibleUsers.data.eligible_users || [];
     console.log(eligible_users);
 
+    // Extract only userIds
+    const userIds = eligible_users.map(u => u.userId);
+
     const users = await User.find(
-      { _id: { $in: eligible_users } },
+      { _id: { $in: userIds } },
       { name: 1, email: 1 }
     );
 
     console.log(users);
+
 
     for (const user of users) {
       const mailOptions = {
