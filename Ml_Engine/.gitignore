@@ -1,5 +1,5 @@
 # Ignore the virtual environment
-ml_env/
+venv/
 
 # Ignore Python bytecode and cache
 __pycache__/
