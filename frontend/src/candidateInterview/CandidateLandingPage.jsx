@@ -26,15 +26,18 @@ function CandidateLandingPage() {
   const navigate = useNavigate();
   const { theme } = useContext(ThemeContext);
 
-  // Text colors
-  const textPrimary = theme === "dark" ? "text-white" : "text-gray-900";
-  const textSecondary = theme === "dark" ? "text-gray-300" : "text-gray-700";
-  
+  // ✅ Text colors (separately tuned for readability)
+  const headingText = theme === "dark" ? "text-white" : "text-gray-900"; // Main heading
+  const highlightText = "text-[#FF6900]"; // Always orange
+  const subHeadingText = theme === "dark" ? "text-gray-300" : "text-gray-700"; // Paragraphs
+  const cardTitleText = theme === "dark" ? "text-gray-900" : "text-gray-800"; // Card heading
+  const cardDescText = theme === "dark" ? "text-gray-700" : "text-gray-600"; // Card description
+
   // Glow for background circles
   const accentGlow = theme === "dark" ? "bg-[#FF6900] opacity-10" : "bg-orange-400 opacity-20";
 
-  // Feature card backgrounds and hover shadows
-  const cardBg = theme === "dark" ? "bg-gray-800/70" : "bg-white";
+  // ✅ Fixed card background
+  const cardBg = theme === "dark" ? "bg-orange-100" : "bg-orange-50";
   const cardShadowHover = theme === "dark" ? "hover:shadow-orange-400/40" : "hover:shadow-gray-400/40";
   const iconColor = theme === "dark" ? "text-[#FF6900]" : "text-orange-600";
 
@@ -57,20 +60,27 @@ function CandidateLandingPage() {
   ];
 
   return (
-    <div className={`relative w-full min-h-screen ${theme === "dark" ? "bg-black" : "bg-gray-50"} flex flex-col items-center justify-center px-6 overflow-hidden transition-colors duration-500`}>
-      
+    <div
+      className={`relative w-full min-h-screen ${
+        theme === "dark" ? "bg-black" : "bg-gray-50"
+      } flex flex-col items-center justify-center px-6 overflow-hidden transition-colors duration-500`}
+    >
       {/* Decorative Glow Circles */}
-      <div className={`absolute -top-40 -right-40 w-[400px] h-[400px] ${accentGlow} blur-[160px] rounded-full animate-pulse`}></div>
-      <div className={`absolute -bottom-40 -left-40 w-[400px] h-[400px] ${accentGlow} blur-[160px] rounded-full animate-pulse`}></div>
+      <div
+        className={`absolute -top-40 -right-40 w-[400px] h-[400px] ${accentGlow} blur-[160px] rounded-full animate-pulse`}
+      ></div>
+      <div
+        className={`absolute -bottom-40 -left-40 w-[400px] h-[400px] ${accentGlow} blur-[160px] rounded-full animate-pulse`}
+      ></div>
 
       {/* Hero Heading */}
       <motion.h1
         initial={{ opacity: 0, y: 40 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2, duration: 0.8, ease: "easeOut" }}
-        className={`text-center text-5xl md:text-7xl font-poppins font-bold tracking-tight leading-tight ${textPrimary}`}
+        className={`text-center text-5xl md:text-7xl font-poppins font-bold tracking-tight leading-tight ${headingText}`}
       >
-        Attend <span className="text-[#FF6900] drop-shadow-lg">AI Interviews</span>
+        Attend <span className={`${highlightText} drop-shadow-lg`}>AI Interviews</span>
       </motion.h1>
 
       {/* Subtext */}
@@ -78,10 +88,10 @@ function CandidateLandingPage() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.4, duration: 0.6 }}
-        className={`text-center text-lg md:text-xl mt-6 max-w-2xl font-inter ${textSecondary}`}
+        className={`text-center text-lg md:text-xl mt-6 max-w-2xl font-inter ${subHeadingText}`}
       >
         Practice, prepare, and perform with{" "}
-        <span className={`font-semibold ${theme === "dark" ? "text-white" : "text-gray-900"}`}>AI-driven mock interviews</span>{" "}
+        <span className={`font-semibold ${headingText}`}>AI-driven mock interviews</span>{" "}
         designed by top companies to boost your confidence.
       </motion.p>
 
@@ -98,8 +108,8 @@ function CandidateLandingPage() {
             className={`p-6 rounded-xl shadow-lg ${cardBg} transition-colors duration-300 hover:scale-105 ${cardShadowHover} cursor-pointer`}
           >
             {feature.icon}
-            <h3 className={`font-bold text-lg ${textPrimary}`}>{feature.title}</h3>
-            <p className={`mt-2 text-sm ${textSecondary}`}>{feature.description}</p>
+            <h3 className={`font-bold text-lg ${cardTitleText}`}>{feature.title}</h3>
+            <p className={`mt-2 text-sm ${cardDescText}`}>{feature.description}</p>
           </div>
         ))}
       </motion.div>
@@ -120,7 +130,7 @@ function CandidateLandingPage() {
           whileHover={{ scale: 1.07, backgroundColor: "#FF6900", color: "#fff" }}
           whileTap={{ scale: 0.95 }}
           transition={{ type: "spring", stiffness: 300 }}
-          className={`px-10 py-4 border border-[#FF6900] text-[#FF6900] font-semibold rounded-full hover:text-white transition`}
+          className="px-10 py-4 border border-[#FF6900] text-[#FF6900] font-semibold rounded-full hover:bg-[#FF6900] hover:text-white transition"
         >
           Learn More
         </motion.button>

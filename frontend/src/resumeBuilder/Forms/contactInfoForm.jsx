@@ -1,134 +1,128 @@
-import React from 'react'
+
+import React, { useContext } from 'react';
 import useResumeStore from '../../stateManage/useResumeStore';
+import { ThemeContext } from '../../context/ThemeContext';
 
 function ContactInfoForm() {
+  const { resumeData, updateResumeField } = useResumeStore();
+  const { theme } = useContext(ThemeContext);
 
-  const {resumeData, updateResumeField} = useResumeStore();
+  // Theme-specific styles with true black for dark theme
+  const containerStyle = theme === "dark" 
+    ? "space-y-6 p-2 flex flex-col justify-evenly h-full bg-black"
+    : "space-y-6 p-2 flex flex-col justify-evenly h-full bg-gray-50";
+    
+  const headerStyle = theme === "dark" 
+    ? "text-xl font-semibold text-white mt-2 border-b border-gray-800 pb-2"
+    : "text-xl font-semibold text-gray-800 mt-2 border-b border-gray-300 pb-2";
+    
+  const inputStyle = theme === "dark" 
+    ? "w-full px-4 py-2.5 bg-black border border-gray-800 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#ff6900] focus:border-transparent transition-all"
+    : "w-full px-4 py-2.5 bg-white border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#ff6900] focus:border-transparent transition-all";
+    
+  const labelStyle = theme === "dark" 
+    ? "block text-sm font-medium text-gray-300 mb-1"
+    : "block text-sm font-medium text-gray-700 mb-1";
 
   return (
-    <div className="space-y-6 p-2 flex flex-col justify-evenly">
+    <div className={containerStyle}>
 
       <div>
-        <h2 className="text-xl font-semibold text-white mt-2">
+        <h2 className={headerStyle}>
           Contact Information
         </h2>
       </div>
 
       <div className="flex-1">
-        <label htmlFor="fullName" className="block text-sm font-medium text-gray-300 mb-1">
+        <label htmlFor="location" className={labelStyle}>
           Address
         </label>
         <input
           type="text"
-          id="fullName"
-          className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-lg 
-                      text-white placeholder-gray-400 focus:outline-none focus:ring-2 
-                      focus:ring-blue-500/50 focus:border-transparent transition-all"
+          id="location"
+          className={inputStyle}
           placeholder="Short Address"
-          onChange={(e) => {
-            updateResumeField('contactInfo', 'location', e.target.value);
-          }}
-          value={resumeData.contactInfo?.location}
+          value={resumeData.contactInfo?.location || ''}
+          onChange={(e) => updateResumeField('contactInfo', 'location', e.target.value)}
         />
       </div>
 
       <div className="flex flex-col md:flex-row gap-4">
         <div className="flex-1">
-          <label htmlFor="fullName" className="block text-sm font-medium text-gray-300 mb-1">
+          <label htmlFor="email" className={labelStyle}>
             Email
           </label>
           <input
             type="text"
             id="email"
-            className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-lg 
-                      text-white placeholder-gray-400 focus:outline-none focus:ring-2 
-                      focus:ring-blue-500/50 focus:border-transparent transition-all"
+            className={inputStyle}
             placeholder="John@gmail.com"
-            onChange={(e) => {
-              updateResumeField('contactInfo', 'email', e.target.value);
-            }}
-            value={resumeData.contactInfo?.email}
+            value={resumeData.contactInfo?.email || ''}
+            onChange={(e) => updateResumeField('contactInfo', 'email', e.target.value)}
           />
         </div>
 
-
         <div className="flex-1">
-          <label htmlFor="designation" className="block text-sm font-medium text-gray-300 mb-1">
+          <label htmlFor="phone" className={labelStyle}>
             Phone Number
           </label>
           <input
             type="text"
-            id="phoneNumber"
-            className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-lg 
-                      text-white placeholder-gray-400 focus:outline-none focus:ring-2 
-                      focus:ring-blue-500/50 focus:border-transparent transition-all"
+            id="phone"
+            className={inputStyle}
             placeholder="9078343277"
-            onChange={(e) => {
-              updateResumeField('contactInfo', 'phone', e.target.value);
-            }}
-            value={resumeData.contactInfo?.phone}
+            value={resumeData.contactInfo?.phone || ''}
+            onChange={(e) => updateResumeField('contactInfo', 'phone', e.target.value)}
           />
         </div>
       </div>
 
       <div className="flex flex-col md:flex-row gap-4">
         <div className="flex-1">
-          <label htmlFor="fullName" className="block text-sm font-medium text-gray-300 mb-1">
+          <label htmlFor="linkedin" className={labelStyle}>
             LinkedIn
           </label>
           <input
             type="text"
-            id="linkedIn"
-            className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-lg 
-                      text-white placeholder-gray-400 focus:outline-none focus:ring-2 
-                      focus:ring-blue-500/50 focus:border-transparent transition-all"
+            id="linkedin"
+            className={inputStyle}
             placeholder="https://linkedin.com/in/username"
-            onChange={(e) => {
-              updateResumeField('contactInfo', 'linkedin', e.target.value);
-            }}
-            value={resumeData.contactInfo?.linkedin}
+            value={resumeData.contactInfo?.linkedin || ''}
+            onChange={(e) => updateResumeField('contactInfo', 'linkedin', e.target.value)}
           />
         </div>
 
         <div className="flex-1">
-          <label htmlFor="designation" className="block text-sm font-medium text-gray-300 mb-1">
+          <label htmlFor="github" className={labelStyle}>
             GitHub
           </label>
           <input
             type="text"
-            id="gitHub"
-            className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-lg 
-                      text-white placeholder-gray-400 focus:outline-none focus:ring-2 
-                      focus:ring-blue-500/50 focus:border-transparent transition-all"
+            id="github"
+            className={inputStyle}
             placeholder="https://github.com/username"
-            onChange={(e) => {
-              updateResumeField('contactInfo', 'github', e.target.value);
-            }}
-            value={resumeData.contactInfo?.github}
+            value={resumeData.contactInfo?.github || ''}
+            onChange={(e) => updateResumeField('contactInfo', 'github', e.target.value)}
           />
         </div>
       </div>
 
       <div className="flex-1">
-        <label htmlFor="fullName" className="block text-sm font-medium text-gray-300 mb-1">
+        <label htmlFor="website" className={labelStyle}>
           Portfolio / Website
         </label>
         <input
           type="text"
-          id="Portfolio"
-          className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-lg 
-                      text-white placeholder-gray-400 focus:outline-none focus:ring-2 
-                      focus:ring-blue-500/50 focus:border-transparent transition-all"
+          id="website"
+          className={inputStyle}
           placeholder="https://yourwebsite.com"
-          onChange={(e) => {
-            updateResumeField('contactInfo', 'website', e.target.value);
-          }}
-          value={resumeData.contactInfo?.website}
+          value={resumeData.contactInfo?.website || ''}
+          onChange={(e) => updateResumeField('contactInfo', 'website', e.target.value)}
         />
       </div>
 
     </div>
-  )
+  );
 }
 
-export default ContactInfoForm
+export default ContactInfoForm;

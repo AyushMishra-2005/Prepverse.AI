@@ -22,8 +22,8 @@ const InternshipCard = ({ internship, isTopPick }) => {
     <div
       className={`relative p-4 rounded-lg border flex flex-col justify-between
         ${theme === "dark"
-          ? "bg-[#141414]/90 border-[#2A2A2A] shadow-sm"
-          : "bg-white/90 border-[#EAEAEA] shadow-md"
+          ? "bg-orange-100 border-[#2A2A2A] shadow-sm"
+          : "bg-orange-50 border-[#EAEAEA] shadow-md"
         }
         transition-all duration-300 ease-out 
         hover:border-[#FF6900]/70 hover:shadow-md hover:-translate-y-1
@@ -51,13 +51,13 @@ const InternshipCard = ({ internship, isTopPick }) => {
 
         {/* Job Info */}
         <h3
-          className={`text-lg font-semibold mb-1 ${theme === "dark" ? "text-white" : "text-black"
+          className={`text-lg font-semibold mb-1 ${theme === "dark" ? "text-black" : "text-black"
             }`}
         >
           {internship.jobTitle}
         </h3>
         <p
-          className={`text-sm mb-3 ${theme === "dark" ? "text-[#B3B3B3]" : "text-[#555555]"
+          className={`text-sm mb-3 ${theme === "dark" ? "text-black" : "text-[#555555]"
             }`}
         >
           {internship.company}

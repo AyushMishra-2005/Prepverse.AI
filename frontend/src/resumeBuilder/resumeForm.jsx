@@ -1,31 +1,34 @@
-import React, { useState, useRef } from 'react';
+
+
+import React, { useState, useRef, useContext } from 'react';
 import './resume.css';
 import { Pen, Palette, Trash2, ArrowDownToLine, ArrowLeft, Save, ArrowRight } from "lucide-react";
 import StepProgress from './stepProgress';
-import { motion, AnimatePresence, number } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 
-import ProfileInfoForm from './Forms/profileInfoForm.jsx'
-import ContactInfoForm from './Forms/contactInfoForm.jsx'
-import WorkExperienceForm from './Forms/workExperienceForm.jsx'
-import EducationForm from './Forms/educationForm.jsx'
-import SkillInfoForm from './Forms/skillInfoForm.jsx'
+import ProfileInfoForm from './Forms/profileInfoForm.jsx';
+import ContactInfoForm from './Forms/contactInfoForm.jsx';
+import WorkExperienceForm from './Forms/workExperienceForm.jsx';
+import EducationForm from './Forms/educationForm.jsx';
+import SkillInfoForm from './Forms/skillInfoForm.jsx';
 import ProjectDetailsForm from './Forms/projectDetailsForm.jsx';
 import ResumeModal from './resumeModal.jsx';
 import useResumeStore from '../stateManage/useResumeStore.js';
-import html2canvas from 'html2canvas';
 import { jsPDF } from "jspdf";
 import html2pdf from 'html2pdf.js';
 import CertificationForm from './Forms/certificationForm.jsx';
 import InterestForm from './Forms/interestForm.jsx';
 import ResumeTemplateModal from './resumeTemplateModal.jsx';
 import axios from 'axios';
-import server from '../environment.js'
-import { toast } from 'react-hot-toast'
+import server from '../environment.js';
+import { toast } from 'react-hot-toast';
 import { Loader2 } from 'lucide-react';
 
 import TemplateOne from './resumeTemplates/templateOne.jsx';
 import TemplateTwo from './resumeTemplates/templateTwo.jsx';
-
+import TemplateThree from './resumeTemplates/templateThree.jsx';
+import TemplateFour from './resumeTemplates/templateFour.jsx';
+import { ThemeContext } from '../context/ThemeContext';
 
 const formSteps = [
   { component: <ProfileInfoForm />, label: 'Profile Info', progress: 0 },
@@ -38,10 +41,8 @@ const formSteps = [
   { component: <ProjectDetailsForm />, label: 'Projects', progress: 14.29 * 7 },
 ];
 
-
-
 function ResumeForm() {
-
+  const { theme } = useContext(ThemeContext);
   const [direction, setDirection] = useState(1);
   const [currentStep, setCurrentStep] = useState(0);
   const stepProgress = ((currentStep + 1) / formSteps.length) * 100;
@@ -52,7 +53,9 @@ function ResumeForm() {
 
   const templateData = [
     { component: <TemplateOne ref={templateRef} /> },
-    { component: <TemplateTwo ref={templateRef} /> }
+    { component: <TemplateTwo ref={templateRef} /> },
+    { component: <TemplateThree ref={templateRef} /> },
+    { component: <TemplateFour ref={templateRef} /> }
   ];
 
   const [titleOpen, setTitleOpen] = useState(false);
@@ -95,7 +98,6 @@ function ResumeForm() {
     }
   }
 
-
   const handleDownloadPDF = () => {
     const element = templateRef.current;
     const opt = {
@@ -113,7 +115,6 @@ function ResumeForm() {
         format: 'a4',
         orientation: 'portrait',
       },
-
     };
 
     html2pdf().set(opt).from(element).toPdf().get('pdf').save();
@@ -126,7 +127,6 @@ function ResumeForm() {
 
     try {
       if(selectedImageFile && selectedImageFile.name && selectedImageFile.size > 0){
-
         const { data } = await axios.get(
           `${server}/getImage`,
           {},
@@ -172,64 +172,176 @@ function ResumeForm() {
     }
   };
 
+  // Define theme styles with our brand colors
+  const themeStyles = {
+    dark: {
+      background: '#000000',
+      cardBg: 'rgba(30, 30, 30, 0.9)',
+      cardBorder: '1px solid rgba(255, 255, 255, 0.12)',
+      text: '#ffffff',
+      textMuted: 'rgba(255, 255, 255, 0.7)',
+      // Unified button colors with our theme
+      buttonPrimary: '#ff6900', // Orange
+      buttonPrimaryHover: '#e55d00', // Darker orange on hover
+      buttonPrimaryText: '#ffffff', // White text on orange
+      buttonSecondary: '#ff6900', // Orange for all buttons
+      buttonSecondaryHover: '#e55d00', // Darker orange on hover
+      buttonSecondaryText: '#ffffff', // White text
+      dangerButton: '#ff6900', // Orange for all buttons
+      dangerButtonHover: '#e55d00', // Darker orange on hover
+      dangerButtonText: '#ffffff', // White text
+      successButton: '#ff6900', // Orange for all buttons
+      successButtonHover: '#e55d00', // Darker orange on hover
+      successButtonText: '#ffffff', // White text
+      navbarBg: 'linear-gradient(to right, #0a0a0a, #111111, #0a0a0a)',
+      disabledButton: 'rgba(255, 105, 0, 0.5)', // Semi-transparent orange
+      disabledText: 'rgba(255, 255, 255, 0.5)', // Semi-transparent white
+    },
+    light: {
+      background: 'linear-gradient(to bottom, #f9fafb, #f3f4f6)',
+      cardBg: '#ffffff',
+      cardBorder: '1px solid #e5e7eb',
+      text: '#111827',
+      textMuted: '#6b7280',
+      // Unified button colors with our theme
+      buttonPrimary: '#ff6900', // Orange
+      buttonPrimaryHover: '#e55d00', // Darker orange on hover
+      buttonPrimaryText: '#ffffff', // White text on orange
+      buttonSecondary: '#ff6900', // Orange for all buttons
+      buttonSecondaryHover: '#e55d00', // Darker orange on hover
+      buttonSecondaryText: '#ffffff', // White text
+      dangerButton: '#ff6900', // Orange for all buttons
+      dangerButtonHover: '#e55d00', // Darker orange on hover
+      dangerButtonText: '#ffffff', // White text
+      successButton: '#ff6900', // Orange for all buttons
+      successButtonHover: '#e55d00', // Darker orange on hover
+      successButtonText: '#ffffff', // White text
+      navbarBg: 'linear-gradient(to right, #e0f2fe, #dbeafe, #e0e7ff)',
+      disabledButton: 'rgba(255, 105, 0, 0.5)', // Semi-transparent orange
+      disabledText: 'rgba(255, 255, 255, 0.7)', // Semi-transparent white
+    }
+  };
 
+  const currentTheme = themeStyles[theme] || themeStyles.light;
 
   return (
     <>
-      <div className="gradient-bg min-h-screen w-screen flex flex-col items-center pt-4">
-        <div className="w-[90vw] min-h-[72px] bg-gradient-to-r from-[#1f2d3d] via-[#1a2734] to-[#17212b] 
-  backdrop-blur-xl border border-white/10 rounded-xl shadow-2xl z-10 
-  flex items-center justify-between px-6 text-white text-lg font-medium mt-[50px]">
+      <div 
+        className="min-h-screen w-screen flex flex-col items-center pt-4"
+        style={{ background: currentTheme.background, color: currentTheme.text }}
+      >
+        <div 
+          className="w-[90vw] min-h-[72px] rounded-xl shadow-2xl z-10 flex items-center justify-between px-6 text-lg font-medium mt-[50px]"
+          style={{ 
+            background: currentTheme.navbarBg,
+            border: currentTheme.cardBorder,
+            color: currentTheme.text
+          }}
+        >
 
           <div className="flex items-center gap-[10px] mr-[20px]">
-            <span className="text-white font-semibold text-xl">{resumeData?.title}</span>
-            <Pen className="w-5 h-5 text-gray-300 hover:text-white cursor-pointer transition-colors"
+            <span className="font-semibold text-xl">
+              {resumeData?.title}
+            </span>
+            <Pen 
+              className="w-5 h-5 transition-colors cursor-pointer"
+              style={{ color: currentTheme.textMuted }}
               onClick={handleOpen}
             />
           </div>
 
           <div className="flex items-center gap-4">
-
             <button
-              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-500/30 hover:bg-blue-500/50 text-sm transition-all duration-200 hover:scale-[1.03]"
+              className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm transition-all duration-200 hover:scale-[1.03]"
+              style={{ 
+                background: currentTheme.buttonPrimary,
+                color: currentTheme.buttonPrimaryText
+              }}
+              onMouseOver={(e) => {
+                e.target.style.background = currentTheme.buttonPrimaryHover;
+              }}
+              onMouseOut={(e) => {
+                e.target.style.background = currentTheme.buttonPrimary;
+              }}
               onClick={handleSave}
               disabled={loading}
             >
               {loading ? (
-                <Loader2 className="animate-spin w-4 h-4 text-blue-100" />
+                <Loader2 className="animate-spin w-4 h-4" />
               ) : (
                 <>
-                  <Save className="w-4 h-4 text-blue-100" />
+                  <Save className="w-4 h-4" />
                   <span className="hidden md:block">Save</span>
                 </>
               )}
             </button>
 
-            <button className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-sm transition-all duration-200"
+            <button 
+              className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm transition-all duration-200"
+              style={{ 
+                background: currentTheme.buttonSecondary,
+                color: currentTheme.buttonSecondaryText
+              }}
+              onMouseOver={(e) => {
+                e.target.style.background = currentTheme.buttonSecondaryHover;
+              }}
+              onMouseOut={(e) => {
+                e.target.style.background = currentTheme.buttonSecondary;
+              }}
               onClick={handleTemplateOpen}
             >
-              <Palette className="w-5 h-5 text-white" />
+              <Palette className="w-5 h-5" />
               <span className="hidden md:block">Theme</span>
             </button>
 
-            <button className="flex items-center gap-2 px-4 py-2 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-sm transition-all duration-200">
-              <Trash2 className="w-5 h-5 text-red-400" />
-              <span className="hidden md:block text-red-300">Delete</span>
+            <button 
+              className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm transition-all duration-200"
+              style={{ 
+                background: currentTheme.dangerButton,
+                color: currentTheme.dangerButtonText
+              }}
+              onMouseOver={(e) => {
+                e.target.style.background = currentTheme.dangerButtonHover;
+              }}
+              onMouseOut={(e) => {
+                e.target.style.background = currentTheme.dangerButton;
+              }}
+            >
+              <Trash2 className="w-5 h-5" />
+              <span className="hidden md:block">Delete</span>
             </button>
 
-            <button className="flex items-center gap-2 px-4 py-2 rounded-lg bg-green-500/10 hover:bg-green-500/20 text-sm transition-all duration-200"
+            <button 
+              className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm transition-all duration-200"
+              style={{ 
+                background: currentTheme.successButton,
+                color: currentTheme.successButtonText
+              }}
+              onMouseOver={(e) => {
+                e.target.style.background = currentTheme.successButtonHover;
+              }}
+              onMouseOut={(e) => {
+                e.target.style.background = currentTheme.successButton;
+              }}
               onClick={handleDownloadPDF}
             >
-              <ArrowDownToLine className="w-5 h-5 text-green-400" />
-              <span className="hidden md:block text-green-300">Download</span>
+              <ArrowDownToLine className="w-5 h-5" />
+              <span className="hidden md:block">Download</span>
             </button>
           </div>
         </div>
 
         <div className="w-[90vw] flex flex-col lg:flex-row justify-between gap-6 mt-8">
-          <div className="bg-white/5 backdrop-blur-md border border-white/10 w-full lg:w-1/2 h-[75vh] min-h-[500px] rounded-2xl shadow-2xl text-white p-4 z-10">
+          <div 
+            className="w-full lg:w-1/2 h-[75vh] min-h-[500px] rounded-2xl shadow-2xl p-4 z-10"
+            style={{ 
+              background: currentTheme.cardBg,
+              border: currentTheme.cardBorder,
+              color: currentTheme.text
+            }}
+          >
             <div className="flex flex-col justify-between h-full">
-              <StepProgress progress={formSteps[currentStep].progress} />
+              <StepProgress progress={formSteps[currentStep].progress} theme={theme} />
 
               <div className="flex-grow overflow-y-auto min-h-0 relative overflow-hidden">
                 <AnimatePresence mode="wait" custom={direction}>
@@ -251,28 +363,57 @@ function ResumeForm() {
                 <button
                   onClick={handleBack}
                   disabled={currentStep === 0}
-                  className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/20 hover:bg-white/40 text-sm transition-all duration-200 hover:scale-[1.03] disabled:opacity-30"
+                  className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm transition-all duration-200 hover:scale-[1.03]"
+                  style={{ 
+                    background: currentStep === 0 ? currentTheme.disabledButton : currentTheme.buttonSecondary,
+                    color: currentStep === 0 ? currentTheme.disabledText : currentTheme.buttonSecondaryText
+                  }}
+                  onMouseOver={(e) => {
+                    if (currentStep !== 0) {
+                      e.target.style.background = currentTheme.buttonSecondaryHover;
+                    }
+                  }}
+                  onMouseOut={(e) => {
+                    e.target.style.background = currentStep === 0 ? currentTheme.disabledButton : currentTheme.buttonSecondary;
+                  }}
                 >
-                  <ArrowLeft className="w-4 h-4 text-white" />
-                  <span className="text-white">Back</span>
+                  <ArrowLeft className="w-4 h-4" />
+                  <span>Back</span>
                 </button>
 
                 <button
                   onClick={handleNext}
                   disabled={currentStep === formSteps.length - 1}
-                  className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/20 hover:bg-white/40 text-sm transition-all duration-200 hover:scale-[1.03] disabled:opacity-30"
+                  className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm transition-all duration-200 hover:scale-[1.03]"
+                  style={{ 
+                    background: currentStep === formSteps.length - 1 ? currentTheme.disabledButton : currentTheme.buttonPrimary,
+                    color: currentStep === formSteps.length - 1 ? currentTheme.disabledText : currentTheme.buttonPrimaryText
+                  }}
+                  onMouseOver={(e) => {
+                    if (currentStep !== formSteps.length - 1) {
+                      e.target.style.background = currentTheme.buttonPrimaryHover;
+                    }
+                  }}
+                  onMouseOut={(e) => {
+                    e.target.style.background = currentStep === formSteps.length - 1 ? currentTheme.disabledButton : currentTheme.buttonPrimary;
+                  }}
                 >
-                  <span className="text-white">Next</span>
-                  <ArrowRight className="w-4 h-4 text-white" />
+                  <span>Next</span>
+                  <ArrowRight className="w-4 h-4" />
                 </button>
               </div>
-
             </div>
-
           </div>
 
           {/* Right Container */}
-          <div className="bg-white/5 backdrop-blur-md border border-white/10 w-full lg:w-1/2 h-[75vh] min-h-[500px] rounded-2xl shadow-2xl p-6 text-white z-10">
+          <div 
+            className="w-full lg:w-1/2 h-[75vh] min-h-[500px] rounded-2xl shadow-2xl p-6 z-10"
+            style={{ 
+              background: currentTheme.cardBg,
+              border: currentTheme.cardBorder,
+              color: currentTheme.text
+            }}
+          >
             <div className="overflow-y-auto h-full relative">
               {templateData[resumeData.template.number].component}
             </div>
@@ -286,6 +427,7 @@ function ResumeForm() {
         title={title}
         setTitle={setTitle}
         handleSubmit={handleSubmit}
+        theme={theme}
       />
 
       <ResumeTemplateModal
@@ -293,10 +435,12 @@ function ResumeForm() {
         handleClose={handleTemplateClose}
         setTemplate={setTemplate}
         handleSubmit={handleTemplateSubmit}
+        theme={theme}
       />
-
     </>
   );
 }
 
 export default ResumeForm;
+
+

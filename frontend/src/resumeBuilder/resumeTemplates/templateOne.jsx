@@ -1,7 +1,10 @@
+
+
+
 import React, { forwardRef } from 'react';
 import useResumeStore from '../../stateManage/useResumeStore';
 
-const TemplateOne = forwardRef((props, ref) => {
+const LatexTemplate = forwardRef((props, ref) => {
   const { resumeData } = useResumeStore();
   const {
     profileInfo = {},
@@ -12,362 +15,230 @@ const TemplateOne = forwardRef((props, ref) => {
     projects = [],
     certifications = [],
     languages = [],
-    interest = []
+    interests = []
   } = resumeData;
 
+  const formatUrl = (url) => {
+    if (!url) return '';
+    if (!url.startsWith('http://') && !url.startsWith('https://')) {
+      return `https://${url}`;
+    }
+    return url;
+  };
+
+  const formatDate = (dateString) => {
+    if (!dateString) return "Month Year";
+    try {
+      const date = new Date(dateString);
+      return isNaN(date.getTime()) 
+        ? "Month Year" 
+        : date.toLocaleDateString('en-US', { year: 'numeric', month: 'short' });
+    } catch (error) {
+      return "Month Year";
+    }
+  };
+
   return (
-    <div
-      ref={ref}
-      className="w-[794px] min-h-[1123px] flex"
-      style={{
-        fontFamily: 'Arial, sans-serif',
-        backgroundColor: '#fff',
-        color: '#000',
-        boxSizing: 'border-box',
-        overflowWrap: 'break-word',
-        wordBreak: 'break-word'
-      }}
-    >
-      {/* Sidebar */}
-      <div
-        className="w-[30%] bg-[#f2ecfa] p-4"
-        style={{
-          display: 'flex',
-          flexDirection: 'column',
-          boxSizing: 'border-box'
-        }}
-      >
-        {profileInfo.profilePreviewUrl && (
+    <div ref={ref} style={{
+      fontFamily: "'Arial', 'Helvetica', sans-serif",
+      fontSize: '11px',
+      width: '210mm',
+      minHeight: '297mm',
+      maxHeight: '297mm',
+      padding: '15mm',
+      boxSizing: 'border-box',
+      backgroundColor: '#fff',
+      color: '#000',
+      overflow: 'hidden',
+      display: 'flex',
+      flexDirection: 'column',
+    }}>
+
+      {/* Header */}
+      <header style={{ display: 'flex', gap: '15px', marginBottom: '25px', flexShrink: 0 }}>
+        {profileInfo.profilePreviewUrl ? (
           <img
             src={profileInfo.profilePreviewUrl}
             alt="Profile"
-            style={{
-              width: '96px',
-              height: '96px',
-              borderRadius: '50%',
-              objectFit: 'cover',
-              marginBottom: '12px',
-              alignSelf: 'center'
-            }}
+            style={{ width: '90px', height: '90px', objectFit: 'cover', borderRadius: '50%', border: '1px solid #ccc' }}
           />
+        ) : (
+          <div style={{ width: '90px', height: '90px', backgroundColor: '#ccc', borderRadius: '50%', textAlign: 'center', fontSize: '11px', lineHeight: '90px' }}>
+            No Image
+          </div>
         )}
 
-        {/* Contact */}
-        <div style={{ marginBottom: '16px' }}>
-          <h3 style={{
-            fontWeight: 'bold',
-            borderBottom: '1px solid #c4b7e3',
-            marginBottom: '8px',
-            fontSize: '14px'
-          }}>
-            Contact
-          </h3>
-          <ul style={{ fontSize: '12px', lineHeight: '1.5' }}>
-            {contactInfo.email && <li>📧 {contactInfo.email}</li>}
-            {contactInfo.phone && <li>📞 {contactInfo.phone}</li>}
-            {contactInfo.linkedin && <li>🔗 {contactInfo.linkedin}</li>}
-            {contactInfo.location && <li>📍 {contactInfo.location}</li>}
-            {contactInfo.github && <li>💻 {contactInfo.github}</li>}
-            {contactInfo.website && <li>🌐 {contactInfo.website}</li>}
-          </ul>
+        <div style={{ flex: 1 }}>
+          <h1 style={{ fontSize: '18px', fontWeight: 'bold', textTransform: 'uppercase', marginBottom: '10px' }}>
+            {profileInfo.fullName || "Your Name"}
+          </h1>
+          <h2 style={{ fontSize: '13px', marginBottom: '10px' }}>
+            {profileInfo.institution || "Institution Name"}
+          </h2>
+          <div style={{ fontSize: '11px', display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+            {contactInfo.location && <span>📍 {contactInfo.location}</span>}
+            <span>📱 {contactInfo.phone || "+91-XXXXXXXXXX"}</span>
+            <span>✉ {contactInfo.email || "email@example.com"}</span>
+            {contactInfo.github && (
+              <span>🔗 <a href={formatUrl(contactInfo.github)} target="_blank" rel="noopener noreferrer">GitHub</a></span>
+            )}
+            {contactInfo.linkedin && (
+              <span>🔗 <a href={formatUrl(contactInfo.linkedin)} target="_blank" rel="noopener noreferrer">LinkedIn</a></span>
+            )}
+          </div>
         </div>
+      </header>
 
-        {/* Skills */}
-        {skills.length > 0 && (
-          <div style={{ marginBottom: '16px' }}>
-            <h3 style={{
-              fontWeight: 'bold',
-              borderBottom: '1px solid #c4b7e3',
-              marginBottom: '8px',
-              fontSize: '14px'
-            }}>
-              Skills
-            </h3>
-            <ul style={{
-              fontSize: '12px',
-              lineHeight: '1.5',
-              listStyleType: 'disc',
-              paddingLeft: '16px'
-            }}>
-              {skills.map((skill, i) => <li key={i}>{skill.name}</li>)}
-            </ul>
-          </div>
-        )}
+      {/* Scrollable Content */}
+      <div style={{ overflowY: 'auto', flex: 1 }}>
 
-        {/* Languages */}
-        {languages.length > 0 && (
-          <div style={{ marginBottom: '16px' }}>
-            <h3 style={{
-              fontWeight: 'bold',
-              borderBottom: '1px solid #c4b7e3',
-              marginBottom: '8px',
-              fontSize: '14px'
-            }}>
-              Languages
-            </h3>
-            <ul style={{ fontSize: '12px', lineHeight: '1.5' }}>
-              {languages.map((lang, i) => (
-                <li key={i}>{lang.name}</li>
-              ))}
-            </ul>
-          </div>
-        )}
+        {[
+          {
+            title: 'Education',
+            data: education,
+            render: (edu, i) => (
+              <div key={i} style={{ marginBottom: '15px' }}>
+                <strong style={{ display: 'block', fontSize: '12px', marginBottom: '5px' }}>
+                  {edu.institution || "Institution Name"}
+                </strong>
+                <div style={{ fontSize: '11px', marginBottom: '5px' }}>
+                  {formatDate(edu.startDate)} – {formatDate(edu.endDate)}
+                </div>
+                <div style={{ fontSize: '11px' }}>
+                  {edu.degree || "Degree Name"} | CGPA: {edu.cgpa || '-'} | {edu.percentage ? `${edu.percentage}%` : '-'}
+                </div>
+              </div>
+            )
+          },
+          {
+            title: 'Projects',
+            data: projects,
+            render: (proj, i) => (
+              <div key={i} style={{ marginBottom: '15px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <strong style={{ fontSize: '12px' }}>
+                    {proj.title || "Project Title"}
+                  </strong>
+                  <div style={{ display: 'flex', gap: '12px' }}>
+                    {proj.github && (
+                      <a
+                        href={formatUrl(proj.github)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{
+                          fontSize: '11px',
+                          color: '#0056b3',
+                          fontWeight: 'bold',
+                          textDecoration: 'underline'
+                        }}
+                      >
+                        GitHub
+                      </a>
+                    )}
+                    {proj.liveDemo && (
+                      <a
+                        href={formatUrl(proj.liveDemo)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{
+                          fontSize: '11px',
+                          color: '#d9534f',
+                          fontWeight: 'bold',
+                          textDecoration: 'underline'
+                        }}
+                      >
+                        Live Demo
+                      </a>
+                    )}
+                  </div>
+                </div>
+                <div style={{ fontSize: '11px', marginTop: '5px' }}>
+                  {proj.description}
+                </div>
+              </div>
+            )
+          },
+          {
+            title: 'Work Experience',
+            data: workExperience,
+            render: (exp, i) => (
+              <div key={i} style={{ marginBottom: '15px' }}>
+                <strong style={{ display: 'block', fontSize: '12px', marginBottom: '5px' }}>
+                  {exp.role || "Role"} @ {exp.company || "Company"}
+                </strong>
+                <div style={{ fontSize: '11px', marginBottom: '5px' }}>
+                  {formatDate(exp.startDate)} – {formatDate(exp.endDate)}
+                </div>
+                <div style={{ fontSize: '11px' }}>
+                  {exp.description}
+                </div>
+              </div>
+            )
+          },
+          { title: 'Certifications', data: certifications, render: (cert, i) => (
+  <div key={i} style={{ marginBottom: '10px' }}>
+    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <strong style={{ fontSize: '12px' }}>
+        {cert.title || "Certificate Title"}
+      </strong>
+      <span style={{ fontSize: '11px', color: '#666', marginLeft: '15px' }}>
+        {cert.year ? new Date(cert.year).toLocaleDateString(undefined, { month: 'short', year: 'numeric' }) : ""}
+      </span>
+    </div>
 
-        {/* Interests */}
-        {interest.length > 0 && (
-          <div style={{
-            marginBottom: '16px',
-            pageBreakInside: 'avoid'
-          }}>
+    {/* Issuer (below title) */}
+    {cert.issuer && (
+      <div style={{ fontSize: '11px', color: '#444', marginTop: '3px' }}>
+        Issued by {cert.issuer}
+      </div>
+    )}
+
+    {/* Link (highlighted) */}
+    {cert.link && (
+      <div style={{ marginTop: '5px' }}>
+        <a 
+          href={formatUrl(cert.link)} 
+          target="_blank" 
+          rel="noopener noreferrer" 
+          style={{ 
+            fontSize: '11px', 
+            color: '#ff6900', 
+            textDecoration: 'underline',
+            fontWeight: '500'
+          }}
+        >
+          View Certificate
+        </a>
+      </div>
+    )}
+  </div>
+)},
+
+        ].map(section => (
+          <section key={section.title} style={{ marginBottom: '20px' }}>
             <h3 style={{
-              fontWeight: 'bold',
               fontSize: '14px',
-              marginBottom: '8px',
-              color: '#4338ca',
-              borderBottom: '1px solid #e5e7eb',
+              fontWeight: 'bold',
+              marginBottom: '10px',
+              borderBottom: '1px solid #000',
               paddingBottom: '4px'
             }}>
-              Interests
+              {section.title}
             </h3>
-            <div style={{
-              display: 'flex',
-              flexWrap: 'wrap',
-              gap: '8px',
-              fontSize: '12px',
-              lineHeight: '1.5',
-              color: '#4b5563'
-            }}>
-              {interest.map((item, i) => (
-                <span
-                  key={i}
-                  style={{
-                    display: 'inline-block',
-                    padding: '2px 0',
-                    whiteSpace: 'normal',
-                    wordBreak: 'break-word',
-                    position: 'relative',
-                    paddingRight: '8px'
-                  }}
-                >
-                  {item.name}
-                  {i < interest.length - 1 && (
-                    <span style={{
-                      position: 'absolute',
-                      right: '0',
-                      top: '50%',
-                      transform: 'translateY(-50%)',
-                      color: '#d1d5db'
-                    }}>•</span>
-                  )}
-                </span>
-              ))}
-            </div>
-          </div>
-        )}
+
+            {section.data.length ? section.data.map(section.render) : (
+              <p style={{ fontSize: '11px', marginBottom: '10px' }}>
+                No {section.title.toLowerCase()} data added.
+              </p>
+            )}
+          </section>
+        ))}
+
       </div>
 
-      {/* Main Content */}
-      <div
-        className="w-[70%] p-6"
-        style={{
-          display: 'flex',
-          flexDirection: 'column',
-          boxSizing: 'border-box'
-        }}
-      >
-        {/* Header */}
-        <div style={{ textAlign: 'center', marginBottom: '16px' }}>
-          <h1 style={{
-            fontSize: '24px',
-            fontWeight: 'bold',
-            color: '#4338ca',
-            marginBottom: '4px'
-          }}>
-            {profileInfo.fullName}
-          </h1>
-          <h2 style={{
-            fontSize: '16px',
-            fontWeight: '500',
-            color: '#6b7280',
-            marginBottom: '8px'
-          }}>
-            {profileInfo.designation}
-          </h2>
-          {profileInfo.summary && (
-            <p style={{
-              fontSize: '12px',
-              color: '#374151',
-              textAlign: 'left'
-            }}>
-              {profileInfo.summary}
-            </p>
-          )}
-        </div>
-
-        {/* Work Experience */}
-        {workExperience.length > 0 && (
-          <div style={{ marginBottom: '16px' }}>
-            <h3 style={{
-              fontSize: '14px',
-              fontWeight: 'bold',
-              textTransform: 'uppercase',
-              borderBottom: '1px solid #ddd',
-              marginBottom: '8px',
-              paddingBottom: '2px'
-            }}>
-              Work Experience
-            </h3>
-            {workExperience.map((exp, i) => (
-              <div key={i} style={{ marginBottom: '12px' }}>
-                <p style={{
-                  fontSize: '14px',
-                  fontWeight: '600',
-                  marginBottom: '2px'
-                }}>
-                  {exp.role} at {exp.company}
-                </p>
-                <p style={{
-                  fontSize: '12px',
-                  color: '#666',
-                  marginBottom: '4px'
-                }}>
-                  {exp.startDate} – {exp.endDate}
-                </p>
-                <p style={{ fontSize: '12px' }}>
-                  {exp.description}
-                </p>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* Education */}
-        {education.length > 0 && (
-          <div style={{ marginBottom: '16px' }}>
-            <h3 style={{
-              fontSize: '14px',
-              fontWeight: 'bold',
-              textTransform: 'uppercase',
-              borderBottom: '1px solid #ddd',
-              marginBottom: '8px',
-              paddingBottom: '2px'
-            }}>
-              Education
-            </h3>
-            {education.map((edu, i) => (
-              <div key={i} style={{ marginBottom: '8px' }}>
-                <p style={{
-                  fontSize: '14px',
-                  fontWeight: '600',
-                  marginBottom: '2px'
-                }}>
-                  {edu.degree}
-                </p>
-                <p style={{
-                  fontSize: '12px',
-                  color: '#666',
-                  marginBottom: '2px'
-                }}>
-                  {edu.institution}
-                </p>
-                <p style={{
-                  fontSize: '12px',
-                  color: '#666'
-                }}>
-                  {edu.startDate} – {edu.endDate}
-                </p>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* Certifications */}
-        {certifications.length > 0 && (
-          <div style={{ marginBottom: '16px' }}>
-            <h3 style={{
-              fontSize: '14px',
-              fontWeight: 'bold',
-              textTransform: 'uppercase',
-              borderBottom: '1px solid #ddd',
-              marginBottom: '8px',
-              paddingBottom: '2px'
-            }}>
-              Certifications
-            </h3>
-            <ul style={{
-              fontSize: '12px',
-              listStyleType: 'disc',
-              paddingLeft: '16px'
-            }}>
-              {certifications.map((cert, i) => (
-                <li key={i} style={{ marginBottom: '4px' }}>
-                  {cert.title}, {cert.issuer} ({cert.year})
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-
-        {/* Projects */}
-        {projects.length > 0 && (
-          <div style={{ marginBottom: '16px' }}>
-            <h3 style={{
-              fontSize: '14px',
-              fontWeight: 'bold',
-              textTransform: 'uppercase',
-              borderBottom: '1px solid #ddd',
-              marginBottom: '8px',
-              paddingBottom: '2px'
-            }}>
-              Projects
-            </h3>
-            {projects.map((proj, i) => (
-              <div key={i} style={{ marginBottom: '12px' }}>
-                <p style={{
-                  fontSize: '14px',
-                  fontWeight: '600',
-                  marginBottom: '4px'
-                }}>
-                  {proj.title}
-                </p>
-                <p style={{
-                  fontSize: '12px',
-                  marginBottom: '4px'
-                }}>
-                  {proj.description}
-                </p>
-                {proj.github && (
-                  <a
-                    href={proj.github}
-                    style={{
-                      fontSize: '12px',
-                      color: '#2563eb',
-                      display: 'block',
-                      marginBottom: '2px'
-                    }}
-                  >
-                    GitHub
-                  </a>
-                )}
-                {proj.liveDemo && (
-                  <a
-                    href={proj.liveDemo}
-                    style={{
-                      fontSize: '12px',
-                      color: '#2563eb',
-                      display: 'block'
-                    }}
-                  >
-                    Live Demo
-                  </a>
-                )}
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
     </div>
   );
 });
 
-export default TemplateOne;
+export default LatexTemplate;
+

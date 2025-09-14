@@ -1,6 +1,8 @@
-import React, { useState } from 'react';
+
+import React, { useContext } from 'react'; 
 import { X } from 'lucide-react';
-import useResumeStore from '../../stateManage/useResumeStore.js'
+import useResumeStore from '../../stateManage/useResumeStore.js';
+import { ThemeContext } from '../../context/ThemeContext';
 
 function CertificationForm() {
   const {
@@ -9,17 +11,49 @@ function CertificationForm() {
     addArrayItem,
     removeArrayItem
   } = useResumeStore();
+  
+  const { theme } = useContext(ThemeContext);
 
   const emptyCertification = {
     title: "",
     issuer: "",
-    year: ""
+    year: "",
+    link: ""
   }
 
+  // Theme-specific styles with true black for dark theme
+  const containerStyle = theme === "dark" 
+    ? "space-y-4 p-2 flex flex-col h-full bg-black" 
+    : "space-y-4 p-2 flex flex-col h-full bg-gray-50";
+    
+  const headerStyle = theme === "dark" 
+    ? "text-xl font-semibold text-white mt-2 border-b border-gray-800 pb-2"
+    : "text-xl font-semibold text-gray-800 mt-2 border-b border-gray-300 pb-2";
+    
+  const cardStyle = theme === "dark" 
+    ? "border border-gray-800 rounded-lg p-4 space-y-4 bg-black relative"
+    : "border border-gray-300 rounded-lg p-4 space-y-4 bg-white relative";
+    
+  const inputStyle = theme === "dark" 
+    ? "w-full px-4 py-2.5 bg-black border border-gray-800 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#ff6900] focus:border-transparent transition-all"
+    : "w-full px-4 py-2.5 bg-white border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#ff6900] focus:border-transparent transition-all";
+    
+  const labelStyle = theme === "dark" 
+    ? "block text-sm font-medium text-gray-300 mb-1"
+    : "block text-sm font-medium text-gray-700 mb-1";
+
+  const removeButtonStyle = theme === "dark"
+    ? "absolute top-2 right-2 text-[#ff6900] hover:text-gray-300 cursor-pointer"
+    : "absolute top-2 right-2 text-[#ff6900] hover:text-gray-600 cursor-pointer";
+
+  const addButtonStyle = theme === "dark"
+    ? "flex items-center gap-2 px-4 py-2 rounded-lg bg-[#ff6900] hover:bg-orange-600 text-white text-sm font-medium transition-all duration-200"
+    : "flex items-center gap-2 px-4 py-2 rounded-lg bg-[#ff6900] hover:bg-orange-600 text-white text-sm font-medium transition-all duration-200";
+
   return (
-    <div className="space-y-4 p-2 flex flex-col h-full">
+    <div className={containerStyle}>
       <div>
-        <h2 className="text-xl font-semibold text-white mt-2 border-b border-white/10 pb-2">
+        <h2 className={headerStyle}>
           Certification
         </h2>
       </div>
@@ -27,26 +61,26 @@ function CertificationForm() {
       {certifications.map((certification, index) => (
         <div
           key={index}
-          className="border border-white/10 rounded-lg p-4 space-y-4 bg-white/5 relative"
+          className={cardStyle}
         >
           {certifications.length > 1 && (
             <button
               onClick={() => removeArrayItem('certifications', index)}
-              className="absolute top-2 right-2 text-red-400 hover:text-red-600 cursor-pointer"
-              title="Remove this education"
+              className={removeButtonStyle}
+              title="Remove this certification"
             >
               <X size={18} />
             </button>
           )}
 
           <div className="flex-1">
-            <label htmlFor={`title-${index}`} className="block text-sm font-medium text-gray-300 mb-1">
+            <label htmlFor={`title-${index}`} className={labelStyle}>
               Title
             </label>
             <input
               type="text"
-              id={`degree-${index}`}
-              className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-transparent transition-all"
+              id={`title-${index}`}
+              className={inputStyle}
               placeholder="React Developer Certificate"
               onChange={(e) => {
                 updateArrayItemField('certifications', index, 'title', e.target.value);
@@ -57,13 +91,13 @@ function CertificationForm() {
 
           <div className="flex flex-col md:flex-row gap-4">
             <div className="flex-1">
-              <label htmlFor={`issuer-${index}`} className="block text-sm font-medium text-gray-300 mb-1">
+              <label htmlFor={`issuer-${index}`} className={labelStyle}>
                 Issuer
               </label>
               <input
                 type="text"
-                id={`degree-${index}`}
-                className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-transparent transition-all"
+                id={`issuer-${index}`}
+                className={inputStyle}
                 placeholder="Coursera"
                 onChange={(e) => {
                   updateArrayItemField('certifications', index, 'issuer', e.target.value);
@@ -73,13 +107,13 @@ function CertificationForm() {
             </div>
 
             <div className="flex-1">
-              <label htmlFor={`year-${index}`} className="block text-sm font-medium text-gray-300 mb-1">
+              <label htmlFor={`year-${index}`} className={labelStyle}>
                 Issue Date
               </label>
               <input
                 type="date"
                 id={`year-${index}`}
-                className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-transparent transition-all"
+                className={inputStyle}
                 onChange={(e) => {
                   updateArrayItemField('certifications', index, 'year', e.target.value);
                 }}
@@ -87,13 +121,29 @@ function CertificationForm() {
               />
             </div>
           </div>
+
+          <div className="flex-1">
+            <label htmlFor={`link-${index}`} className={labelStyle}>
+              Certificate Link (Optional)
+            </label>
+            <input
+              type="url"
+              id={`link-${index}`}
+              className={inputStyle}
+              placeholder="https://example.com/certificate"
+              onChange={(e) => {
+                updateArrayItemField('certifications', index, 'link', e.target.value);
+              }}
+              value={certification.link}
+            />
+          </div>
         </div>
       ))}
 
       <div className="mt-auto">
         <button
           onClick={() => addArrayItem('certifications', emptyCertification)}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-500/20 hover:bg-blue-500/40 text-blue-200 text-sm font-medium transition-all duration-200"
+          className={addButtonStyle}
         >
           <span className="text-lg">+</span> Add Certification
         </button>

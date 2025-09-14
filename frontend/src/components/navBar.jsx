@@ -30,8 +30,9 @@ export function NavbarDemo() {
 
   const navItems = [
     { name: "Home", link: "/home2" },
-    { name: "CandidateInterview", link: "/candidate/dashboard" },
-    { name: "CompanyDashboard", link: "/company/dashboard" },
+    
+    { name: "Dashboard", link: "/company/dashboard" },
+    { name: "Interview", link: "/candidate/dashboard" },
     { name: "Internships", link: "/internships" },
   ];
 
@@ -137,6 +138,8 @@ export function NavbarDemo() {
               <>
                 <Avatar
                   alt="User"
+                  className="bg-transparent text-white"
+             
                   src={authUser.user?.profilePicURL}
                   sx={{ width: 44, height: 44, cursor: "pointer" }}
                   onClick={toggleDrawer(true)}

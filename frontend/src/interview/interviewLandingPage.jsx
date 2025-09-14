@@ -1,81 +1,159 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { motion } from "framer-motion";
-import Lottie from "lottie-react";
-import mockInterview from "../assets/animations/mockInterview.json"; 
 import { useNavigate } from "react-router-dom";
-import ProfileInterviewForm from "./profileInterviewForm";
 import CheckCameraAndMic from "../components/checkCameraAndMic";
+import { ThemeContext } from "../context/ThemeContext";
+
+// ✅ Optional: Add Google Fonts dynamically
+const addGoogleFonts = () => {
+  const link = document.createElement("link");
+  link.href =
+    "https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap";
+  link.rel = "stylesheet";
+  document.head.appendChild(link);
+};
+addGoogleFonts();
 
 export function MockInterviewLandingPage() {
   const navigate = useNavigate();
 
+  // ✅ Get theme context
+  const { theme } = useContext(ThemeContext);
+const darkMode = theme === "dark";
+const primary = "#ff6900";
+
+
   const [profileForm, setProfileForm] = useState(false);
   const [topicForm, setTopicForm] = useState(false);
 
-  if(profileForm){
-    return(
-      <CheckCameraAndMic onContinue={() => navigate("/profileInterviewForm")}/>
-    )
+  if (profileForm) {
+    return (
+      <CheckCameraAndMic onContinue={() => navigate("/profileInterviewForm")} />
+    );
   }
 
-  if(topicForm){
-    return(
-      <CheckCameraAndMic onContinue={() => navigate("/interviewForm")}/>
-    )
+  if (topicForm) {
+    return <CheckCameraAndMic onContinue={() => navigate("/interviewForm")} />;
   }
+
+  // ✅ Dynamic theme-based styles
+  const bgClass = darkMode ? "bg-black text-white" : "bg-white text-gray-900";
+  const secondaryTextColor = darkMode ? "text-gray-300" : "text-gray-600";
+  const featureBg = darkMode ? "bg-gray-800/60" : "bg-white/80";
+  const featureHover = darkMode ? "hover:bg-gray-700/70" : "hover:bg-orange-50";
 
   return (
-    <div className="w-full min-h-screen bg-gradient-to-br from-black via-gray-900 to-black text-white px-6 py-10 flex flex-col md:flex-row items-center justify-center gap-40">
+    <main
+      className={`relative w-full min-h-screen px-6 py-16 flex items-center justify-center overflow-hidden ${bgClass}`}
+      style={{ fontFamily: "Poppins, sans-serif" }}
+    >
+      {/* 🔵 Background blobs */}
+      <div className="absolute inset-0 -z-10">
+        <div
+          className="absolute w-[500px] h-[500px] rounded-full mix-blend-multiply opacity-20 filter blur-3xl animate-blob top-0 -left-32"
+          style={{ backgroundColor: primary }}
+        ></div>
+        <div className="absolute w-[500px] h-[500px] rounded-full bg-pink-500 mix-blend-multiply opacity-20 filter blur-3xl animate-blob animation-delay-2000 bottom-0 right-0"></div>
+        <div className="absolute w-[500px] h-[500px] rounded-full bg-yellow-400 mix-blend-multiply opacity-20 filter blur-3xl animate-blob animation-delay-4000 top-1/2 left-1/2"></div>
+      </div>
 
-      <motion.div
-        initial={{ opacity: 0, x: -50 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ delay: 0.3, duration: 0.8 }}
-        className="w-[250px] md:w-[350px] lg:w-[400px]"
+      {/* 🔵 Hero Section */}
+      <motion.section
+        className="max-w-4xl text-center px-4"
+        initial={{ opacity: 0, y: 40 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8 }}
       >
-        <Lottie animationData={mockInterview} loop={true} />
-      </motion.div>
-
-      {/* Text + Buttons on the Right */}
-      <div className="text-center md:text-left max-w-xl">
-        <motion.h1
-          initial={{ opacity: 0, y: -40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5, duration: 0.8 }}
-          className="text-4xl md:text-6xl font-bold bg-gradient-to-r from-purple-400 to-indigo-600 bg-clip-text text-transparent leading-tight"
+        {/* Heading */}
+        <h1 className="text-4xl md:text-6xl font-bold leading-tight mb-4">
+          <span style={{ color: primary }}>Master Interviews</span> with AI
+        </h1>
+        <h2 className="text-3xl md:text-5xl font-semibold leading-tight mb-6">
+          AI-Powered Mock Sessions
+        </h2>
+        <p
+          className={`text-lg md:text-xl max-w-3xl mx-auto ${secondaryTextColor} mb-10`}
         >
-          Master Interviews<br /> with AI-Powered Mock Sessions
-        </motion.h1>
+          Practice focused or personalized interviews and get instant AI feedback
+          to level up your skills.
+        </p>
 
-        <motion.p
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.7, duration: 0.6 }}
-          className="mt-4 text-lg md:text-xl text-gray-300"
-        >
-          Practice focused or personalized interviews and get instant AI feedback.
-        </motion.p>
-
+        {/* 🔵 Buttons */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.9, duration: 0.6 }}
-          className="mt-8 flex flex-col sm:flex-row gap-4 justify-center md:justify-start"
+          className="flex flex-col sm:flex-row justify-center gap-6 mb-12"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.5, duration: 0.8 }}
         >
           <button
             onClick={() => setTopicForm(true)}
-            className="px-6 py-3 bg-purple-500 hover:bg-purple-600 text-white rounded-xl text-lg shadow-md transition"
+            className={`px-10 py-4 rounded-full border-2 text-lg font-semibold shadow-md transition-all duration-300 
+              border-[${primary}] text-[${primary}] 
+              hover:bg-[${primary}] hover:text-white 
+              focus:outline-none focus:ring-4 focus:ring-orange-400`}
           >
-            Topic-Driven Mock
+            Topic-Based Mock
           </button>
+
           <button
             onClick={() => setProfileForm(true)}
-            className="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-lg shadow-md transition"
+            className={`px-10 py-4 rounded-full text-lg font-semibold shadow-md transition-all duration-300 text-white
+              `}
+            style={{
+              backgroundColor: primary,
+              borderColor: primary,
+            }}
           >
             Profile-Based Mock
           </button>
         </motion.div>
-      </div>
-    </div>
+
+        {/* 🔵 Features */}
+        <motion.div
+          className="flex flex-wrap justify-center gap-4"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1.2, duration: 0.6 }}
+        >
+          {["Real-time feedback", "Performance analytics", "Customized questions"].map(
+            (feature, idx) => (
+              <div
+                key={idx}
+                className={`flex items-center py-2 px-4 rounded-full shadow-sm transition-colors duration-300 ${featureBg} ${featureHover}`}
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5 mr-2"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke={primary}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M5 13l4 4L19 7"
+                  />
+                </svg>
+                <span className="font-medium">{feature}</span>
+              </div>
+            )
+          )}
+        </motion.div>
+      </motion.section>
+
+      {/* 🔵 Blob animations */}
+      <style>{`
+        @keyframes blob {
+          0% { transform: translate(0px, 0px) scale(1); }
+          33% { transform: translate(30px, -50px) scale(1.1); }
+          66% { transform: translate(-20px, 20px) scale(0.9); }
+          100% { transform: translate(0px, 0px) scale(1); }
+        }
+        .animate-blob { animation: blob 8s infinite; }
+        .animation-delay-2000 { animation-delay: 2s; }
+        .animation-delay-4000 { animation-delay: 4s; }
+      `}</style>
+    </main>
   );
 }
