@@ -67,8 +67,6 @@ export const checkRoleValidity = async (req, res) => {
       const resume_data = data.resume_data;
       const job_title = role;
 
-      console.log(resume_data);
-
       const response = await axios.post(
         'http://127.0.0.1:3000/evaluate-resume',
         { resume_data, job_title, topics }
@@ -76,8 +74,6 @@ export const checkRoleValidity = async (req, res) => {
 
       const totalScore = response.data.evaluation.total_score;
       const summaryFeedback = response.data.evaluation.summary_feedback;
-
-      console.log({ summaryFeedback, totalScore });
 
       if (response.data.evaluation.total_score < 30) {
         io.to(userSocketId).emit("resumeScore", { totalScore, summaryFeedback });

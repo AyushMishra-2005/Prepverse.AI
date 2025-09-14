@@ -119,6 +119,9 @@ export const getResumeData = async (req, res) => {
 
     const resume_data = await ResumeData.findOne({userId : userId});
 
+    // const resumeString = JSON.stringify(resume_data.resumeJSONdata, null, 2);
+    // console.log(resumeString);
+
     return res.status(200).json({resume_data, message: "Resume data fetched successfully!"});
 
   }catch(err){

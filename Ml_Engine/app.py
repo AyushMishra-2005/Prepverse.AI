@@ -200,6 +200,83 @@ def embed_candidate():
 
     except Exception as e:
         return jsonify({"error": f"Failed to generate embedding: {e}"}), 500
+    
+
+@app.route("/eligible_users", methods=["POST"])
+def eligible_users():
+    if bi_encoder is None or collection is None:
+        return jsonify({"error": "Server not ready"}), 503
+
+    data = request.get_json()
+    internship_embedding = data.get("embedding")
+
+    if not internship_embedding or not isinstance(internship_embedding, list):
+        return jsonify({"error": "Invalid input. Provide 'embedding' as a list"}), 400
+
+    try:
+        client = MongoClient(MONGO_URI)
+        db = client[DB_NAME]
+        resume_collection = db["resumedatas"] 
+
+        resumes = list(resume_collection.find(
+            {"embedding": {"$exists": True, "$ne": []}},
+            {"userId": 1, "embedding": 1}
+        ))
+
+        eligible_users = []
+        internship_vector = np.array(internship_embedding)
+
+        for r in resumes:
+            user_vector = np.array(r["embedding"])
+            
+            score = np.dot(internship_vector, user_vector) / (
+                np.linalg.norm(internship_vector) * np.linalg.norm(user_vector)
+            )
+
+            if score >= 0.6: 
+                eligible_users.append(str(r["userId"]))
+
+        return jsonify({"eligible_users": eligible_users})
+
+    except Exception as e:
+        return jsonify({"error": f"Failed to compute eligibility: {e}"}), 500
+    
+    
+# @app.route("/sample_internship_embedding", methods=["GET"])
+# def sample_internship_embedding():
+#     try:
+#         client = MongoClient(MONGO_URI)
+#         db = client[DB_NAME]
+#         internship_collection = db["new_internships_data"]
+
+#         # Pick one random "Web Development" internship with an embedding
+#         sample = internship_collection.aggregate([
+#             {
+#                 "$match": {
+#                     "embedding": {"$exists": True, "$ne": []},
+#                     "jobTitle": {"$regex": "AI Hardware Intern", "$options": "i"}  
+#                 }
+#             },
+#             {"$sample": {"size": 1}}
+#         ])
+
+#         sample_doc = list(sample)
+#         if not sample_doc:
+#             return jsonify({"error": "No Web Development internship embeddings found"}), 404
+
+#         return jsonify({
+#             "internshipId": str(sample_doc[0]["_id"]),
+#             "jobTitle": sample_doc[0].get("jobTitle", ""),
+#             "company": sample_doc[0].get("company", ""),
+#             "embedding": sample_doc[0]["embedding"]  
+#         })
+
+#     except Exception as e:
+#         return jsonify({"error": f"Failed to fetch internship embedding: {e}"}), 500
+
+
+
+
 
 
 

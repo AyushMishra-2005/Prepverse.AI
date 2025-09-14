@@ -1,8 +1,12 @@
 import express from 'express'
+
+import dotenv from 'dotenv'
+dotenv.config();
+
 import cors from 'cors'
 import axios from 'axios'
 import interviewSection from './route/interview.route.js'
-import dotenv from 'dotenv'
+
 import cookieParser from 'cookie-parser'
 import mongoose from 'mongoose'
 import { v2 as cloudinary } from 'cloudinary';
@@ -15,7 +19,7 @@ import {app, io, server} from './SocketIO/server.js'
 import resumeUploadRoute from './route/resumeUpload.route.js'
 import internshipRoute from './route/internships.route.js'
 
-dotenv.config();
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 

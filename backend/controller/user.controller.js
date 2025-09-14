@@ -1,8 +1,10 @@
 import User from '../models/user.model.js'
 import bcrypt from 'bcrypt'
 import createTokenAndSaveCookie from '../jwt/generateToken.js'
-import transporter from '../config/nodemailer.config.js'
+import { getTransporter } from '../config/nodemailer.config.js';
 import StoreOTP from '../models/otp.model.js'
+
+const transporter = getTransporter();
 
 export const signup = async (req, res) => {
   try {

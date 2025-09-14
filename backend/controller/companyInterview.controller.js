@@ -1,3 +1,6 @@
+import dotenv from 'dotenv'
+dotenv.config();
+
 import CompanyInterviewData from "../models/companyInterview.model.js";
 import User from '../models/user.model.js'
 import axios from 'axios'
@@ -6,6 +9,10 @@ import { generateQuestions } from '../utils/generateQuestions.js'
 import InterviewData from "../models/interview.model.js";
 import { evaluateResult } from "../utils/evaluateResult.js";
 import Internship from "../models/internships.model.js";
+import { getTransporter } from '../config/nodemailer.config.js';
+
+
+const transporter = getTransporter();
 
 export const createCompanyInterview = async (req, res) => {
   const userId = req.user._id;
@@ -22,7 +29,6 @@ export const createCompanyInterview = async (req, res) => {
     description,
     numOfQns,
   } = req.body;
-
 
   const requiredFields = {
     jobTitle,
@@ -48,28 +54,19 @@ export const createCompanyInterview = async (req, res) => {
     });
   }
 
-
   try {
     const role = jobRole;
     const topics = jobTopic.split(",").map(t => t.trim());
     const { valid } = await validateRoleAndTopic({ role, topics });
 
-    console.log(valid);
-
     if (!valid) {
-      return res.status(500).json({ message: 'Role and Topic are not valid!' });
+      return res.status(500).json({ message: "Role and Topic are not valid!" });
     }
 
-    const { data } = await axios.post(
-      'http://127.0.0.1:5000/embed',
-      requiredFields
-    );
-
+    const { data } = await axios.post("http://127.0.0.1:5000/embed", requiredFields);
     if (!data) {
-      return res.status(500).json({ message: 'Server error!' });
+      return res.status(500).json({ message: "Server error!" });
     }
-
-    console.log(data);
 
     const newData = new Internship({
       jobTitle,
@@ -87,13 +84,72 @@ export const createCompanyInterview = async (req, res) => {
     });
     await newData.save();
 
-    return res.status(200).json({ message: 'Interview Data Created', newData });
+    const eligibleUsers = await axios.post("http://127.0.0.1:5000/eligible_users", {
+      embedding: data.embedding,
+    });
+
+    const eligible_users = eligibleUsers.data.eligible_users || [];
+    console.log(eligible_users);
+
+    const users = await User.find(
+      { _id: { $in: eligible_users } },
+      { name: 1, email: 1 }
+    );
+
+    console.log(users);
+
+    for (const user of users) {
+      const mailOptions = {
+        from: process.env.SENDER_EMAIL,
+        to: user.email,
+        subject: `Exciting Internship Opportunity: ${jobTitle} at ${company}`,
+        html: `
+        <div style="font-family: Arial, sans-serif; color: #333; line-height: 1.6; max-width: 600px; margin: auto;">
+          <h2 style="color: #2c3e50;">Hello ${user.name},</h2>
+          <p>We’re excited to share a new <strong>internship opportunity</strong> that perfectly matches your profile!</p>
+          
+          <div style="padding: 20px; border: 1px solid #ddd; border-radius: 10px; background-color: #fefefe; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+            <h3 style="color: #ff6900; margin-bottom: 10px;">${jobTitle}</h3>
+            <p><strong>Role:</strong> ${jobRole}</p>
+            <p><strong>Duration:</strong> ${duration}</p>
+            <p><strong>Company:</strong> <span style="color: #2980b9; font-weight: bold;">${company}</span></p>
+            <p><strong>Stipend:</strong> ${stipend}</p>
+          </div>
+          
+          <p style="margin-top: 20px;">
+            🌟 Don’t miss this chance to grow your skills and advance your career.  
+            Click below to apply now:
+          </p>
+          
+          <a href="https://prepverse-ai.onrender.com/" 
+            style="display: inline-block; margin-top: 10px; padding: 12px 25px; background-color: #ff6900; color: #fff; text-decoration: none; border-radius: 5px; font-weight: bold;">
+            Apply Now
+          </a>
+
+          <p style="margin-top: 30px; font-size: 13px; color: #888;">
+            Best regards,<br/>
+            <b>The Prepverse.AI Team</b><br/>
+            <a href="https://prepverse-ai.onrender.com/" style="color:#2980b9;">https://prepverse-ai.onrender.com</a> | support@prepverse.com
+          </p>
+        </div>
+        `,
+      };
+
+
+      await transporter.sendMail(mailOptions);
+    }
+
+    return res.status(200).json({
+      message: "Interview Data Created & Emails Sent",
+      newData,
+      notifiedUsers: users.map(u => u.email),
+    });
 
   } catch (err) {
-    console.log(err);
-    return res.status(500).json({ message: 'Server error' });
+    console.error(err);
+    return res.status(500).json({ message: "Server error" });
   }
-}
+};
 
 
 export const sendAllInterviews = async (req, res) => {
@@ -120,7 +176,7 @@ export const sendAllInterviews = async (req, res) => {
 
 export const searchInterviews = async (req, res) => {
   const { companyName } = req.body;
-  
+
   try {
     if (!companyName || companyName.trim() === '') {
       return res.status(400).json({ message: 'Username is required' });
@@ -143,8 +199,6 @@ export const searchInterviews = async (req, res) => {
 
 export const generateInterviewQuestions = async (req, res) => {
   const { role, numOfQns, topic, interviewId } = req.body;
-
-  console.log("Number of questions");
 
   const participant = req.user._id;
 
