@@ -35,8 +35,8 @@ const InternshipCard = ({ internship, isTopPick }) => {
           <div
             className={`w-10 h-10 rounded-md flex items-center justify-center border 
               ${theme === "dark"
-                ? "border-[#2A2A2A] bg-[#1f1f1f]"
-                : "border-[#EAEAEA] bg-[#F5F5F5]"
+                ? "border-[#ff6900] bg-white"
+                : "border-orange-200 bg-white"
               }`}
           >
             <span className="text-[#FF6900] text-xl font-poppins font-bold">◆</span>
@@ -51,13 +51,13 @@ const InternshipCard = ({ internship, isTopPick }) => {
 
         {/* Job Info */}
         <h3
-          className={`text-lg font-semibold mb-1 ${theme === "dark" ? "text-black" : "text-black"
+          className={`text-lg font-semibold mb-1 ${theme === "dark" ? "text-[#1A1A1A]" : "text-[#1A1A1A]"
             }`}
         >
           {internship.jobTitle}
         </h3>
         <p
-          className={`text-sm mb-3 ${theme === "dark" ? "text-black" : "text-[#555555]"
+          className={`text-sm mb-3 ${theme === "dark" ? "text-[#333333]" : "text-[#555555]"
             }`}
         >
           {internship.company}
@@ -70,8 +70,8 @@ const InternshipCard = ({ internship, isTopPick }) => {
               key={index}
               className={`px-2 py-0.5 rounded-md text-xs
                 ${theme === "dark"
-                  ? "text-[#E2E2E2] bg-[#1f1f1f] border border-[#2A2A2A]"
-                  : "text-[#555] bg-[#F5F5F5] border border-[#EAEAEA]"
+                  ? "text-[#1a1a1a] bg-white border border-[#e0e0e0]"
+                  : "text-[#1a1a1a] bg-white border border-[#FF690050]"
                 }`}
             >
               {topic.trim()}
@@ -81,7 +81,7 @@ const InternshipCard = ({ internship, isTopPick }) => {
 
         {/* Meta Info */}
         <div
-          className={`flex flex-col space-y-2 text-xs mb-4 ${theme === "dark" ? "text-[#B3B3B3]" : "text-[#555555]"
+          className={`flex flex-col space-y-2 text-xs mb-4 ${theme === "dark" ? "text-[#444444]" : "text-[#555555]"
             }`}
         >
           <div className="flex items-center">
@@ -184,7 +184,7 @@ const InternshipPage = () => {
             Find Your <span className="text-[#FF6900]">Next Opportunity</span>
           </h1>
           <p
-            className={`text-base md:text-lg max-w-xl mx-auto ${theme === "dark" ? "text-[#B3B3B3]" : "text-[#555555]"
+            className={`text-base md:text-lg max-w-xl mx-auto ${theme === "dark" ? "text-[#CCCCCC]" : "text-[#555555]"
               }`}
           >
             Our intelligent system curates the best internships, tailored to
@@ -265,16 +265,16 @@ const InternshipPage = () => {
         <section className="py-16 text-center w-full">
           <div
             className={`p-8 rounded-xl max-w-4xl mx-auto shadow-md border 
-              ${theme === "dark" ? "bg-[#141414] border-[#2A2A2A]" : "bg-white border-[#EAEAEA]"}`}
+              ${theme === "dark" ? "bg-orange-100 border-[#2A2A2A]" : "bg-orange-50 border-[#EAEAEA]"}`}
           >
             <h2 className="text-3xl md:text-4xl font-bold mb-4 font-poppins">
               Ready to <span className="text-[#FF6900]">Launch?</span>
             </h2>
             <p
-              className={`text-base mb-8 max-w-lg mx-auto ${theme === "dark" ? "text-[#B3B3B3]" : "text-[#555555]"
+              className={`text-base mb-8 max-w-lg mx-auto ${theme === "dark" ? "text-[#1a1a1a]" : "text-[#555555]"
                 }`}
             >
-              Don’t just look for a job, find the perfect launchpad for your
+              Don't just look for a job, find the perfect launchpad for your
               career with Prepverse.AI.
             </p>
             <Link to="/internships">

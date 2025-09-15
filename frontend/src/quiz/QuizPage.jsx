@@ -1,5 +1,6 @@
 import React, { useState, useContext } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import { CheckCircle, Lightbulb, Target } from "lucide-react"; // small icons
 import QuizForm from "./QuizForm";
 import QuizInterface from "./QuizInterface";
 import { ThemeContext } from "../context/ThemeContext"; // Adjust path as needed
@@ -32,6 +33,28 @@ const QuizPage = () => {
             Select your subject, difficulty level, job role, and number of
             questions to get a quiz tailored just for you.
           </p>
+
+          {/* Extra Filler - Benefits / Tips */}
+          <div className="mt-8 space-y-4">
+            <div className="flex items-start gap-3">
+              <CheckCircle className="text-[#ff6900] w-6 h-6 flex-shrink-0" />
+              <p className={`text-base font-inter ${textSecondary}`}>
+                Practice quizzes boost <span className="font-semibold">memory retention</span>.
+              </p>
+            </div>
+            <div className="flex items-start gap-3">
+              <Lightbulb className="text-[#ff6900] w-6 h-6 flex-shrink-0" />
+              <p className={`text-base font-inter ${textSecondary}`}>
+                Tailored difficulty helps you <span className="font-semibold">learn smarter</span>.
+              </p>
+            </div>
+            <div className="flex items-start gap-3">
+              <Target className="text-[#ff6900] w-6 h-6 flex-shrink-0" />
+              <p className={`text-base font-inter ${textSecondary}`}>
+                Track progress and stay <span className="font-semibold">exam ready</span>.
+              </p>
+            </div>
+          </div>
         </div>
       </div>
 

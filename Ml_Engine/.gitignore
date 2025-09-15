@@ -1,5 +1,7 @@
-# Ignore the virtual environment
+# Ignore the virtual environments
 venv/
+ml_env/
+Ml_Engine/ml_env/
 
 # Ignore Python bytecode and cache
 __pycache__/
@@ -11,7 +13,7 @@ __pycache__/
 .env
 *.env
 
-# Ignore Jupyter notebook checkpoints (if used here)
+# Ignore Jupyter notebook checkpoints
 .ipynb_checkpoints/
 
 # Ignore logs or temp files
