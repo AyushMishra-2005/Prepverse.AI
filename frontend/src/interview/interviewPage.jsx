@@ -11,7 +11,7 @@ import server from '../environment.js'
 import { useNavigate } from 'react-router-dom'
 import CountdownTimer from "../components/countDownTimer.jsx";
 import InterviewFeedback from "../components/interviewFeedback.jsx";
-import creatingReportAnimation from '../assets/animations/creatingReport.json'
+import creatingReportAnimation from '../assets/result.json'
 import Lottie from "lottie-react";
 
 function InterviewPage() {

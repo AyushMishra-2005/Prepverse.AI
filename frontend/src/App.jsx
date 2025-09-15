@@ -49,8 +49,8 @@ import server from "./environment";
 import pageNotFound from "./assets/animations/errorAnimation.json";
 import InternshipPage from "./internships/InternshipPage";
 import InternshipDetail from "./internships/InternshipDetail";
-import CreateInterviewForm from './companyInterview/createInterviewForm.jsx';
-import InternshipDetails from './candidateInterview/internshipDetails.jsx'
+import CreateInterviewForm from "./companyInterview/createInterviewForm.jsx";
+import InternshipDetails from "./candidateInterview/internshipDetails.jsx";
 
 // Theme
 import { ThemeProvider } from "./context/ThemeContext";
@@ -87,37 +87,76 @@ function App() {
           <Routes>
             {/* Home Pages */}
             <Route path="/" element={<Home2 />} />
+            <Route path="/home" element={<HomeComponent />} />
             <Route path="/home2" element={<Home2 />} />
 
             {/* Interview */}
             <Route
               path="/interviewPage"
-              element={authUser && interviewModelId ? <InterviewPage /> : <Navigate to="/" replace />}
+              element={
+                authUser && interviewModelId ? (
+                  <InterviewPage />
+                ) : (
+                  <Navigate to="/" replace />
+                )
+              }
             />
             <Route
               path="/interviewForm"
-              element={authUser ? <InterviewForm /> : <Navigate to="/login" replace />}
+              element={
+                authUser ? <InterviewForm /> : <Navigate to="/login" replace />
+              }
             />
             <Route
               path="/profileInterviewForm"
-              element={authUser ? <ProfileInterviewForm /> : <Navigate to="/mockInterviewLandingPage" replace />}
+              element={
+                authUser ? (
+                  <ProfileInterviewForm />
+                ) : (
+                  <Navigate to="/mockInterviewLandingPage" replace />
+                )
+              }
             />
             <Route
               path="/interview/result"
-              element={authUser ? <InterviewFeedback /> : <Navigate to="/" replace />}
+              element={
+                authUser ? <InterviewFeedback /> : <Navigate to="/" replace />
+              }
             />
 
             {/* Auth */}
-            <Route path="/signup" element={authUser ? <HomeComponent /> : <SignupForm />} />
-            <Route path="/login" element={authUser ? <HomeComponent /> : <Login />} />
-            <Route path="/logout" element={authUser ? <Logout /> : <HomeComponent />} />
+            <Route
+              path="/signup"
+              element={authUser ? <Home2 /> : <SignupForm />}
+            />
+            <Route path="/login" element={authUser ? <Home2 /> : <Login />} />
+            <Route path="/logout" element={authUser ? <Logout /> : <Home2 />} />
 
             {/* Quiz */}
-            <Route path="/quiz" element={authUser ? <QuizPage /> : <Navigate to="/login" replace />} />
-            <Route path="/quiz/start" element={authUser ? <QuizStart /> : <Navigate to="/login" replace />} />
+            <Route
+              path="/quiz"
+              element={
+                authUser ? <QuizPage /> : <Navigate to="/login" replace />
+              }
+            />
+            <Route
+              path="/quiz/start"
+              element={
+                authUser ? <QuizStart /> : <Navigate to="/login" replace />
+              }
+            />
 
             {/* Resume */}
-            <Route path="/resume" element={authUser ? <ResumeLandingPage /> : <Navigate to="/login" replace />} />
+            <Route
+              path="/resume"
+              element={
+                authUser ? (
+                  <ResumeLandingPage />
+                ) : (
+                  <Navigate to="/login" replace />
+                )
+              }
+            />
             <Route
               path="/resume/selectResume"
               element={
@@ -132,52 +171,114 @@ function App() {
             />
             <Route
               path="/resume/resumeForm"
-              element={authUser && resumeData?.title ? <ResumeForm /> : <Navigate to="/resume/selectResume" replace />}
+              element={
+                authUser && resumeData?.title ? (
+                  <ResumeForm />
+                ) : (
+                  <Navigate to="/resume/selectResume" replace />
+                )
+              }
             />
             <Route
               path="/ResumeProcessingPage"
-              element={authUser ? <ResumeProcessingPage /> : <Navigate to="/" replace />}
+              element={
+                authUser ? (
+                  <ResumeProcessingPage />
+                ) : (
+                  <Navigate to="/" replace />
+                )
+              }
             />
 
             {/* Candidate Interview Routes */}
-            <Route path="/candidate/dashboard" element={authUser ? <CandidateLandingPage /> : <Navigate to="/" replace />} />
-            <Route path="/candidate/attend" element={authUser ? <AttendInterviews /> : <Navigate to="/" replace />} />
-            
+            <Route
+              path="/candidate/dashboard"
+              element={
+                authUser ? (
+                  <CandidateLandingPage />
+                ) : (
+                  <Navigate to="/" replace />
+                )
+              }
+            />
+            <Route
+              path="/candidate/attend"
+              element={
+                authUser ? <AttendInterviews /> : <Navigate to="/" replace />
+              }
+            />
 
             {/* Company Interview Routes */}
-            <Route path="/company/dashboard" element={authUser ? <CompanyLandingPage /> : <Navigate to="/" replace />} />
+            <Route
+              path="/company/dashboard"
+              element={
+                authUser ? <CompanyLandingPage /> : <Navigate to="/" replace />
+              }
+            />
             <Route
               path="/company/createInterview"
-              element={authUser ? (
-                <InterviewsProvider>
-                  <CreateInterviewPage />
-                </InterviewsProvider>
-              ) : (
-                <Navigate to="/" replace />
-              )}
+              element={
+                authUser ? (
+                  <InterviewsProvider>
+                    <CreateInterviewPage />
+                  </InterviewsProvider>
+                ) : (
+                  <Navigate to="/" replace />
+                )
+              }
             />
-            <Route path="/aiInterviews/createInterview/attandants" element={authUser ? <AttandantPage /> : <Navigate to="/" replace />} />
+            <Route
+              path="/aiInterviews/createInterview/attandants"
+              element={
+                authUser ? <AttandantPage /> : <Navigate to="/" replace />
+              }
+            />
 
-            <Route path="/company/createInterviewForm" element={authUser ? <CreateInterviewForm /> : <Navigate to="/" replace />} />
+            <Route
+              path="/company/createInterviewForm"
+              element={
+                authUser ? <CreateInterviewForm /> : <Navigate to="/" replace />
+              }
+            />
 
             {/* Mock Interview */}
-            <Route path="/mockInterviewLandingPage" element={authUser ? <MockInterviewLandingPage /> : <Navigate to="/" replace />} />
+            <Route
+              path="/mockInterviewLandingPage"
+              element={
+                authUser ? (
+                  <MockInterviewLandingPage />
+                ) : (
+                  <Navigate to="/" replace />
+                )
+              }
+            />
 
             {/* Profile */}
-            <Route path="/profilePage" element={authUser ? <ProfilePage /> : <Navigate to="/" replace />} />
+            <Route
+              path="/profilePage"
+              element={authUser ? <ProfilePage /> : <Navigate to="/" replace />}
+            />
 
             {/* Internships */}
-            <Route path="/internships" element={authUser ? <InternshipPage /> : <Navigate to="/login" replace />} />
+            <Route
+              path="/internships"
+              element={
+                authUser ? <InternshipPage /> : <Navigate to="/login" replace />
+              }
+            />
             <Route path="/internship/:id" element={<InternshipDetail />} />
             <Route path="/internships/:id" element={<InternshipDetails />} />
-
 
             {/* Page Not Found */}
             <Route
               path="*"
               element={
                 <div className="h-[100vh] w-[100vw] flex flex-col justify-center items-center bg-black text-white">
-                  <Lottie animationData={pageNotFound} loop={true} className="w-[400px] h-[400px]" />
+                  <Lottie
+                    animationData={pageNotFound}
+                    loop={true}
+                    className="w-[400px] h-[400px]"
+                  />
                 </div>
               }
             />

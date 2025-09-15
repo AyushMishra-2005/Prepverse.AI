@@ -1,5 +1,13 @@
 import React, { useEffect, useState, useContext } from "react";
-import { FaChevronDown, FaChevronUp, FaStar, FaUser, FaEnvelope, FaAward, FaListAlt } from "react-icons/fa";
+import {
+  FaChevronDown,
+  FaChevronUp,
+  FaStar,
+  FaUser,
+  FaEnvelope,
+  FaAward,
+  FaListAlt,
+} from "react-icons/fa";
 import "animate.css";
 import useConversation from "../stateManage/useConversation";
 import { ThemeContext } from "../context/ThemeContext";
@@ -7,7 +15,8 @@ import { ThemeContext } from "../context/ThemeContext";
 const InterviewFeedback = ({ data, onBack }) => {
   const [openIndex, setOpenIndex] = useState(null);
   const { setInterviewModelId } = useConversation();
-  const { darkMode } = useContext(ThemeContext);
+  const { theme } = useContext(ThemeContext);
+  const darkMode = theme === "dark";
 
   const feedbackData = data
     ? data.questions.map((q, idx) => ({
@@ -47,7 +56,10 @@ const InterviewFeedback = ({ data, onBack }) => {
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            entry.target.classList.add("animate__animated", "animate__fadeInUp");
+            entry.target.classList.add(
+              "animate__animated",
+              "animate__fadeInUp"
+            );
           }
         });
       },
@@ -63,20 +75,30 @@ const InterviewFeedback = ({ data, onBack }) => {
   }, []);
 
   // THEME COLORS - Black, white, gray, and #ff6900 only
-  const containerBg = darkMode ? "bg-black text-white" : "bg-white text-gray-900";
-  const cardBg = darkMode ? "bg-gray-900" : "bg-gray-50";
+  const containerBg = darkMode
+    ? "bg-black text-white"
+    : "bg-white text-gray-900";
+  const cardBg = darkMode ? "bg-orange-100" : "bg-orange-50";
   const borderColor = darkMode ? "border-gray-800" : "border-gray-200";
   const accentColor = "text-[#ff6900]";
-  const textMuted = darkMode ? "text-gray-400" : "text-gray-600";
+  const textMuted = darkMode ? "text-gray-800" : "text-gray-600";
+  
+  // NEW: Improved text contrast variables
+  const textPrimary = darkMode ? "text-gray-900" : "text-gray-900";
+  const textSecondary = darkMode ? "text-gray-800" : "text-gray-700";
+  const textInverted = darkMode ? "text-white" : "text-black";
 
   // Calculate score percentage for visual indicator
-  const maxPossibleScore = data?.questions?.length * 10 || feedbackData.length * 10;
-  const scorePercentage = maxPossibleScore > 0 ? (totalScore / maxPossibleScore) * 100 : 0;
+  const maxPossibleScore =
+    data?.questions?.length * 10 || feedbackData.length * 10;
+  const scorePercentage =
+    maxPossibleScore > 0 ? (totalScore / maxPossibleScore) * 100 : 0;
 
   return (
-    <div className={`min-h-screen w-full ${containerBg} transition-colors duration-300`}>
+    <div
+      className={`min-h-screen w-full ${containerBg} transition-colors duration-300`}
+    >
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8 md:py-12 animate__animated animate__fadeIn">
-        
         {/* Header with back button */}
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold text-[#ff6900]">
@@ -87,15 +109,21 @@ const InterviewFeedback = ({ data, onBack }) => {
               setInterviewModelId("");
               onBack();
             }}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg ${darkMode ? 'bg-gray-900 hover:bg-gray-800' : 'bg-gray-100 hover:bg-gray-200'} border ${borderColor} transition-all`}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg ${
+              darkMode
+                ? "bg-orange-100 hover:bg-orange-500"
+                : "bg-orange-50 hover:bg-orange-500"
+            } border ${borderColor} transition-all ${textPrimary}`}
           >
-            <span className="text-[#ff6900]">←</span>
-            <span>Back</span>
+            <span className={textPrimary}>←</span>
+            <span className={textPrimary}>Back</span>
           </button>
         </div>
 
         {/* Candidate Info */}
-        <div className={`flex flex-col md:flex-row items-center gap-6 mb-10 p-6 rounded-xl ${cardBg} border ${borderColor} shadow-sm animate__fadeInUp`}>
+        <div
+          className={`flex flex-col md:flex-row items-center gap-6 mb-10 p-6 rounded-xl ${cardBg} border ${borderColor} shadow-sm animate__fadeInUp`}
+        >
           <div className="relative">
             <img
               src={profilePic}
@@ -107,10 +135,12 @@ const InterviewFeedback = ({ data, onBack }) => {
             </div>
           </div>
           <div className="flex-1 text-center md:text-left">
-            <h2 className="text-2xl md:text-3xl font-bold tracking-wide">{name}</h2>
+            <h2 className={`text-2xl md:text-3xl font-bold tracking-wide ${textPrimary}`}>
+              {name}
+            </h2>
             <div className="flex items-center justify-center md:justify-start gap-2 mt-2">
               <FaEnvelope className="text-[#ff6900]" />
-              <p className={`${textMuted} text-sm`}>{email}</p>
+              <p className={`${textSecondary} text-sm`}>{email}</p>
             </div>
           </div>
           <div className="bg-[#ff6900] p-4 rounded-lg text-white text-center">
@@ -122,18 +152,18 @@ const InterviewFeedback = ({ data, onBack }) => {
         {/* Summary Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-12">
           {[
-            { 
-              label: "Score", 
+            {
+              label: "Score",
               value: `${totalScore} / ${maxPossibleScore}`,
               icon: <FaStar className="text-[#ff6900]" />,
             },
-            { 
-              label: "Total Questions", 
+            {
+              label: "Total Questions",
               value: `${data?.questions?.length ?? feedbackData.length}`,
               icon: <FaListAlt className="text-[#ff6900]" />,
             },
-            { 
-              label: "Role", 
+            {
+              label: "Role",
               value: data?.interviewId?.interview?.role || "N/A",
               icon: <FaUser className="text-[#ff6900]" />,
             },
@@ -149,17 +179,21 @@ const InterviewFeedback = ({ data, onBack }) => {
               style={{ animationDelay: `${idx * 0.1}s` }}
             >
               <div className="flex items-center justify-between mb-4">
-                <div className={`p-3 rounded-full ${darkMode ? 'bg-gray-800' : 'bg-gray-200'}`}>
+                <div
+                  className={`p-3 rounded-full ${
+                    darkMode ? "bg-orange-200" : "bg-white"
+                  }`}
+                >
                   {item.icon}
                 </div>
                 <span className="text-2xl font-semibold text-[#ff6900]">
                   {item.value}
                 </span>
               </div>
-              <p className={`${textMuted} text-sm`}>{item.label}</p>
+              <p className={`${textSecondary} text-sm`}>{item.label}</p>
               {item.label === "Performance" && (
-                <div className="mt-4 h-2 bg-gray-300 rounded-full overflow-hidden">
-                  <div 
+                <div className="mt-4 h-2 bg-white rounded-full overflow-hidden">
+                  <div
                     className="h-full bg-[#ff6900]"
                     style={{ width: `${scorePercentage}%` }}
                   ></div>
@@ -187,37 +221,55 @@ const InterviewFeedback = ({ data, onBack }) => {
                 className="flex justify-between items-center cursor-pointer"
               >
                 <div className="flex items-center gap-3">
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center ${darkMode ? 'bg-gray-800' : 'bg-gray-200'} ${item.score >= 7 ? 'text-[#ff6900]' : 'text-[#ff6900]'}`}>
+                  <div
+                    className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                      darkMode ? "bg-orange-200" : "bg-orange-200"
+                    } font-bold text-[#ff6900]`}
+                  >
                     {item.score}
                   </div>
-                  <h4 className="font-semibold">
+                  <h4 className={`font-semibold ${textPrimary}`}>
                     Q{idx + 1}. {item.question}
                   </h4>
                 </div>
-                {openIndex === idx ? <FaChevronUp className={accentColor} /> : <FaChevronDown className={textMuted} />}
+                {openIndex === idx ? (
+                  <FaChevronUp className={accentColor} />
+                ) : (
+                  <FaChevronDown className={textMuted} />
+                )}
               </div>
 
               {openIndex === idx && (
                 <div className="mt-4 space-y-4 animate__animated animate__fadeIn">
-                  <div className={`${darkMode ? "bg-gray-900" : "bg-gray-100"} rounded-lg p-4 border-l-4 border-gray-500`}>
-                    <span className="uppercase text-sm text-gray-500 font-medium">
+                  <div
+                    className={`${
+                      darkMode ? "bg-white" : "bg-white"
+                    } rounded-lg p-4 border-l-4 ${darkMode ? "border-gray-700" : "border-gray-400"}`}
+                  >
+                    <span className={`uppercase text-sm ${textSecondary} font-medium`}>
                       Your Answer
                     </span>
-                    <p className="mt-2 text-gray-300">{item.answer}</p>
+                    <p className={`mt-2 ${textSecondary}`}>{item.answer}</p>
                   </div>
-                  <div className={`${darkMode ? "bg-gray-900" : "bg-gray-100"} rounded-lg p-4 border-l-4 border-[#ff6900]`}>
+                  <div
+                    className={`${
+                      darkMode ? "bg-orange-50" : "bg-orange-50"
+                    } rounded-lg p-4 border-l-4 border-[#ff6900]`}
+                  >
                     <div className="flex justify-between items-center mb-2">
-                      <span className="uppercase text-sm text-gray-500 font-medium">
+                      <span className={`uppercase text-sm ${textSecondary} font-medium`}>
                         Feedback
                       </span>
                       <span
-                        className={`inline-flex items-center px-3 py-1 text-sm font-bold rounded-full ${darkMode ? 'bg-gray-800' : 'bg-gray-200'} text-[#ff6900]`}
+                        className={`inline-flex items-center px-3 py-1 text-sm font-bold rounded-full ${
+                          darkMode ? "bg-orange-100" : "bg-orange-100"
+                        } text-[#ff6900]`}
                       >
                         <FaStar className="mr-1" size={12} />
                         {item.score}/10
                       </span>
                     </div>
-                    <p className="mt-2 text-gray-300">{item.suggestions}</p>
+                    <p className={`mt-2 ${textSecondary}`}>{item.suggestions}</p>
                   </div>
                 </div>
               )}
@@ -226,17 +278,27 @@ const InterviewFeedback = ({ data, onBack }) => {
         </div>
 
         {/* Overall Feedback */}
-        <div className={`${cardBg} ${borderColor} border p-6 rounded-xl mb-10 max-w-4xl mx-auto animate__animated animate__fadeInUp`}>
+        <div
+          className={`${cardBg} ${borderColor} border p-6 rounded-xl mb-10 max-w-4xl mx-auto animate__animated animate__fadeInUp`}
+        >
           <div className="flex items-center gap-3 mb-4">
-            <div className={`p-2 ${darkMode ? 'bg-gray-800' : 'bg-gray-200'} rounded-full`}>
+            <div
+              className={`p-2 ${
+                darkMode ? "bg-orange-200" : "bg-orange-200"
+              } rounded-full`}
+            >
               <FaAward className="text-[#ff6900]" />
             </div>
             <h4 className="text-xl font-semibold text-[#ff6900]">
               Overall Feedback
             </h4>
           </div>
-          <div className={`${darkMode ? "bg-gray-900" : "bg-gray-100"} p-4 rounded-lg`}>
-            <p className="leading-relaxed">{overallFeedback}</p>
+          <div
+            className={`${
+              darkMode ? "bg-orange-50" : "bg-white"
+            } p-4 rounded-lg`}
+          >
+            <p className={`leading-relaxed ${textSecondary}`}>{overallFeedback}</p>
           </div>
         </div>
       </div>
