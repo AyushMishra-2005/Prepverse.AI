@@ -10,6 +10,7 @@ import InterviewData from "../models/interview.model.js";
 import { evaluateResult } from "../utils/evaluateResult.js";
 import Internship from "../models/internships.model.js";
 import { getTransporter } from '../config/nodemailer.config.js';
+import {sendTemplateMessage, sendTextMessage} from '../utils/sendWhatsappMessage.js'
 
 
 const transporter = getTransporter();
@@ -89,14 +90,12 @@ export const createCompanyInterview = async (req, res) => {
     });
 
     const eligible_users = eligibleUsers.data.eligible_users || [];
-    console.log(eligible_users);
 
-    // Extract only userIds
     const userIds = eligible_users.map(u => u.userId);
 
     const users = await User.find(
       { _id: { $in: userIds } },
-      { name: 1, email: 1 }
+      { name: 1, email: 1, mobileNumber: 1 }
     );
 
     console.log(users);
@@ -141,6 +140,18 @@ export const createCompanyInterview = async (req, res) => {
 
 
       await transporter.sendMail(mailOptions);
+
+      if(user.mobileNumber){
+        await sendTextMessage({
+          to: user.mobileNumber, 
+          name: user.name,
+          jobTitle,
+          jobRole,
+          duration,
+          company,
+          stipend,
+        });
+      }
     }
 
     return res.status(200).json({

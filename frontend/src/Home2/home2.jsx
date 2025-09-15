@@ -255,7 +255,7 @@ const Home2 = () => {
       {/* Main Page Content */}
       <div className="relative z-10 font-inter flex-1">
         {/* Hero Section*/}
-        <section className="container w-[100vw] mx-auto px-4 sm:px-6 md:px-8 lg:px-34 py-8 md:py-16 mt-8 md:mt-12 grid md:grid-cols-2 gap-0 items-center justify-center">
+        <section className="container w-[100vw] mx-auto px-4 sm:px-6 md:px-8 lg:px-34 py-8 md:py-16 grid md:grid-cols-2 gap-0 items-center justify-center min-h-[100vh]">
           {/* Left - Text */}
           <div className="flex flex-col justify-center space-y-4 md:space-y-2">
             <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold font-poppins leading-tight">
