@@ -6,11 +6,17 @@ import {
   Briefcase,
   Rocket,
   RefreshCw,
+  Filter,
+  X,
+  ChevronDown,
+  ChevronUp,
+  MapPin,
+  Clock
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { ThemeContext } from "../context/ThemeContext";
-import axios from 'axios'
-import server from '../environment.js'
+import axios from 'axios';
+import server from '../environment.js';
 import { useNavigate } from "react-router-dom";
 import useInternships from '../stateManage/useInternships.js';
 import {toast} from 'react-hot-toast';
@@ -120,14 +126,67 @@ const InternshipCard = ({ internship, isTopPick }) => {
   );
 };
 
+// Filter Component
+const FilterSection = ({ title, children, isOpen, onToggle, icon: Icon }) => {
+  const { theme } = useContext(ThemeContext);
+  
+  return (
+    <div className={`border-b ${theme === "dark" ? "border-[#2A2A2A]" : "border-[#EAEAEA]"}`}>
+      <button 
+        className="w-full py-3 flex justify-between items-center font-medium"
+        onClick={onToggle}
+      >
+        <span className="flex items-center">
+          {Icon && <Icon size={16} className="mr-2" />}
+          {title}
+        </span>
+        {isOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+      </button>
+      {isOpen && (
+        <div className="pb-4">
+          {children}
+        </div>
+      )}
+    </div>
+  );
+};
+
 const InternshipPage = () => {
-  const [internships, setInternships] = useState([]);
+  const [allInternships, setAllInternships] = useState([]);
+  const [filteredInternships, setFilteredInternships] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showAll, setShowAll] = useState(false);
+  const [showFilters, setShowFilters] = useState(false);
   const { theme } = useContext(ThemeContext);
-  const {internshipsData, setInternshipsData } = useInternships();
+  const { internshipsData, setInternshipsData } = useInternships();
   const navigate = useNavigate();
+  
+  // Filter states
+  const [filters, setFilters] = useState({
+    location: [],
+    jobType: [],
+    duration: [],
+    stipend: [],
+    tags: []
+  });
+  
+  // Expanded filter sections
+  const [expandedSections, setExpandedSections] = useState({
+    location: true,
+    jobType: true,
+    duration: true,
+    stipend: true,
+    tags: true
+  });
 
+  // Filter options
+  const filterOptions = {
+    location: ["On-site", "Remote", "Hybrid"],
+    jobType: ["Full-time", "Part-time"],
+    duration: ["1 month", "2 months", "3 months", "4 months", "5 months", "6 months", "6+ months"],
+    stipend: ["Unpaid", "Paid", "₹5K-10K", "₹10K-20K", "₹20K-30K", "₹30K-50K", "₹50K+"],
+    tags: ["Beginner Friendly", "Social Good", "Machine Learning/AI", "Web Development", "Data Science", "Mobile Development"]
+  };
 
   useEffect(() => {
     const internshipDetails = async () => {
@@ -145,13 +204,14 @@ const InternshipPage = () => {
         }
 
         const recommend_internships = data.recommend_internships;
-        setInternships(recommend_internships);
+        setAllInternships(recommend_internships);
+        setFilteredInternships(recommend_internships);
         setInternshipsData(recommend_internships);
         setLoading(false);
       } catch (err) {
         console.log(err);
         setLoading(false);
-      }finally{
+      } finally {
         setLoading(false);
       }
     }
@@ -159,18 +219,131 @@ const InternshipPage = () => {
     internshipDetails();
   }, []);
 
-  const topInternships = internships.slice(0, 3);
-  const otherInternships = internships.slice(3);
+  // Apply filters when filter state changes
+  useEffect(() => {
+    if (allInternships.length === 0) return;
+    
+    let result = [...allInternships];
+    
+    // Location filter
+    if (filters.location.length > 0) {
+      result = result.filter(internship => {
+        const location = internship.location?.toLowerCase() || "";
+        
+        if (filters.location.includes("On-site") && 
+            (location.includes("onsite") || location.includes("on-site") || location.includes("office"))) return true;
+        if (filters.location.includes("Remote") && location.includes("remote")) return true;
+        if (filters.location.includes("Hybrid") && location.includes("hybrid")) return true;
+        return false;
+      });
+    }
+    
+    // Job Type filter
+    if (filters.jobType.length > 0) {
+      result = result.filter(internship => {
+        const jobType = internship.jobType?.toLowerCase() || "";
+        
+        if (filters.jobType.includes("Full-time") && jobType.includes("full")) return true;
+        if (filters.jobType.includes("Part-time") && jobType.includes("part")) return true;
+        return false;
+      });
+    }
+    
+    // Duration filter
+    if (filters.duration.length > 0) {
+      result = result.filter(internship => {
+        const duration = internship.duration?.toLowerCase() || "";
+        
+        for (const option of filters.duration) {
+          if (duration.includes(option.toLowerCase())) return true;
+        }
+        return false;
+      });
+    }
+    
+    // Stipend filter
+    if (filters.stipend.length > 0) {
+      result = result.filter(internship => {
+        const stipend = internship.stipend || "";
+        const isPaid = stipend !== "0" && stipend !== "Unpaid";
+        
+        if (filters.stipend.includes("Unpaid") && !isPaid) return true;
+        if (filters.stipend.includes("Paid") && isPaid) return true;
+        
+        // Check stipend ranges
+        if (isPaid) {
+          const stipendAmount = parseInt(stipend.replace(/[^\d]/g, ''));
+          
+          if (filters.stipend.includes("₹5K-10K") && stipendAmount >= 5000 && stipendAmount < 10000) return true;
+          if (filters.stipend.includes("₹10K-20K") && stipendAmount >= 10000 && stipendAmount < 20000) return true;
+          if (filters.stipend.includes("₹20K-30K") && stipendAmount >= 20000 && stipendAmount < 30000) return true;
+          if (filters.stipend.includes("₹30K-50K") && stipendAmount >= 30000 && stipendAmount < 50000) return true;
+          if (filters.stipend.includes("₹50K+") && stipendAmount >= 50000) return true;
+        }
+        
+        return false;
+      });
+    }
+    
+    // Tags filter
+    if (filters.tags.length > 0) {
+      result = result.filter(internship => {
+        const topics = internship.jobTopic?.toLowerCase() || "";
+        return filters.tags.some(tag => 
+          topics.includes(tag.toLowerCase())
+        );
+      });
+    }
+    
+    setFilteredInternships(result);
+  }, [filters, allInternships]);
+
+  const handleFilterChange = (category, value) => {
+    setFilters(prev => {
+      const newFilters = { ...prev };
+      if (newFilters[category].includes(value)) {
+        newFilters[category] = newFilters[category].filter(item => item !== value);
+      } else {
+        newFilters[category] = [...newFilters[category], value];
+      }
+      return newFilters;
+    });
+  };
+
+  const clearAllFilters = () => {
+    setFilters({
+      location: [],
+      jobType: [],
+      duration: [],
+      stipend: [],
+      tags: []
+    });
+  };
+
+  const toggleFilterSection = (section) => {
+    setExpandedSections(prev => ({
+      ...prev,
+      [section]: !prev[section]
+    }));
+  };
+
+  const topInternships = filteredInternships.slice(0, 3);
+  const otherInternships = filteredInternships.slice(3);
 
   const handleResuggest = () => {
     setLoading(true);
     setTimeout(() => {
       // Simulate fetching new relevant internships
-      setInternships([...internshipsData].sort(() => Math.random() - 0.5));
+      setAllInternships([...allInternships].sort(() => Math.random() - 0.5));
       setLoading(false);
       setShowAll(false);
     }, 1000);
   };
+
+  // Count active filters
+  const activeFilterCount = Object.values(filters).reduce(
+    (total, current) => total + current.length, 0
+  );
 
   return (
     <div
@@ -179,7 +352,7 @@ const InternshipPage = () => {
     >
       <main className="w-full px-6">
         {/* Header Section */}
-        <section className="text-center mb-16 pt-8">
+        <section className="text-center mb-12 pt-8">
           <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-4 font-poppins">
             Find Your <span className="text-[#FF6900]">Next Opportunity</span>
           </h1>
@@ -191,13 +364,28 @@ const InternshipPage = () => {
             your unique skills and aspirations.
           </p>
 
-          {/* Resuggest Button */}
-          <div className="mt-6">
+          {/* Filter and Resuggest Buttons */}
+          <div className="mt-6 flex flex-wrap justify-center gap-4">
+            <button
+              onClick={() => setShowFilters(!showFilters)}
+              className="px-6 py-2.5 rounded-md font-medium 
+                bg-white text-[#1A1A1A] border border-[#EAEAEA] hover:bg-gray-50
+                transition-colors duration-300 flex items-center justify-center relative"
+            >
+              <Filter size={16} className="mr-2" />
+              {showFilters ? "Hide Filters" : "Show Filters"}
+              {activeFilterCount > 0 && (
+                <span className="absolute -top-2 -right-2 bg-[#FF6900] text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                  {activeFilterCount}
+                </span>
+              )}
+            </button>
+            
             <button
               onClick={handleResuggest}
               className="px-6 py-2.5 rounded-md font-medium 
                 bg-[#FF6900] text-white hover:bg-[#e65f00] 
-                transition-colors duration-300 flex items-center justify-center mx-auto"
+                transition-colors duration-300 flex items-center justify-center"
             >
               <RefreshCw size={16} className="mr-2" />
               Resuggest Internships
@@ -205,61 +393,260 @@ const InternshipPage = () => {
           </div>
         </section>
 
-        {/* Loader */}
-        {loading ? (
-          <div className="flex justify-center items-center h-64">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#FF6900]"></div>
-          </div>
-        ) : (
-          <>
-            {/* Top Matches */}
-            <section className="mb-16">
-              <h2 className="text-2xl font-semibold mb-8 text-center font-poppins">
-                Top Matches for You
-              </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {topInternships.map((internship) => (
-                  <InternshipCard
-                    key={internship._id}
-                    internship={internship}
-                    isTopPick={true}
-                  />
-                ))}
-              </div>
-            </section>
-
-            {!showAll && (
-              <div className="text-center my-12">
-                <button
-                  onClick={() => setShowAll(true)}
-                  className="px-6 py-2.5 rounded-md font-medium 
-                    bg-[#FF6900] text-white hover:bg-[#e65f00] 
-                    transition-colors duration-300"
-                >
-                  Load More Internships
-                  <ArrowRight size={16} className="inline-block ml-2" />
-                </button>
-              </div>
-            )}
-
-            {showAll && (
-              <section className="mt-16">
-                <h2 className="text-2xl font-semibold mb-8 text-center font-poppins">
-                  More <span className="text-[#FF6900]">Opportunities</span>
-                </h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {otherInternships.map((internship) => (
-                    <InternshipCard
-                      key={internship._id}
-                      internship={internship}
-                      isTopPick={false}
-                    />
-                  ))}
+        {/* Main Content with Filters */}
+        <div className="flex flex-col lg:flex-row gap-8">
+          {/* Filters Sidebar - shown on desktop always, mobile when toggled */}
+          {(showFilters || window.innerWidth >= 1024) && (
+            <div className={`lg:w-1/4 mb-8 lg:mb-0 rounded-lg p-5 
+              ${theme === "dark" ? "bg-[#1A1A1A]" : "bg-white border border-[#EAEAEA] shadow-sm"}`}>
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="font-semibold flex items-center">
+                  <Filter size={18} className="mr-2" />
+                  Filters
+                </h3>
+                <div className="flex items-center gap-2">
+                  {activeFilterCount > 0 && (
+                    <span className="text-xs text-gray-500">
+                      {activeFilterCount} active
+                    </span>
+                  )}
+                  <button 
+                    onClick={clearAllFilters}
+                    className="text-sm text-[#FF6900] hover:underline"
+                  >
+                    Clear all
+                  </button>
                 </div>
-              </section>
+              </div>
+              
+              {/* Location Filter */}
+              <FilterSection 
+                title="Location" 
+                isOpen={expandedSections.location}
+                onToggle={() => toggleFilterSection("location")}
+                icon={MapPin}
+              >
+                {filterOptions.location.map(option => (
+                  <div key={option} className="flex items-center mb-2">
+                    <input
+                      type="checkbox"
+                      id={`location-${option}`}
+                      checked={filters.location.includes(option)}
+                      onChange={() => handleFilterChange("location", option)}
+                      className="mr-2 h-4 w-4 rounded border-gray-300 text-[#FF6900] focus:ring-[#FF6900]"
+                    />
+                    <label htmlFor={`location-${option}`} className="text-sm">
+                      {option}
+                    </label>
+                  </div>
+                ))}
+              </FilterSection>
+              
+              {/* Job Type Filter */}
+              <FilterSection 
+                title="Job Type" 
+                isOpen={expandedSections.jobType}
+                onToggle={() => toggleFilterSection("jobType")}
+                icon={Briefcase}
+              >
+                {filterOptions.jobType.map(option => (
+                  <div key={option} className="flex items-center mb-2">
+                    <input
+                      type="checkbox"
+                      id={`jobType-${option}`}
+                      checked={filters.jobType.includes(option)}
+                      onChange={() => handleFilterChange("jobType", option)}
+                      className="mr-2 h-4 w-4 rounded border-gray-300 text-[#FF6900] focus:ring-[#FF6900]"
+                    />
+                    <label htmlFor={`jobType-${option}`} className="text-sm">
+                      {option}
+                    </label>
+                  </div>
+                ))}
+              </FilterSection>
+              
+              {/* Duration Filter */}
+              <FilterSection 
+                title="Duration" 
+                isOpen={expandedSections.duration}
+                onToggle={() => toggleFilterSection("duration")}
+                icon={Clock}
+              >
+                {filterOptions.duration.map(option => (
+                  <div key={option} className="flex items-center mb-2">
+                    <input
+                      type="checkbox"
+                      id={`duration-${option}`}
+                      checked={filters.duration.includes(option)}
+                      onChange={() => handleFilterChange("duration", option)}
+                      className="mr-2 h-4 w-4 rounded border-gray-300 text-[#FF6900] focus:ring-[#FF6900]"
+                    />
+                    <label htmlFor={`duration-${option}`} className="text-sm">
+                      {option}
+                    </label>
+                  </div>
+                ))}
+              </FilterSection>
+              
+              {/* Stipend Filter */}
+              <FilterSection 
+                title="Stipend" 
+                isOpen={expandedSections.stipend}
+                onToggle={() => toggleFilterSection("stipend")}
+                icon={DollarSign}
+              >
+                {filterOptions.stipend.map(option => (
+                  <div key={option} className="flex items-center mb-2">
+                    <input
+                      type="checkbox"
+                      id={`stipend-${option}`}
+                      checked={filters.stipend.includes(option)}
+                      onChange={() => handleFilterChange("stipend", option)}
+                      className="mr-2 h-4 w-4 rounded border-gray-300 text-[#FF6900] focus:ring-[#FF6900]"
+                    />
+                    <label htmlFor={`stipend-${option}`} className="text-sm">
+                      {option}
+                    </label>
+                  </div>
+                ))}
+              </FilterSection>
+              
+              {/* Tags Filter */}
+              <FilterSection 
+                title="Interest Tags" 
+                isOpen={expandedSections.tags}
+                onToggle={() => toggleFilterSection("tags")}
+              >
+                {filterOptions.tags.map(option => (
+                  <div key={option} className="flex items-center mb-2">
+                    <input
+                      type="checkbox"
+                      id={`tags-${option}`}
+                      checked={filters.tags.includes(option)}
+                      onChange={() => handleFilterChange("tags", option)}
+                      className="mr-2 h-4 w-4 rounded border-gray-300 text-[#FF6900] focus:ring-[#FF6900]"
+                    />
+                    <label htmlFor={`tags-${option}`} className="text-sm">
+                      {option}
+                    </label>
+                  </div>
+                ))}
+              </FilterSection>
+            </div>
+          )}
+
+          {/* Internships List */}
+          <div className="lg:w-3/4">
+            {/* Loader */}
+            {loading ? (
+              <div className="flex justify-center items-center h-64">
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#FF6900]"></div>
+              </div>
+            ) : (
+              <>
+                {/* Results count and active filters */}
+                <div className="mb-6 flex flex-col gap-3">
+                  <p className={theme === "dark" ? "text-[#CCCCCC]" : "text-[#555555]"}>
+                    {filteredInternships.length} internship{filteredInternships.length !== 1 ? 's' : ''} found
+                  </p>
+                  
+                  {/* Active filter chips */}
+                  {activeFilterCount > 0 && (
+                    <div className="flex flex-wrap gap-2">
+                      {Object.entries(filters).map(([category, values]) => 
+                        values.map(value => (
+                          <span 
+                            key={`${category}-${value}`}
+                            className="px-3 py-1 bg-[#FF6900] text-white text-xs rounded-full flex items-center"
+                          >
+                            {value}
+                            <button 
+                              onClick={() => handleFilterChange(category, value)}
+                              className="ml-2 focus:outline-none"
+                            >
+                              <X size={14} />
+                            </button>
+                          </span>
+                        ))
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                {/* Top Matches */}
+                <section className="mb-16">
+                  <h2 className="text-2xl font-semibold mb-8 font-poppins">
+                    Top Matches for You
+                  </h2>
+                  {topInternships.length > 0 ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+                      {topInternships.map((internship) => (
+                        <InternshipCard
+                          key={internship._id}
+                          internship={internship}
+                          isTopPick={true}
+                        />
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-12">
+                      <p className="text-gray-500 mb-4">No top matches found with current filters.</p>
+                      <button 
+                        onClick={clearAllFilters}
+                        className="text-[#FF6900] hover:underline"
+                      >
+                        Clear all filters
+                      </button>
+                    </div>
+                  )}
+                </section>
+
+                {!showAll && filteredInternships.length > 3 && (
+                  <div className="text-center my-12">
+                    <button
+                      onClick={() => setShowAll(true)}
+                      className="px-6 py-2.5 rounded-md font-medium 
+                        bg-[#FF6900] text-white hover:bg-[#e65f00] 
+                        transition-colors duration-300"
+                    >
+                      Load More Internships
+                      <ArrowRight size={16} className="inline-block ml-2" />
+                    </button>
+                  </div>
+                )}
+
+                {showAll && (
+                  <section className="mt-16">
+                    <h2 className="text-2xl font-semibold mb-8 font-poppins">
+                      More <span className="text-[#FF6900]">Opportunities</span>
+                    </h2>
+                    {otherInternships.length > 0 ? (
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+                        {otherInternships.map((internship) => (
+                          <InternshipCard
+                            key={internship._id}
+                            internship={internship}
+                            isTopPick={false}
+                          />
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="text-center py-12">
+                        <p className="text-gray-500 mb-4">No additional internships found with current filters.</p>
+                        <button 
+                          onClick={clearAllFilters}
+                          className="text-[#FF6900] hover:underline"
+                        >
+                          Clear all filters
+                        </button>
+                      </div>
+                    )}
+                  </section>
+                )}
+              </>
             )}
-          </>
-        )}
+          </div>
+        </div>
 
         {/* Call to Action */}
         <section className="py-16 text-center w-full">
@@ -267,7 +654,8 @@ const InternshipPage = () => {
             className={`p-8 rounded-xl max-w-4xl mx-auto shadow-md border 
               ${theme === "dark" ? "bg-orange-100 border-[#2A2A2A]" : "bg-orange-50 border-[#EAEAEA]"}`}
           >
-            <h2 className="text-3xl md:text-4xl font-bold mb-4 font-poppins">
+            <h2 className={`text-3xl md:text-4xl font-bold mb-4 font-poppins ${theme === "dark" ? "text-black" : "text-black"
+                }`}>
               Ready to <span className="text-[#FF6900]">Launch?</span>
             </h2>
             <p
