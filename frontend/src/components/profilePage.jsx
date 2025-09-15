@@ -7,7 +7,7 @@ import { toast } from 'react-hot-toast';
 import server from "../environment.js";
 
 function ProfilePage() {
-  const { authUser } = useAuth();
+  const { authUser, setAuthUser } = useAuth();
   const { theme } = useContext(ThemeContext);
   const [resumeLink, setResumeLink] = useState(authUser.user.resumeLink || "");
   const [isUploading, setIsUploading] = useState(false);
@@ -18,6 +18,8 @@ function ProfilePage() {
     education: [],
     experience: []
   });
+  const [mobileNumber, setMobileNumber] = useState(authUser.user.mobileNumber || "");
+  const [isUpdatingMobile, setIsUpdatingMobile] = useState(false);
 
   useEffect(() => {
     const getResumeData = async () => {
@@ -25,7 +27,7 @@ function ProfilePage() {
         const { data } = await axios.post(
           `${server}/resume-upload/getResumeData`,
           {},
-          {withCredentials: true}
+          { withCredentials: true }
         );
 
         if (data.resume_data) {
@@ -123,6 +125,69 @@ function ProfilePage() {
     } catch (err) {
       console.error(err);
       toast.error("Server error");
+    }
+  };
+
+  const handleMobileNumberUpdate = async () => {
+    if (!mobileNumber.trim()) {
+      toast.error("Please enter a valid mobile number");
+      return;
+    }
+
+    setIsUpdatingMobile(true);
+    try {
+      const { data } = await axios.post(
+        `${server}/user/update-mobile`,
+        { mobileNumber },
+        { withCredentials: true }
+      );
+
+      if (!data.user) {
+        return toast.error("Mobile number updation Failed!");
+      }
+
+      toast.success(data.message);
+
+      localStorage.setItem("authUserData", JSON.stringify(data));
+      setAuthUser({
+        ...authUser,
+        user: data.user
+      });
+
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to update mobile number");
+    } finally {
+      setIsUpdatingMobile(false);
+    }
+  };
+
+  const handleDeleteMobileNumber = async () => {
+    setIsUpdatingMobile(true);
+    try {
+      const { data } = await axios.post(
+        `${server}/user/delete-mobile`,
+        {},
+        { withCredentials: true }
+      );
+
+      if (!data.user) {
+        return toast.error("Mobile number updation Failed!");
+      }
+
+      toast.success(data.message);
+
+      localStorage.setItem("authUserData", JSON.stringify(data));
+      setAuthUser({
+        ...authUser,
+        user: data.user
+      });
+      setMobileNumber("");
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to remove mobile number");
+    } finally {
+      setIsUpdatingMobile(false);
     }
   };
 
@@ -274,10 +339,10 @@ function ProfilePage() {
               <p className="text-gray-400 text-sm">Skills used: {project.skills_used.join(', ')}</p>
             )}
             {project?.link && (
-              <a 
-                href={project.link} 
-                target="_blank" 
-                rel="noopener noreferrer" 
+              <a
+                href={project.link}
+                target="_blank"
+                rel="noopener noreferrer"
                 className="text-orange-500 hover:text-orange-400 text-sm transition-colors"
               >
                 View Project
@@ -379,10 +444,58 @@ function ProfilePage() {
         </div>
       </motion.div>
 
+      {/* Mobile Number Section */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.1 }}
+        className="max-w-4xl mx-auto mt-6 rounded-xl bg-gray-800 border border-gray-700 p-6 shadow-xl"
+      >
+        <h2 className="text-xl font-bold text-white mb-4">Contact Information</h2>
+        <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
+          <div className="flex-1">
+            <label htmlFor="mobileNumber" className="block text-sm font-medium text-gray-300 mb-1">
+              Mobile Number
+            </label>
+            <input
+              type="tel"
+              id="mobileNumber"
+              value={mobileNumber}
+              onChange={(e) => setMobileNumber(e.target.value)}
+              placeholder="Enter your mobile number"
+              disabled={authUser.user.mobileNumber}
+              className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent disabled:opacity-70"
+            />
+          </div>
+
+          {authUser.user.mobileNumber ? (
+            <motion.button
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={handleDeleteMobileNumber}
+              disabled={isUpdatingMobile}
+              className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-medium rounded-md transition-colors disabled:opacity-50 mt-2 md:mt-6"
+            >
+              {isUpdatingMobile ? "Removing..." : "Remove"}
+            </motion.button>
+          ) : (
+            <motion.button
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={handleMobileNumberUpdate}
+              disabled={isUpdatingMobile || !mobileNumber.trim()}
+              className="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white font-medium rounded-md transition-colors disabled:opacity-50 mt-2 md:mt-6"
+            >
+              {isUpdatingMobile ? "Saving..." : "Save Number"}
+            </motion.button>
+          )}
+        </div>
+      </motion.div>
+
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.2 }}
         className="max-w-4xl mx-auto mt-6 mb-12"
       >
         {!resumeLink ? (

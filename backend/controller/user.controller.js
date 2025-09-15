@@ -88,6 +88,7 @@ export const signup = async (req, res) => {
           email: newUser.email,
           username: newUser.username,
           profilePicURL: newUser.profilePicURL,
+          mobileNumber: user.mobileNumber
         }
       });
     }
@@ -129,7 +130,8 @@ export const login = async (req, res) => {
         name: user.name,
         email: user.email,
         username: user.username,
-        profilePicURL: user.profilePicURL
+        profilePicURL: user.profilePicURL,
+        mobileNumber: user.mobileNumber
       }
     });
 
@@ -233,9 +235,80 @@ export const verifyOtp = async (req, res) => {
 }
 
 
+export const updateMobile = async (req, res) => {
+  const userId = req.user._id;
+  const { mobileNumber } = req.body;
+  try {
+    if(!mobileNumber){
+      return res.status(500).json({message: "Please provide a mobile number!"});
+    }
+    const mobileRegex = /^[0-9]{10}$/; 
+    if (!mobileRegex.test(mobileNumber)) {
+      return res.status(500).json({
+        message: "Please enter a valid mobile number (10digits)."
+      });
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { mobileNumber },
+      { new: true } 
+    );
+
+    if (!updatedUser) {
+      return res.status(404).json({ message: "User not found." });
+    }
+
+    return res.status(200).json({
+      message: "Mobile number updated successfully!",
+      user: {
+        _id: updatedUser._id,
+        name: updatedUser.name,
+        email: updatedUser.email,
+        username: updatedUser.username,
+        profilePicURL: updatedUser.profilePicURL,
+        mobileNumber: updatedUser.mobileNumber
+      }
+    });
+
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({ message: "Server error." });
+  }
+}
 
 
 
+export const deleteMobile = async (req, res) => {
+  const userId = req.user._id;
+  try {
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { mobileNumber: "" },
+      { new: true } 
+    );
+
+    if (!updatedUser) {
+      return res.status(404).json({ message: "User not found." });
+    }
+
+    return res.status(200).json({
+      message: "Mobile number Deleted!",
+      user: {
+        _id: updatedUser._id,
+        name: updatedUser.name,
+        email: updatedUser.email,
+        username: updatedUser.username,
+        profilePicURL: updatedUser.profilePicURL,
+        mobileNumber: updatedUser.mobileNumber
+      }
+    });
+
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({ message: "Server error." });
+  }
+}
 
 
 
