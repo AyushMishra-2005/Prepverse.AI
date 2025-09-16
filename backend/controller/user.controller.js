@@ -3,6 +3,7 @@ import bcrypt from 'bcrypt'
 import createTokenAndSaveCookie from '../jwt/generateToken.js'
 import { getTransporter } from '../config/nodemailer.config.js';
 import StoreOTP from '../models/otp.model.js'
+import {sendTemplateMessage} from '../utils/sendWhatsappMessage.js'
 
 const transporter = getTransporter();
 
@@ -258,6 +259,8 @@ export const updateMobile = async (req, res) => {
     if (!updatedUser) {
       return res.status(404).json({ message: "User not found." });
     }
+
+    await sendTemplateMessage({to : mobileNumber});
 
     return res.status(200).json({
       message: "Mobile number updated successfully!",

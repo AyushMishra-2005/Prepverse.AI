@@ -6,7 +6,14 @@ import numpy as np
 import torch
 import os
 import re
-from sklearn.preprocessing import MinMaxScaler
+
+from recommend_service import (
+    build_or_regex_for_values,
+    parse_stipend_to_number,
+    parse_filter_stipend_range,
+    last_date_is_open
+)
+
 
 from dotenv import load_dotenv
 
@@ -85,29 +92,56 @@ def recommend():
 
     data = request.get_json()
     user_vector = data.get("embedding")
+    filters = data.get("filters", {})
+    print("Filters received:", filters)
 
     if not user_vector or not isinstance(user_vector, list):
         return jsonify({"error": "Invalid input. Provide 'embedding' as a list of floats."}), 400
 
+    match_conditions = {}
+
+    # Duration filter
+    if "duration" in filters and filters["duration"]:
+        match_conditions["duration"] = {"$in": filters["duration"]}
+
+    # Type / JobType filters
+    type_filters = build_or_regex_for_values(filters.get("type", []))
+    jobtype_filters = build_or_regex_for_values(filters.get("jobType", []))
+
+    # Build match properly
+    if type_filters and jobtype_filters:
+        # Both exist, use $or
+        or_conditions = [{"type": r} for r in type_filters] + [{"jobType": r} for r in jobtype_filters]
+        match_conditions["$or"] = or_conditions
+    elif type_filters:
+        # Only type filter exists
+        match_conditions["type"] = type_filters[0] if len(type_filters) == 1 else {"$in": type_filters}
+    elif jobtype_filters:
+        # Only jobType filter exists
+        match_conditions["jobType"] = jobtype_filters[0] if len(jobtype_filters) == 1 else {"$in": jobtype_filters}
+
+    print(match_conditions)
+    # --- Build pipeline ---
     pipeline = [
-        {
-            "$vectorSearch": {
-                "index": "vector_index",
-                "path": "embedding",
-                "queryVector": user_vector,
-                "numCandidates": 300,
-                "limit": 30,
-            }
-        },
-        {
-            "$project": {
-                "_id": 1, "jobTitle": 1, "company": 1, "description": 1,
-                "jobRole": 1, "jobTopic": 1, "duration": 1, "type": 1,
-                "stipend": 1, "jobType": 1, "lastDate": 1, "skills": 1,
-                "score": {"$meta": "vectorSearchScore"}
-            }
-        }
+        {"$vectorSearch": {
+            "index": "vector_index",
+            "path": "embedding",
+            "queryVector": user_vector,
+            "numCandidates": 300,
+            "limit": 50
+        }}
     ]
+
+    if match_conditions:
+        pipeline.append({"$match": match_conditions})
+
+    pipeline.append({"$project": {
+        "_id": 1,
+        "jobTitle": 1, "company": 1, "description": 1,
+        "jobRole": 1, "jobTopic": 1, "duration": 1, "type": 1,
+        "stipend": 1, "jobType": 1, "lastDate": 1, "skills": 1,
+        "score": {"$meta": "vectorSearchScore"}
+    }})
 
     try:
         print("Executing vector search against MongoDB...")
@@ -118,29 +152,60 @@ def recommend():
     if not candidates:
         return jsonify([])
 
+    # --- Apply stipend & availability filters in Python ---
+    filtered_after_meta = []
+    stipend_filters = []
+    if "stipend" in filters and isinstance(filters["stipend"], list):
+        for s in filters["stipend"]:
+            r = parse_filter_stipend_range(str(s))
+            if r:
+                stipend_filters.append(r)
+
+    available_open = False
+    if "available" in filters and isinstance(filters["available"], list):
+        if "open" in [x.lower() for x in filters["available"]]:
+            available_open = True
+
+    for cand in candidates:
+        ok = True
+        if stipend_filters:
+            cand_stipend_val = parse_stipend_to_number(cand.get("stipend"))
+            if cand_stipend_val is None:
+                ok = False
+            else:
+                ok = any(mn <= cand_stipend_val <= mx for (mn, mx) in stipend_filters)
+        if ok and available_open:
+            if not last_date_is_open(cand.get("lastDate")):
+                ok = False
+        if ok:
+            filtered_after_meta.append(cand)
+
+    if not filtered_after_meta:
+        return jsonify([])
+
+    # --- Cross-encoder reranking ---
     try:
-        print("Re-ranking candidates with Cross-Encoder...")
+        print("Re-ranking internships with Cross-Encoder...")
         pairs = [
-            ("Candidate profile embedding", f"{c.get('jobTitle', '')}. {c.get('jobRole', '')}. {c.get('jobTopic', '')}. {c.get('description', '')}")
-            for c in candidates
+            ("Candidate profile embedding",
+             f"{c.get('jobTitle', '')}. {c.get('jobRole', '')}. {c.get('jobTopic', '')}. {c.get('description', '')}")
+            for c in filtered_after_meta
         ]
-
         scores = cross_encoder.predict(pairs)
-
-        for cand, score in zip(candidates, scores):
+        for cand, score in zip(filtered_after_meta, scores):
             cand["rerank_score"] = float(score)
 
-        candidates.sort(key=lambda x: x["rerank_score"], reverse=True)
+        filtered_after_meta.sort(key=lambda x: x["rerank_score"], reverse=True)
+        top_results = filtered_after_meta[:10]
 
-        top_results = candidates[:10]
         for item in top_results:
             item["_id"] = str(item["_id"])
 
-        print("Recommendation process complete.")
         return jsonify(top_results)
 
     except Exception as e:
         return jsonify({"error": f"Cross-encoder re-ranking failed: {e}"}), 500
+
 
 
 
@@ -323,7 +388,7 @@ def eligible_users():
     except Exception as e:
         return jsonify({"error": f"Failed to compute eligibility: {e}"}), 500
 
-    
+
 
 if __name__ == "__main__":
     startup() 

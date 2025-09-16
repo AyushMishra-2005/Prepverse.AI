@@ -194,7 +194,11 @@ function CreateInterviewForm() {
             >
               <option value="">Select type</option>
               <option value="Short Term">Short Term</option>
-              <option value="Behavioral">Long Term</option>
+              <option value="Long Term">Long Term</option>
+              <option value="Converting">Converting</option>
+              <option value="Summer">Summer</option>
+              <option value="Semester">Semester</option>
+              <option value="Research">Research</option>
             </select>
           </div>
 
@@ -212,8 +216,8 @@ function CreateInterviewForm() {
               }`}
             >
               <option value="">Select job type</option>
-              <option value="Full-time">Full-time</option>
-              <option value="Part-time">Part-time</option>
+              <option value="Full Time">Full Time</option>
+              <option value="Part Time">Part Time</option>
               <option value="Hybrid">Hybrid</option>
               <option value="Onsite">Onsite</option>
               <option value="Remote">Remote</option>

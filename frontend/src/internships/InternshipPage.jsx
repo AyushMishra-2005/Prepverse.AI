@@ -19,7 +19,7 @@ import axios from 'axios';
 import server from '../environment.js';
 import { useNavigate } from "react-router-dom";
 import useInternships from '../stateManage/useInternships.js';
-import {toast} from 'react-hot-toast';
+import { toast } from 'react-hot-toast';
 
 const InternshipCard = ({ internship, isTopPick }) => {
   const { theme } = useContext(ThemeContext);
@@ -129,10 +129,10 @@ const InternshipCard = ({ internship, isTopPick }) => {
 // Filter Component
 const FilterSection = ({ title, children, isOpen, onToggle, icon: Icon }) => {
   const { theme } = useContext(ThemeContext);
-  
+
   return (
     <div className={`border-b ${theme === "dark" ? "border-[#2A2A2A]" : "border-[#EAEAEA]"}`}>
-      <button 
+      <button
         className="w-full py-3 flex justify-between items-center font-medium"
         onClick={onToggle}
       >
@@ -160,32 +160,26 @@ const InternshipPage = () => {
   const { theme } = useContext(ThemeContext);
   const { internshipsData, setInternshipsData } = useInternships();
   const navigate = useNavigate();
-  
-  // Filter states
+
   const [filters, setFilters] = useState({
-    location: [],
+    type: [],
     jobType: [],
     duration: [],
-    stipend: [],
-    tags: []
-  });
-  
-  // Expanded filter sections
-  const [expandedSections, setExpandedSections] = useState({
-    location: true,
-    jobType: true,
-    duration: true,
-    stipend: true,
-    tags: true
+    stipend: []
   });
 
-  // Filter options
+  const [expandedSections, setExpandedSections] = useState({
+    type: true,
+    jobType: true,
+    duration: true,
+    stipend: true
+  });
+
   const filterOptions = {
-    location: ["On-site", "Remote", "Hybrid"],
-    jobType: ["Full-time", "Part-time"],
+    type: ["Short Term", "Long Term", "Converting", "Summer", "Semester", "Research"],
+    jobType: ["Full Time", "Part Time", "Hybrid", "Onsite", "Remote"],
     duration: ["1 month", "2 months", "3 months", "4 months", "5 months", "6 months", "6+ months"],
-    stipend: ["Unpaid", "Paid", "₹5K-10K", "₹10K-20K", "₹20K-30K", "₹30K-50K", "₹50K+"],
-    tags: ["Beginner Friendly", "Social Good", "Machine Learning/AI", "Web Development", "Data Science", "Mobile Development"]
+    stipend: ["Unpaid", "₹5K-10K", "₹10K-20K", "₹20K-30K", "₹30K-50K", "₹50K+"]
   };
 
   useEffect(() => {
@@ -194,11 +188,11 @@ const InternshipPage = () => {
       try {
         const { data } = await axios.post(
           `${server}/internships/get-recomended-internships`,
-          {},
+          { filters },
           { withCredentials: true }
         );
 
-        if(!data.recommend_internships){
+        if (!data.recommend_internships) {
           toast.error("Please complete your profile to access Internships!");
           return navigate("/profilePage");
         }
@@ -219,85 +213,6 @@ const InternshipPage = () => {
     internshipDetails();
   }, []);
 
-  // Apply filters when filter state changes
-  useEffect(() => {
-    if (allInternships.length === 0) return;
-    
-    let result = [...allInternships];
-    
-    // Location filter
-    if (filters.location.length > 0) {
-      result = result.filter(internship => {
-        const location = internship.location?.toLowerCase() || "";
-        
-        if (filters.location.includes("On-site") && 
-            (location.includes("onsite") || location.includes("on-site") || location.includes("office"))) return true;
-        if (filters.location.includes("Remote") && location.includes("remote")) return true;
-        if (filters.location.includes("Hybrid") && location.includes("hybrid")) return true;
-        return false;
-      });
-    }
-    
-    // Job Type filter
-    if (filters.jobType.length > 0) {
-      result = result.filter(internship => {
-        const jobType = internship.jobType?.toLowerCase() || "";
-        
-        if (filters.jobType.includes("Full-time") && jobType.includes("full")) return true;
-        if (filters.jobType.includes("Part-time") && jobType.includes("part")) return true;
-        return false;
-      });
-    }
-    
-    // Duration filter
-    if (filters.duration.length > 0) {
-      result = result.filter(internship => {
-        const duration = internship.duration?.toLowerCase() || "";
-        
-        for (const option of filters.duration) {
-          if (duration.includes(option.toLowerCase())) return true;
-        }
-        return false;
-      });
-    }
-    
-    // Stipend filter
-    if (filters.stipend.length > 0) {
-      result = result.filter(internship => {
-        const stipend = internship.stipend || "";
-        const isPaid = stipend !== "0" && stipend !== "Unpaid";
-        
-        if (filters.stipend.includes("Unpaid") && !isPaid) return true;
-        if (filters.stipend.includes("Paid") && isPaid) return true;
-        
-        // Check stipend ranges
-        if (isPaid) {
-          const stipendAmount = parseInt(stipend.replace(/[^\d]/g, ''));
-          
-          if (filters.stipend.includes("₹5K-10K") && stipendAmount >= 5000 && stipendAmount < 10000) return true;
-          if (filters.stipend.includes("₹10K-20K") && stipendAmount >= 10000 && stipendAmount < 20000) return true;
-          if (filters.stipend.includes("₹20K-30K") && stipendAmount >= 20000 && stipendAmount < 30000) return true;
-          if (filters.stipend.includes("₹30K-50K") && stipendAmount >= 30000 && stipendAmount < 50000) return true;
-          if (filters.stipend.includes("₹50K+") && stipendAmount >= 50000) return true;
-        }
-        
-        return false;
-      });
-    }
-    
-    // Tags filter
-    if (filters.tags.length > 0) {
-      result = result.filter(internship => {
-        const topics = internship.jobTopic?.toLowerCase() || "";
-        return filters.tags.some(tag => 
-          topics.includes(tag.toLowerCase())
-        );
-      });
-    }
-    
-    setFilteredInternships(result);
-  }, [filters, allInternships]);
-
   const handleFilterChange = (category, value) => {
     setFilters(prev => {
       const newFilters = { ...prev };
@@ -312,12 +227,12 @@ const InternshipPage = () => {
 
   const clearAllFilters = () => {
     setFilters({
-      location: [],
+      type: [],
       jobType: [],
       duration: [],
-      stipend: [],
-      tags: []
+      stipend: []
     });
+    console.log("All filters cleared");
   };
 
   const toggleFilterSection = (section) => {
@@ -330,14 +245,39 @@ const InternshipPage = () => {
   const topInternships = filteredInternships.slice(0, 3);
   const otherInternships = filteredInternships.slice(3);
 
-  const handleResuggest = () => {
-    setLoading(true);
-    setTimeout(() => {
-      // Simulate fetching new relevant internships
-      setAllInternships([...allInternships].sort(() => Math.random() - 0.5));
-      setLoading(false);
-      setShowAll(false);
-    }, 1000);
+  const handleResuggest = async () => {
+    // setLoading(true);
+    // setTimeout(() => {
+    //   // Simulate fetching new relevant internships
+    //   setAllInternships([...allInternships].sort(() => Math.random() - 0.5));
+    //   setLoading(false);
+    //   setShowAll(false);
+    // }, 1000);
+    
+      setLoading(true);
+      try {
+        const { data } = await axios.post(
+          `${server}/internships/get-recomended-internships`,
+          { filters },
+          { withCredentials: true }
+        );
+
+        if (!data.recommend_internships) {
+          toast.error("Please complete your profile to access Internships!");
+          return navigate("/profilePage");
+        }
+
+        const recommend_internships = data.recommend_internships;
+        setAllInternships(recommend_internships);
+        setFilteredInternships(recommend_internships);
+        setInternshipsData(recommend_internships);
+        setLoading(false);
+      } catch (err) {
+        console.log(err);
+        setLoading(false);
+      } finally {
+        setLoading(false);
+      }
   };
 
   // Count active filters
@@ -380,7 +320,7 @@ const InternshipPage = () => {
                 </span>
               )}
             </button>
-            
+
             <button
               onClick={handleResuggest}
               className="px-6 py-2.5 rounded-md font-medium 
@@ -410,7 +350,7 @@ const InternshipPage = () => {
                       {activeFilterCount} active
                     </span>
                   )}
-                  <button 
+                  <button
                     onClick={clearAllFilters}
                     className="text-sm text-[#FF6900] hover:underline"
                   >
@@ -418,33 +358,32 @@ const InternshipPage = () => {
                   </button>
                 </div>
               </div>
-              
-              {/* Location Filter */}
-              <FilterSection 
-                title="Location" 
-                isOpen={expandedSections.location}
-                onToggle={() => toggleFilterSection("location")}
-                icon={MapPin}
+
+              {/* Type Filter */}
+              <FilterSection
+                title="Type"
+                isOpen={expandedSections.type}
+                onToggle={() => toggleFilterSection("type")}
               >
-                {filterOptions.location.map(option => (
+                {filterOptions.type.map(option => (
                   <div key={option} className="flex items-center mb-2">
                     <input
                       type="checkbox"
-                      id={`location-${option}`}
-                      checked={filters.location.includes(option)}
-                      onChange={() => handleFilterChange("location", option)}
+                      id={`type-${option}`}
+                      checked={filters.type.includes(option)}
+                      onChange={() => handleFilterChange("type", option)}
                       className="mr-2 h-4 w-4 rounded border-gray-300 text-[#FF6900] focus:ring-[#FF6900]"
                     />
-                    <label htmlFor={`location-${option}`} className="text-sm">
+                    <label htmlFor={`type-${option}`} className="text-sm">
                       {option}
                     </label>
                   </div>
                 ))}
               </FilterSection>
-              
+
               {/* Job Type Filter */}
-              <FilterSection 
-                title="Job Type" 
+              <FilterSection
+                title="Job Type"
                 isOpen={expandedSections.jobType}
                 onToggle={() => toggleFilterSection("jobType")}
                 icon={Briefcase}
@@ -464,10 +403,10 @@ const InternshipPage = () => {
                   </div>
                 ))}
               </FilterSection>
-              
+
               {/* Duration Filter */}
-              <FilterSection 
-                title="Duration" 
+              <FilterSection
+                title="Duration"
                 isOpen={expandedSections.duration}
                 onToggle={() => toggleFilterSection("duration")}
                 icon={Clock}
@@ -487,10 +426,10 @@ const InternshipPage = () => {
                   </div>
                 ))}
               </FilterSection>
-              
+
               {/* Stipend Filter */}
-              <FilterSection 
-                title="Stipend" 
+              <FilterSection
+                title="Stipend"
                 isOpen={expandedSections.stipend}
                 onToggle={() => toggleFilterSection("stipend")}
                 icon={DollarSign}
@@ -505,28 +444,6 @@ const InternshipPage = () => {
                       className="mr-2 h-4 w-4 rounded border-gray-300 text-[#FF6900] focus:ring-[#FF6900]"
                     />
                     <label htmlFor={`stipend-${option}`} className="text-sm">
-                      {option}
-                    </label>
-                  </div>
-                ))}
-              </FilterSection>
-              
-              {/* Tags Filter */}
-              <FilterSection 
-                title="Interest Tags" 
-                isOpen={expandedSections.tags}
-                onToggle={() => toggleFilterSection("tags")}
-              >
-                {filterOptions.tags.map(option => (
-                  <div key={option} className="flex items-center mb-2">
-                    <input
-                      type="checkbox"
-                      id={`tags-${option}`}
-                      checked={filters.tags.includes(option)}
-                      onChange={() => handleFilterChange("tags", option)}
-                      className="mr-2 h-4 w-4 rounded border-gray-300 text-[#FF6900] focus:ring-[#FF6900]"
-                    />
-                    <label htmlFor={`tags-${option}`} className="text-sm">
                       {option}
                     </label>
                   </div>
@@ -549,18 +466,18 @@ const InternshipPage = () => {
                   <p className={theme === "dark" ? "text-[#CCCCCC]" : "text-[#555555]"}>
                     {filteredInternships.length} internship{filteredInternships.length !== 1 ? 's' : ''} found
                   </p>
-                  
+
                   {/* Active filter chips */}
                   {activeFilterCount > 0 && (
                     <div className="flex flex-wrap gap-2">
-                      {Object.entries(filters).map(([category, values]) => 
+                      {Object.entries(filters).map(([category, values]) =>
                         values.map(value => (
-                          <span 
+                          <span
                             key={`${category}-${value}`}
                             className="px-3 py-1 bg-[#FF6900] text-white text-xs rounded-full flex items-center"
                           >
                             {value}
-                            <button 
+                            <button
                               onClick={() => handleFilterChange(category, value)}
                               className="ml-2 focus:outline-none"
                             >
@@ -590,13 +507,7 @@ const InternshipPage = () => {
                     </div>
                   ) : (
                     <div className="text-center py-12">
-                      <p className="text-gray-500 mb-4">No top matches found with current filters.</p>
-                      <button 
-                        onClick={clearAllFilters}
-                        className="text-[#FF6900] hover:underline"
-                      >
-                        Clear all filters
-                      </button>
+                      <p className="text-gray-500 mb-4">No top matches found.</p>
                     </div>
                   )}
                 </section>
@@ -632,13 +543,7 @@ const InternshipPage = () => {
                       </div>
                     ) : (
                       <div className="text-center py-12">
-                        <p className="text-gray-500 mb-4">No additional internships found with current filters.</p>
-                        <button 
-                          onClick={clearAllFilters}
-                          className="text-[#FF6900] hover:underline"
-                        >
-                          Clear all filters
-                        </button>
+                        <p className="text-gray-500">No additional internships found.</p>
                       </div>
                     )}
                   </section>
@@ -655,7 +560,7 @@ const InternshipPage = () => {
               ${theme === "dark" ? "bg-orange-100 border-[#2A2A2A]" : "bg-orange-50 border-[#EAEAEA]"}`}
           >
             <h2 className={`text-3xl md:text-4xl font-bold mb-4 font-poppins ${theme === "dark" ? "text-black" : "text-black"
-                }`}>
+              }`}>
               Ready to <span className="text-[#FF6900]">Launch?</span>
             </h2>
             <p

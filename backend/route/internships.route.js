@@ -8,9 +8,6 @@ const router = Router();
 
 router.post("/get-recomended-internships", secureRoute, getMatchedInternships);
 
-
-
-
 export default router;
 
 

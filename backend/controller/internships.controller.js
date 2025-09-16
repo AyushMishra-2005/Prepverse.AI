@@ -4,6 +4,7 @@ import axios from 'axios';
 
 export const getMatchedInternships = async (req, res) => {
   const userId = req.user._id;
+  const {filters} = req.body;
   try{
 
     const resumeData = await ResumeData.findOne({userId});
@@ -15,7 +16,10 @@ export const getMatchedInternships = async (req, res) => {
 
     const {data} = await axios.post(
       'http://127.0.0.1:5000/recommend',
-      {embedding : resumeData.embedding}
+      {
+        embedding : resumeData.embedding,
+        filters,
+      }
     );
 
     if(!data){
@@ -33,7 +37,6 @@ export const getMatchedInternships = async (req, res) => {
     console.log(err);
   }
 }
-
 
 
 

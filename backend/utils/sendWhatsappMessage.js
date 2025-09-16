@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-export const sendTemplateMessage = async () => {
+export const sendTemplateMessage = async ({to}) => {
   try {
     const response = await axios({
       url: "https://graph.facebook.com/v22.0/713492948524774/messages",
@@ -10,16 +10,29 @@ export const sendTemplateMessage = async () => {
         "Content-Type": "application/json",
       },
       data: {
-        messaging_product: "whatsapp",
-        to: "919712877500", 
-        type: "template",
-        template: {
-          name: "hello_world", 
-          language: {
-            code: "en_US",
+        "messaging_product": "whatsapp",
+        "to": `91${to}`,
+        "type": "template",
+        "template": {
+          "name": "internships",
+          "language": {
+            "code": "en"
           },
-        },
-      },
+          "components": [
+            {
+              "type": "header",
+              "parameters": [
+                {
+                  "type": "image",
+                  "image": {
+                    "link": "https://drive.google.com/uc?export=download&id=17mkuqCdreUUGoe_HoKDJLYkp1Z37fR2j"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      }
     });
 
     console.log("Message sent:", response.data);
