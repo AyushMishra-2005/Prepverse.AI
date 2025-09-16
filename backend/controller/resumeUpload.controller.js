@@ -52,8 +52,6 @@ export const uploadResume = async (req, res) => {
       return res.status(501).json({message: "resume embedding failed"});
     }
 
-    console.log(resume_embedding.data);
-
     const embedding = resume_embedding.data.embedding;
 
     const timestamp = Math.floor(Date.now() / 1000);

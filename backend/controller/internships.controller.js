@@ -19,6 +19,7 @@ export const getMatchedInternships = async (req, res) => {
       {
         embedding : resumeData.embedding,
         filters,
+        resumeSummary: resumeData.resumeReview,
       }
     );
 

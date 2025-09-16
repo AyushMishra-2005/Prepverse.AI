@@ -26,7 +26,7 @@ DB_NAME = os.getenv("DB_NAME")
 COLLECTION_NAME = os.getenv("COLLECTION_NAME")
 
 BI_ENCODER_MODEL = "Alibaba-NLP/gte-large-en-v1.5"
-CROSS_ENCODER_MODEL = "cross-encoder/ms-marco-MiniLM-L-6-v2"
+CROSS_ENCODER_MODEL = "cross-encoder/ms-marco-electra-base"
 
 bi_encoder = None
 cross_encoder = None
@@ -127,7 +127,7 @@ def recommend():
             "index": "vector_index",
             "path": "embedding",
             "queryVector": user_vector,
-            "numCandidates": 300,
+            "numCandidates": 1000,
             "limit": 50
         }}
     ]
@@ -187,8 +187,10 @@ def recommend():
     try:
         print("Re-ranking internships with Cross-Encoder...")
         pairs = [
-            ("Candidate profile embedding",
-             f"{c.get('jobTitle', '')}. {c.get('jobRole', '')}. {c.get('jobTopic', '')}. {c.get('description', '')}")
+            (
+                data.get("resumeSummary", ""),  
+                f"{c.get('jobTitle', '')}. {c.get('jobRole', '')}. {c.get('jobTopic', '')}. {c.get('description', '')}"
+            )
             for c in filtered_after_meta
         ]
         scores = cross_encoder.predict(pairs)
@@ -394,10 +396,6 @@ if __name__ == "__main__":
     startup() 
     print("Starting Flask server for recommendation engine...")
     app.run(host="0.0.0.0", port=5000, debug=True, use_reloader=False)
-
-
-
-
-
-
-
+    
+    
+    

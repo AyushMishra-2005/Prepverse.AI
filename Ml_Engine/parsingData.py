@@ -14,7 +14,7 @@ DB_NAME = os.getenv("DB_NAME")
 COLLECTION_NAME = os.getenv("COLLECTION_NAME")
 
 MODEL_NAME = "Alibaba-NLP/gte-large-en-v1.5"
-CSV_FILE_PATH = "Internship_Dataset_600.csv"
+CSV_FILE_PATH = "newInternshipData.csv"
 
 random.seed(42)
 
