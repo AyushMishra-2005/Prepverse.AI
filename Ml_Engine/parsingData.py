@@ -14,7 +14,7 @@ DB_NAME = os.getenv("DB_NAME")
 COLLECTION_NAME = os.getenv("COLLECTION_NAME")
 
 MODEL_NAME = "Alibaba-NLP/gte-large-en-v1.5"
-CSV_FILE_PATH = "newInternshipData.csv"
+CSV_FILE_PATH = "Final_New_Internship_Dataset.csv"
 
 random.seed(42)
 
@@ -112,7 +112,6 @@ def main():
             "description": row.get("Job Description"),
             "jobRole": row.get("Job Role"),
             "numOfQns": random.randint(2, 5),
-            "participants": []
         })
 
     print("Generating embeddings in batches ...")

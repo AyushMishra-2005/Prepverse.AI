@@ -176,7 +176,7 @@ const InternshipPage = () => {
   });
 
   const filterOptions = {
-    type: ["Short Term", "Long Term", "Converting", "Summer", "Semester", "Research", "Converting"],
+    type: ["Short Term", "Long Term", "Converting", "Summer", "Semester", "Research"],
     jobType: ["Full Time", "Part Time", "Hybrid", "Onsite", "Remote"],
     duration: ["1 Month", "2 Months", "3 Months", "4 Months", "5 Months", "6 Months", "6+ Months"],
     stipend: ["Unpaid", "₹5K-10K", "₹10K-20K", "₹20K-30K", "₹30K-50K", "₹50K+"]

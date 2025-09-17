@@ -140,6 +140,7 @@ def recommend():
         "jobTitle": 1, "company": 1, "description": 1,
         "jobRole": 1, "jobTopic": 1, "duration": 1, "type": 1,
         "stipend": 1, "jobType": 1, "lastDate": 1, "skills": 1,
+        "numOfQns": 1,
         "score": {"$meta": "vectorSearchScore"}
     }})
 
@@ -152,7 +153,6 @@ def recommend():
     if not candidates:
         return jsonify([])
 
-    # --- Apply stipend & availability filters in Python ---
     filtered_after_meta = []
     stipend_filters = []
     if "stipend" in filters and isinstance(filters["stipend"], list):
@@ -183,7 +183,6 @@ def recommend():
     if not filtered_after_meta:
         return jsonify([])
 
-    # --- Cross-encoder reranking ---
     try:
         print("Re-ranking internships with Cross-Encoder...")
         pairs = [
