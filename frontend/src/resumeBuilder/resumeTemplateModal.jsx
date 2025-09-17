@@ -1,5 +1,3 @@
-
-
 import React from 'react'; 
 import {
   Box,
@@ -29,7 +27,7 @@ const modalStyle = {
   color: 'white',
 };
 
-const ResumeTemplateModal = ({ open, handleClose, setTemplate, handleSubmit }) => {
+const ResumeTemplateModal = ({ open, handleClose, handleSubmit }) => {
   const cards = [
     {
       title: "Template 1",
@@ -50,7 +48,6 @@ const ResumeTemplateModal = ({ open, handleClose, setTemplate, handleSubmit }) =
   ];
 
   const handleCardSelect = (index) => {
-    setTemplate(index);
     handleSubmit(index);
     handleClose();
   };

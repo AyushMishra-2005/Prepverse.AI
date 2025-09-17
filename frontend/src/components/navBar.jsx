@@ -30,10 +30,11 @@ export function NavbarDemo() {
 
   const navItems = [
     { name: "Home", link: "/home2" },
+    { name: "Find Internship", link: "/internships" },
     
-    { name: "Dashboard", link: "/company/dashboard" },
     { name: "Interview", link: "/candidate/dashboard" },
-    { name: "Internships", link: "/internships" },
+    { name: "Dashboard", link: "/company/dashboard" },
+    
   ];
 
   const features = [

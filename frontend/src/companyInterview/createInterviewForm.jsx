@@ -96,8 +96,8 @@ function CreateInterviewForm() {
         onSubmit={handleSubmit}
         className={`relative max-w-[60vw] max-h-[90vh] overflow-y-auto p-8 rounded-2xl shadow-lg w-full ${
           theme === "dark"
-            ? "bg-gray-900 border border-gray-700 text-white"
-            : "bg-white border border-gray-300 text-gray-900"
+            ? "bg-orange-100 border border-gray-700 text-gray-900"
+            : "bg-orange-50 border border-gray-300 text-gray-900"
         }`}
       >
         <h2
@@ -120,8 +120,8 @@ function CreateInterviewForm() {
               placeholder="e.g., Senior Frontend Developer"
               className={`w-full px-4 py-2 rounded-lg border placeholder-gray-400 focus:outline-none focus:ring-2 ${
                 theme === "dark"
-                  ? "bg-gray-800 border-gray-600 text-white focus:ring-[#ff6900]"
-                  : "bg-gray-100 border-gray-300 text-black focus:ring-[#ff6900]"
+                  ? "bg-white border-gray-300 text-black focus:ring-[#ff6900]"
+                  : "bg-white border-gray-300 text-black focus:ring-[#ff6900]"
               }`}
               required
             />
@@ -138,8 +138,8 @@ function CreateInterviewForm() {
               placeholder="e.g., Frontend Developer"
               className={`w-full px-4 py-2 rounded-lg border placeholder-gray-400 focus:outline-none focus:ring-2 ${
                 theme === "dark"
-                  ? "bg-gray-800 border-gray-600 text-white focus:ring-[#ff6900]"
-                  : "bg-gray-100 border-gray-300 text-black focus:ring-[#ff6900]"
+                  ? "bg-white border-gray-300 text-black focus:ring-[#ff6900]"
+                  : "bg-white border-gray-300 text-black focus:ring-[#ff6900]"
               }`}
               required
             />
@@ -156,8 +156,8 @@ function CreateInterviewForm() {
               placeholder="Company name"
               className={`w-full px-4 py-2 rounded-lg border placeholder-gray-400 focus:outline-none focus:ring-2 ${
                 theme === "dark"
-                  ? "bg-gray-800 border-gray-600 text-white focus:ring-[#ff6900]"
-                  : "bg-gray-100 border-gray-300 text-black focus:ring-[#ff6900]"
+                  ? "bg-white border-gray-300 text-black focus:ring-[#ff6900]"
+                  : "bg-white border-gray-300 text-black focus:ring-[#ff6900]"
               }`}
             />
           </div>
@@ -173,8 +173,8 @@ function CreateInterviewForm() {
               placeholder="e.g., 3 months, Full-time"
               className={`w-full px-4 py-2 rounded-lg border placeholder-gray-400 focus:outline-none focus:ring-2 ${
                 theme === "dark"
-                  ? "bg-gray-800 border-gray-600 text-white focus:ring-[#ff6900]"
-                  : "bg-gray-100 border-gray-300 text-black focus:ring-[#ff6900]"
+                  ? "bg-white border-gray-300 text-black focus:ring-[#ff6900]"
+                  : "bg-white border-gray-300 text-black focus:ring-[#ff6900]"
               }`}
             />
           </div>
@@ -188,8 +188,8 @@ function CreateInterviewForm() {
               onChange={handleInputChange}
               className={`w-full px-4 py-2 rounded-lg border focus:outline-none focus:ring-2 ${
                 theme === "dark"
-                  ? "bg-gray-800 border-gray-600 text-white focus:ring-[#ff6900]"
-                  : "bg-gray-100 border-gray-300 text-black focus:ring-[#ff6900]"
+                  ? "bg-white border-gray-300 text-black focus:ring-[#ff6900]"
+                  : "bg-white border-gray-300 text-black focus:ring-[#ff6900]"
               }`}
             >
               <option value="">Select type</option>
@@ -211,8 +211,8 @@ function CreateInterviewForm() {
               onChange={handleInputChange}
               className={`w-full px-4 py-2 rounded-lg border focus:outline-none focus:ring-2 ${
                 theme === "dark"
-                  ? "bg-gray-800 border-gray-600 text-white focus:ring-[#ff6900]"
-                  : "bg-gray-100 border-gray-300 text-black focus:ring-[#ff6900]"
+                  ? "bg-white border-gray-300 text-black focus:ring-[#ff6900]"
+                  : "bg-white border-gray-300 text-black focus:ring-[#ff6900]"
               }`}
             >
               <option value="">Select job type</option>
@@ -235,8 +235,8 @@ function CreateInterviewForm() {
               placeholder="e.g., $50,000 - $70,000"
               className={`w-full px-4 py-2 rounded-lg border placeholder-gray-400 focus:outline-none focus:ring-2 ${
                 theme === "dark"
-                  ? "bg-gray-800 border-gray-600 text-white focus:ring-[#ff6900]"
-                  : "bg-gray-100 border-gray-300 text-black focus:ring-[#ff6900]"
+                  ? "bg-white border-gray-300 text-black focus:ring-[#ff6900]"
+                  : "bg-white border-gray-300 text-black focus:ring-[#ff6900]"
               }`}
             />
           </div>
@@ -251,8 +251,8 @@ function CreateInterviewForm() {
               onChange={handleInputChange}
               className={`w-full px-4 py-2 rounded-lg border focus:outline-none focus:ring-2 ${
                 theme === "dark"
-                  ? "bg-gray-800 border-gray-600 text-white focus:ring-[#ff6900]"
-                  : "bg-gray-100 border-gray-300 text-black focus:ring-[#ff6900]"
+                  ? "bg-white border-gray-300 text-black focus:ring-[#ff6900]"
+                  : "bg-white border-gray-300 text-black focus:ring-[#ff6900]"
               }`}
             />
           </div>
@@ -261,20 +261,20 @@ function CreateInterviewForm() {
         {/* Number of Questions */}
         <div className="mb-6">
           <label className="block mb-2 text-sm font-medium">Number of Questions</label>
-          <input
-            type="number"
-            name="numOfQns"
-            min={2}
-            max={25}
-            value={formData.numOfQns}
-            onChange={handleInputChange}
-            className={`w-full px-4 py-2 rounded-lg border placeholder-gray-400 focus:outline-none focus:ring-2 ${
-              theme === "dark"
-                ? "bg-gray-800 border-gray-600 text-white focus:ring-[#ff6900]"
-                : "bg-gray-100 border-gray-300 text-black focus:ring-[#ff6900]"
-            }`}
-            required
-          />
+            <input
+              type="number"
+              name="numOfQns"
+              min={2}
+              max={25}
+              value={formData.numOfQns}
+              onChange={handleInputChange}
+              className={`w-full px-4 py-2 rounded-lg border placeholder-gray-400 focus:outline-none focus:ring-2 ${
+                theme === "dark"
+                  ? "bg-white border-gray-300 text-black focus:ring-[#ff6900]"
+                  : "bg-white border-gray-300 text-black focus:ring-[#ff6900]"
+              }`}
+              required
+            />
         </div>
 
         {/* Description Input */}
@@ -288,8 +288,8 @@ function CreateInterviewForm() {
             rows="3"
             className={`w-full px-4 py-2 rounded-lg border placeholder-gray-400 focus:outline-none focus:ring-2 ${
               theme === "dark"
-                ? "bg-gray-800 border-gray-600 text-white focus:ring-[#ff6900]"
-                : "bg-gray-100 border-gray-300 text-black focus:ring-[#ff6900]"
+                ? "bg-white border-gray-300 text-black focus:ring-[#ff6900]"
+                : "bg-white border-gray-300 text-black focus:ring-[#ff6900]"
             }`}
           />
         </div>
@@ -306,8 +306,8 @@ function CreateInterviewForm() {
                 placeholder={`Topic ${index + 1}`}
                 className={`w-full px-4 py-2 pr-10 rounded-lg border placeholder-gray-400 focus:outline-none focus:ring-2 ${
                   theme === "dark"
-                    ? "bg-gray-800 border-gray-600 text-white focus:ring-[#ff6900]"
-                    : "bg-gray-100 border-gray-300 text-black focus:ring-[#ff6900]"
+                    ? "bg-white border-gray-300 text-black focus:ring-[#ff6900]"
+                    : "bg-white border-gray-300 text-black focus:ring-[#ff6900]"
                 }`}
                 required
               />
@@ -340,8 +340,8 @@ function CreateInterviewForm() {
           type="submit"
           className={`w-full py-3 rounded-lg font-semibold shadow-lg transition duration-200 ${
             theme === "dark"
-              ? "bg-[#ff6900] text-black hover:bg-[#ff7f33]"
-              : "bg-[#ff6900] text-black hover:bg-[#ff7f33]"
+              ? "bg-[#ff6900] text-white hover:bg-[#ff7f33]"
+              : "bg-[#ff6900] text-white hover:bg-[#ff7f33]"
           }`}
         >
           Post Internship

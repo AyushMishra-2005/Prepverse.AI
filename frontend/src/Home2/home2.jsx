@@ -12,48 +12,50 @@ import {
   FaComments,
   FaQuestionCircle,
   FaFilePdf,
+  FaUserPlus,
+  FaBriefcase,
 } from "react-icons/fa";
 
 import globeAnimation from "../assets/Globe1.json";
 import Button from "./Button.jsx";
 import { ThemeContext } from "../context/ThemeContext";
-// Replace with your actual image imports
-import interviewImage from "../assets/Slide2.webp";
+import interviewImage from "../assets/attend2.png";
 import internshipimage from "../assets/Internship_image.png";
-import mockInterviewImage from "../assets/mockinterview.png"; // Add appropriate image
-import quizImage from "../assets/quiz.png"; // Add appropriate image
-import resumeBuilderImage from "../assets/resume.png"; // Add appropriate image
+import mockInterviewImage from "../assets/mock4.png";
+import quizImage from "../assets/heroquiz.png";
+import resumeBuilderImage from "../assets/heroresume.png";
 
 const steps = [
   {
-    icon: <FaUserCheck size={22} />,
-    title: "User Onboarding",
-    desc: "Set your profile and career goals to get a tailored experience.",
+    icon: <FaUserPlus size={22} />,
+    title: "Sign Up",
+    desc: "Create account and upload your resume to complete your profile.",
+  },
+  {
+    icon: <FaBriefcase size={22} />,
+    title: "Find Internship",
+    desc: "Get AI-matched internship opportunities tailored to your skills.",
+    highlight: true,
   },
   {
     icon: <FaRobot size={22} />,
-    title: "AI Interview",
-    desc: "Practice with real-time AI-driven mock interviews.",
+    title: "Mock Interviews",
+    desc: "Practice real-time AI-driven interviews to sharpen your skills.",
   },
   {
-    icon: <FaFileAlt size={22} />,
-    title: "Resume Generator",
-    desc: "Get your resume instantly crafted based on your goals.",
-  },
-  {
-    icon: <FaCode size={22} />,
-    title: "Skill Quiz",
-    desc: "Test yourself in your chosen language with AI quizzes.",
+    icon: <FaQuestionCircle size={22} />,
+    title: "Skill Quizzes",
+    desc: "Test and strengthen your knowledge with targeted AI quizzes.",
   },
   {
     icon: <FaChartLine size={22} />,
     title: "Personalized Feedback",
-    desc: "Get AI-generated insights to improve your performance.",
+    desc: "Receive AI-powered insights to improve your performance.",
   },
   {
     icon: <FaSyncAlt size={22} />,
     title: "Track Growth",
-    desc: "Monitor your improvement and prepare smarter every day.",
+    desc: "Monitor your progress and get smarter every day.",
   },
 ];
 
@@ -105,7 +107,7 @@ const Home2 = () => {
   useEffect(() => {
     intervalRef.current = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % 3);
-    }, 4000); // Change slide every 4 seconds
+    }, 4000);
 
     return () => clearInterval(intervalRef.current);
   }, []);
@@ -113,7 +115,6 @@ const Home2 = () => {
   // Manual slide navigation
   const goToSlide = (index) => {
     setCurrentSlide(index);
-    // Reset the interval when manually navigating
     clearInterval(intervalRef.current);
     intervalRef.current = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % 3);
@@ -129,7 +130,8 @@ const Home2 = () => {
     {
       id: "mock-interview",
       title: "Mock Interview",
-      description: "Empower your interview preparation with AI-driven mock interviews, real-time feedback, and performance analysis.",
+      description:
+        "Empower your interview preparation with AI-driven mock interviews, real-time feedback, and performance analysis.",
       icon: <FaComments className="text-[#FF6900] text-2xl" />,
       image: mockInterviewImage,
       features: [
@@ -148,13 +150,14 @@ const Home2 = () => {
       ],
       cta: {
         text: "Start Mock Interview",
-        link: "/mockInterviewLandingPage"
-      }
+        link: "/mockInterviewLandingPage",
+      },
     },
     {
       id: "quiz",
       title: "AI Skill Quiz",
-      description: "Test and improve your knowledge with adaptive quizzes that challenge your skills and identify areas for improvement.",
+      description:
+        "Test and improve your knowledge with adaptive quizzes that challenge your skills and identify areas for improvement.",
       icon: <FaQuestionCircle className="text-[#FF6900] text-2xl" />,
       image: quizImage,
       features: [
@@ -173,13 +176,14 @@ const Home2 = () => {
       ],
       cta: {
         text: "Take a Quiz",
-        link: "/quiz"
-      }
+        link: "/quiz",
+      },
     },
     {
       id: "resume-builder",
       title: "Resume Builder",
-      description: "Create professional, ATS-friendly resumes that highlight your skills and experience effectively.",
+      description:
+        "Create professional, ATS-friendly resumes that highlight your skills and experience effectively.",
       icon: <FaFilePdf className="text-[#FF6900] text-2xl" />,
       image: resumeBuilderImage,
       features: [
@@ -198,13 +202,14 @@ const Home2 = () => {
       ],
       cta: {
         text: "Build My Resume",
-        link: "/resume"
-      }
+        link: "/resume",
+      },
     },
     {
       id: "attend-interview",
       title: "Attend Interview",
-      description: "Empower your hiring process with AI-driven interview design, seamless candidate invites, and performance evaluation.",
+      description:
+        "Empower your hiring process with AI-driven interview design, seamless candidate invites, and performance evaluation.",
       icon: <FaRobot className="text-[#FF6900] text-2xl" />,
       image: interviewImage,
       features: [
@@ -223,9 +228,9 @@ const Home2 = () => {
       ],
       cta: {
         text: "Learn More",
-        link: "/employer-dashboard"
-      }
-    }
+        link: "/candidate/dashboard",
+      },
+    },
   ];
 
   return (
@@ -255,31 +260,32 @@ const Home2 = () => {
       {/* Main Page Content */}
       <div className="relative z-10 font-inter flex-1">
         {/* Hero Section*/}
-        <section className="container w-[100vw] mx-auto px-4 sm:px-6 md:px-8 lg:px-34 py-8 md:py-16 grid md:grid-cols-2 gap-0 items-center justify-center min-h-[100vh]">
-          {/* Left - Text */}
-          <div className="flex flex-col justify-center space-y-4 md:space-y-2">
-            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold font-poppins leading-tight">
-              <span className="whitespace-nowrap">
+        <section className="container w-[100vw] mx-auto px-4 sm:px-6 md:px-8 lg:px-48 py-8 md:py-16 grid md:grid-cols-2 gap-0 items-center justify-center min-h-[100vh]">
+          <div className="flex flex-col justify-center space-y-6">
+            <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold font-poppins leading-tight">
+              <span className="block">
                 Welcome to <PrimaryAccentText text="Prepverse.AI" />
-              </span>{" "}
-              <br />
-              <span>Your AI-powered career universe</span>
+              </span>
+              <span className="block mt-2 text-2xl md:text-3xl font-normal">
+                Your personalized internship recommender
+              </span>
             </h1>
 
             <p
-              className={`text-sm md:text-base font-inter max-w-md leading-relaxed ${
-                theme === "dark" ? "text-[#CCCCCC]" : "text-[#444444]"
+              className={`text-lg md:text-xl font-inter max-w-lg leading-relaxed ${
+                theme === "dark" ? "text-[#CCCCCC]" : "text-[#666666]"
               }`}
             >
-              Step into the multiverse of preparation — mock interviews, resume
-              scoring, ATS analysis, and personalized quizzes.
+              Discover the perfect internship match with our AI-powered
+              recommendation system — tailored to your skills, background, and
+              aspirations.
             </p>
-            <div className="flex flex-wrap gap-4 pt-4">
+            <div className="flex flex-wrap gap-4 pt-2">
               <Button />
             </div>
           </div>
 
-          {/* Right - Lottie Globe */}
+          {/* Right - Recommendation visualization */}
           <div className="flex justify-center items-center ml-0 sm:ml-10">
             <div className="w-[330px] h-[330px] sm:w-[370px] sm:h-[370px] md:w-[410px] md:h-[410px] lg:w-[450px] lg:h-[450px]">
               <Lottie animationData={globeAnimation} loop={true} />
@@ -287,9 +293,9 @@ const Home2 = () => {
           </div>
         </section>
 
-        {/* Internship Section - Fixed container width */}
-        <section className="py-12 md:py-16 px-4 sm:px-6 md:px-8 relative">
-          <div className="container mx-auto max-w-6xl">
+        {/* Internship Section */}
+        <section className="py-12 md:py-16 px-6 sm:px-12 md:px-16 lg:px-24 relative">
+          <div className="mx-auto">
             <div className="grid md:grid-cols-2 gap-10 items-center">
               {/* Left Side: Image */}
               <div className="flex justify-center">
@@ -391,8 +397,8 @@ const Home2 = () => {
           </div>
         </section>
 
-        {/* Features Section - Increased side margins */}
-        <section className="container mx-auto px-6 sm:px-8 md:px-12 lg:px-16 py-12 md:py-20">
+        {/* Features Section */}
+        <section className="mx-auto px-6 sm:px-12 md:px-16 lg:px-24 py-12 md:py-20">
           <div className="text-center mb-8 md:mb-12">
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-poppins font-bold">
               Supercharge Your <PrimaryAccentText text="Career Journey" />
@@ -463,9 +469,9 @@ const Home2 = () => {
           </div>
         </section>
 
-        {/* Workflow Section - Increased side margins */}
-        <section className="py-12 md:py-20 relative px-6 sm:px-8 md:px-12 lg:px-16">
-          <div className="container mx-auto max-w-7xl text-center">
+        {/* Workflow Section */}
+        <section className="py-12 md:py-20 relative px-6 sm:px-12 md:px-16 lg:px-24">
+          <div className="mx-auto text-center">
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-poppins font-bold mb-4">
               How <PrimaryAccentText text="Prepverse.AI" /> Works
             </h2>
@@ -481,10 +487,9 @@ const Home2 = () => {
             <div className="relative">
               <div
                 className="hidden md:block absolute top-8 left-0 w-full h-[2px] 
-  bg-gradient-to-r from-[#FF6900] via-[#FF6900] to-[#FF6900] 
-  shadow-[0_0_15px_#FF6900,0_0_30px_#FF6900]"
+                           bg-gradient-to-r from-[#FF6900] via-[#FF6900] to-[#FF6900] 
+                          shadow-[0_0_15px_#FF6900,0_0_30px_#FF6900]"
               />
-
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6 md:gap-8 relative z-10">
                 {steps.map((step, index) => (
                   <div
@@ -493,16 +498,27 @@ const Home2 = () => {
                   >
                     <div
                       className={`flex items-center justify-center w-12 h-12 md:w-14 md:h-14 rounded-full mb-4 shadow-md ${
-                        theme === "dark"
+                        step.highlight
+                          ? "ring-2 ring-white bg-[#FF6900] text-white"
+                          : theme === "dark"
                           ? "bg-[#141414] border border-[#2A2A2A] text-[#FF6900] shadow-[#ff690050]"
                           : "bg-white border border-[#EAEAEA] text-[#FF6900]"
                       }`}
                     >
                       {step.icon}
                     </div>
-                    <h3 className="text-base md:text-lg font-semibold font-poppins">
+                    <h3
+                      className={`text-base md:text-lg font-poppins ${
+                        step.highlight
+                          ? "text-[#FF6900] font-bold"
+                          : theme === "dark"
+                          ? "text-gray-100 font-semibold"
+                          : "text-gray-900 font-semibold"
+                      }`}
+                    >
                       {step.title}
                     </h3>
+
                     <p
                       className={`text-xs md:text-sm font-inter leading-relaxed max-w-[160px] ${
                         theme === "dark" ? "text-[#CCCCCC]" : "text-[#444444]"
@@ -519,14 +535,22 @@ const Home2 = () => {
 
         {/* Feature Detail Sections */}
         {featureSections.map((section, index) => (
-          <section 
-            key={section.id} 
+          <section
+            key={section.id}
             id={section.id}
-            className={`py-12 md:py-20 ${index % 2 === 1 ? 'bg-gradient-to-r from-transparent via-[#FF6900]/5 to-transparent' : ''}`}
+            className={`py-12 md:py-20 px-6 sm:px-12 md:px-16 lg:px-24 ${
+              index % 2 === 1
+                ? "bg-gradient-to-r from-transparent via-[#FF6900]/5 to-transparent"
+                : ""
+            }`}
           >
-            <div className="container mx-auto px-8 sm:px-12 md:px-16 lg:px-24">
-              <div className={`grid md:grid-cols-2 gap-10 md:gap-16 items-center ${index % 2 === 1 ? 'md:direction-rtl' : ''}`}>
-                <div className={index % 2 === 1 ? 'md:order-2' : ''}>
+            <div className="mx-auto">
+              <div
+                className={`grid md:grid-cols-2 gap-10 md:gap-16 items-center ${
+                  index % 2 === 1 ? "md:direction-rtl" : ""
+                }`}
+              >
+                <div className={index % 2 === 1 ? "md:order-2" : ""}>
                   <div className="flex items-center mb-4">
                     <div className="mr-3 p-2 rounded-full bg-[#FF6900]/10">
                       {section.icon}
@@ -558,7 +582,9 @@ const Home2 = () => {
                           </h4>
                           <p
                             className={`text-sm md:text-base font-inter leading-relaxed ${
-                              theme === "dark" ? "text-[#CCCCCC]" : "text-[#444444]"
+                              theme === "dark"
+                                ? "text-[#CCCCCC]"
+                                : "text-[#444444]"
                             }`}
                           >
                             {item.desc}
@@ -576,7 +602,9 @@ const Home2 = () => {
                     </Link>
                   </div>
                 </div>
-                <div className={`relative ${index % 2 === 1 ? 'md:order-1' : ''}`}>
+                <div
+                  className={`relative ${index % 2 === 1 ? "md:order-1" : ""}`}
+                >
                   {/* Multiple glow layers for depth */}
                   <div
                     className={`absolute -inset-4 rounded-lg blur-lg opacity-30 transition-all duration-700 ${
@@ -629,8 +657,8 @@ const Home2 = () => {
           </section>
         ))}
 
-        {/* Call to Action - Increased side margins */}
-        <section className="py-12 md:py-20 text-center w-full px-6 sm:px-10 md:px-16">
+        {/* Call to Action */}
+        <section className="py-12 md:py-20 text-center w-full px-6 sm:px-12 md:px-16 lg:px-24">
           <div
             className={`relative p-6 md:p-10 lg:p-12 rounded-3xl max-w-4xl mx-auto shadow-lg ${
               theme === "dark"

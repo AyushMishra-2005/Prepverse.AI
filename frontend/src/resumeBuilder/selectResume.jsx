@@ -1,5 +1,3 @@
-
-
 import React, { useState, useContext } from 'react'; 
 import './resume.css';
 import ResumeModal from './resumeModal';
@@ -16,7 +14,7 @@ import image2 from '../assets/resumeImage2.png'
 import image3 from '../assets/resumeImage3.png'
 import image4 from '../assets/resumeImage4.png'
 
-const images = [image1, image2,image3,image4]
+const images = [image1, image2, image3, image4]
 
 function SelectResume() {
   const { theme } = useContext(ThemeContext);
@@ -92,8 +90,8 @@ function SelectResume() {
               key="add"
               className={`flex flex-col items-center justify-center rounded-xl border-2 border-dashed cursor-pointer hover:border-white transition-all duration-300 transform hover:scale-[1.02] group p-6 h-full min-h-[200px] ${
                 theme === "dark" 
-                  ? "border-[#ff6900] bg-black hover:border-white" 
-                  : "border-[#ff6900] bg-white hover:border-gray-800"
+                  ? "border-[#ff6900] bg-orange-100 hover:border-white" 
+                  : "border-[#ff6900] bg-orange-50 hover:border-gray-800"
               }`}
               onClick={() => {
                 handleOpen();
@@ -101,13 +99,13 @@ function SelectResume() {
             >
               <div className={`w-12 h-12 flex items-center justify-center rounded-full border-2 text-2xl group-hover:bg-[#ff6900] group-hover:text-white transition-all ${
                 theme === "dark" 
-                  ? "border-white text-white" 
+                  ? "border-white text-gray-800" 
                   : "border-[#ff6900] text-[#ff6900]"
               }`}>
                 +
               </div>
               <p className={`mt-4 font-medium text-lg opacity-90 group-hover:opacity-100 ${
-                theme === "dark" ? "text-white" : "text-gray-800"
+                theme === "dark" ? "text-gray-800" : "text-gray-800"
               }`}>
                 Add New
               </p>
@@ -117,12 +115,12 @@ function SelectResume() {
                 key={resume._id}
                 className={`rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02] flex flex-col h-full ${
                   theme === "dark" 
-                    ? "bg-black border border-[#ff6900]" 
-                    : "bg-white border border-gray-200"
+                    ? "bg-orange-100 border border-[#ff6900]" 
+                    : "bg-orange-50 border border-gray-200"
                 }`}
               >
                 <div className={`relative pt-[60%] ${
-                  theme === "dark" ? "bg-black" : "bg-white"
+                  theme === "dark" ? "bg-orange-100" : "bg-orange-50"
                 }`}>
                   <img
                     src={images[resume.resumeDetails.template.number]}
@@ -147,12 +145,12 @@ function SelectResume() {
                 </div>
                 <div className="p-4 flex-grow flex flex-col">
                   <h2 className={`font-semibold text-xl mb-2 ${
-                    theme === "dark" ? "text-white" : "text-gray-800"
+                    theme === "dark" ? "text-gray-800" : "text-gray-800"
                   }`}>
                     {resume.resumeDetails?.title}
                   </h2>
                   <div className="flex mt-auto justify-between items-center">
-                    <span className={theme === "dark" ? "text-white" : "text-gray-600"}>
+                    <span className={theme === "dark" ? "text-gray-700" : "text-gray-600"}>
                       Last edited: {formatDate(resume.updatedAt)}
                     </span>
                     <button className="text-[#ff6900] hover:text-[#e55a00] transition-colors">

@@ -1,12 +1,14 @@
-import React, { useEffect, useId, useRef, useState } from "react";
+import React, { useEffect, useId, useRef, useState, useContext } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { useOutsideClick } from "../components/ui/use-outside-click.jsx";
 import useConversation from "../stateManage/useConversation.js";
 import InterviewFeedback from "../components/interviewFeedback.jsx";
+import { ThemeContext } from "../context/ThemeContext";
 
 export function AttandantPage() {
   const [active, setActive] = useState(null);
   const [showFeedback, setShowFeedback] = useState(false);
+  const { theme } = useContext(ThemeContext); // Use theme from context
   const ref = useRef(null);
   const id = useId();
   const reportData = useConversation((state) => state.reportData);
@@ -44,10 +46,16 @@ export function AttandantPage() {
   return (
     <>
       {showFeedback && active?.fullData ? (
-        <InterviewFeedback data={active.fullData} onBack={() => setShowFeedback(false)}/>
+        <InterviewFeedback 
+          data={active.fullData} 
+          onBack={() => setShowFeedback(false)}
+          theme={theme} // Pass theme to InterviewFeedback
+        />
       ) : (
-        <div className="min-h-screen w-screen overflow-x-hidden dark-mystic-bg">
-          <h1 className="text-center text-5xl font-bold text-transparent bg-gradient-to-r from-purple-400 to-indigo-500 bg-clip-text py-10 mt-[2rem]">
+        <div className={`min-h-screen w-screen overflow-x-hidden ${
+          theme === "dark" ? "bg-black text-white" : "bg-orange-50 text-gray-900"
+        }`}>
+          <h1 className="text-center text-5xl font-bold text-[#ff6900] py-10 mt-[2rem]">
             Interview Results Overview
           </h1>
 
@@ -83,7 +91,11 @@ export function AttandantPage() {
                 <motion.div
                   layoutId={`card-${active.name}-${id}`}
                   ref={ref}
-                  className="w-full max-w-[500px] h-full md:h-fit md:max-h-[90%] flex flex-col bg-white dark:bg-neutral-900 sm:rounded-3xl overflow-hidden"
+                  className={`w-full max-w-[500px] h-full md:h-fit md:max-h-[90%] flex flex-col ${
+                    theme === "dark" 
+                      ? "bg-gray-800 text-white" 
+                      : "bg-white text-gray-900"
+                  } sm:rounded-3xl overflow-hidden`}
                 >
                   <motion.div layoutId={`image-${active.name}-${id}`} className="flex justify-center py-6">
                     <img
@@ -100,23 +112,27 @@ export function AttandantPage() {
                       <div>
                         <motion.h3
                           layoutId={`title-${active.name}-${id}`}
-                          className="font-bold text-neutral-700 dark:text-neutral-200"
+                          className="font-bold"
                         >
                           {active.name}
                         </motion.h3>
                         <motion.p
                           layoutId={`description-${active.email}-${id}`}
-                          className="text-neutral-600 dark:text-neutral-400"
+                          className={theme === "dark" ? "text-gray-300" : "text-gray-700"}
                         >
                           {active.email}
                         </motion.p>
-                        <p className="text-sm text-gray-500">Username: {active.username}</p>
-                        <p className="text-sm font-semibold text-green-600">Score: {active.score}/{active.fullScore}</p>
+                        <p className={theme === "dark" ? "text-gray-400" : "text-gray-600"}>
+                          Username: {active.username}
+                        </p>
+                        <p className="text-sm font-semibold text-green-600">
+                          Score: {active.score}/{active.fullScore}
+                        </p>
                       </div>
 
                       <motion.button
                         layoutId={`button-${active.name}-${id}`}
-                        className="px-4 py-3 text-sm rounded-full font-bold bg-green-500 text-white"
+                        className="px-4 py-3 text-sm rounded-full font-bold bg-[#ff6900] text-white hover:bg-[#ff7f33]"
                         onClick={() => setShowFeedback(true)}
                       >
                         {active.ctaText}
@@ -129,7 +145,9 @@ export function AttandantPage() {
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        className="text-neutral-600 text-xs md:text-sm lg:text-base h-40 md:h-fit pb-10 flex flex-col items-start gap-4 overflow-auto dark:text-neutral-400 [mask:linear-gradient(to_bottom,white,white,transparent)] [scrollbar-width:none] [-ms-overflow-style:none] [-webkit-overflow-scrolling:touch]"
+                        className={`text-xs md:text-sm lg:text-base h-40 md:h-fit pb-10 flex flex-col items-start gap-4 overflow-auto [mask:linear-gradient(to_bottom,white,white,transparent)] [scrollbar-width:none] [-ms-overflow-style:none] [-webkit-overflow-scrolling:touch] ${
+                          theme === "dark" ? "text-gray-300" : "text-gray-700"
+                        }`}
                       >
                         {active.content}
                       </motion.div>
@@ -146,7 +164,11 @@ export function AttandantPage() {
                 layoutId={`card-${card.name}-${id}`}
                 key={`card-${card.name}-${id}`}
                 onClick={() => setActive(card)}
-                className="p-4 pr-8 flex flex-row items-center gap-4 hover:bg-neutral-50 dark:hover:bg-neutral-800 rounded-xl cursor-pointer"
+                className={`p-4 pr-8 flex flex-row items-center gap-4 rounded-xl cursor-pointer ${
+                  theme === "dark" 
+                    ? "bg-gray-800 hover:bg-gray-700 text-white" 
+                    : "bg-white hover:bg-orange-100 text-gray-900"
+                }`}
               >
                 <motion.div layoutId={`image-${card.name}-${id}`} className="flex justify-center">
                   <img
@@ -160,21 +182,27 @@ export function AttandantPage() {
                 <div className="flex flex-col">
                   <motion.h3
                     layoutId={`title-${card.name}-${id}`}
-                    className="font-medium text-neutral-800 dark:text-neutral-200"
+                    className="font-medium"
                   >
                     {card.name}
                   </motion.h3>
                   <motion.p
                     layoutId={`description-${card.email}-${id}`}
-                    className="text-neutral-600 dark:text-neutral-400"
+                    className={theme === "dark" ? "text-gray-300" : "text-gray-700"}
                   >
                     {card.email}
                   </motion.p>
-                  <p className="text-sm font-semibold text-green-600">Score: {card.score}/{card.fullScore}</p>
+                  <p className="text-sm font-semibold text-green-600">
+                    Score: {card.score}/{card.fullScore}
+                  </p>
                 </div>
                 <motion.button
                   layoutId={`button-${card.name}-${id}`}
-                  className="mt-2 ml-auto px-4 py-2 text-sm rounded-full font-bold bg-gray-100 hover:bg-green-500 hover:text-white text-black"
+                  className={`mt-2 ml-auto px-4 py-2 text-sm rounded-full font-bold ${
+                    theme === "dark" 
+                      ? "bg-gray-700 hover:bg-[#ff6900] text-white" 
+                      : "bg-orange-100 hover:bg-[#ff6900] hover:text-white text-black"
+                  }`}
                 >
                   {card.ctaText}
                 </motion.button>
