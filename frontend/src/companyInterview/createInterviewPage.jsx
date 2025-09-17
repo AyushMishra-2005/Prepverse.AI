@@ -39,11 +39,10 @@ function CreateInterviewPage() {
 
   const handleSearchClick = async () => {
     console.log(searchQuery);
-    if (!searchQuery || searchQuery.trim() == "") {
+    if (!searchQuery || searchQuery.trim() === "") {
       setSearchResults([]);
-      return toast.error("search is empty!");
+      return toast.error("Search is empty!");
     }
-
 
     try {
       const { data } = await axios.post(
@@ -60,8 +59,6 @@ function CreateInterviewPage() {
     } catch (err) {
       console.log(err);
     }
-
-
   }
 
   return (
@@ -70,10 +67,7 @@ function CreateInterviewPage() {
         }`}
     >
       <h1
-        className={`text-4xl font-extrabold mb-6 text-center leading-tight md:leading-snug ${theme === 'dark'
-          ? 'text-transparent bg-clip-text bg-gradient-to-r from-[#ff6900] to-gray-400'
-          : 'text-gray-900'
-          }`}
+        className={`text-4xl font-extrabold mb-6 text-center leading-tight md:leading-snug text-[#ff6900]`}
       >
         Manage Your Interviews
       </h1>
@@ -81,7 +75,7 @@ function CreateInterviewPage() {
       {/* Search Bar */}
       <div className={`relative w-full max-w-2xl mb-6`}>
         <div className={`absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none`}>
-          <Search className={`${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`} size={20} />
+          <Search className={`${theme === 'dark' ? 'text-gray-600' : 'text-gray-500'}`} size={20} />
         </div>
         <input
           type="text"
@@ -94,8 +88,8 @@ function CreateInterviewPage() {
           }}
           placeholder="Search by job title, company, or topic..."
           className={`w-full py-3 pl-10 pr-4 rounded-xl border focus:outline-none focus:ring-2 focus:ring-[#ff6900] ${theme === 'dark'
-            ? 'bg-gray-800 border-gray-700 text-white placeholder-gray-400'
-            : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+            ? 'bg-orange-100 border-gray-300 text-gray-900 placeholder-gray-600'
+            : 'bg-orange-50 border-gray-300 text-gray-900 placeholder-gray-500'
             }`}
         />
       </div>
@@ -113,8 +107,8 @@ function CreateInterviewPage() {
               <div
                 key={interview._id}
                 className={`rounded-2xl p-6 flex flex-col shadow-md transition h-80 ${theme === 'dark'
-                  ? 'bg-gray-900 hover:shadow-[0_0_20px_rgba(255,105,0,0.15)]'
-                  : 'bg-white hover:shadow-md'
+                  ? 'bg-orange-100 hover:shadow-[0_0_20px_rgba(255,105,0,0.15)] text-gray-900'
+                  : 'bg-orange-50 hover:shadow-md text-gray-900'
                   }`}
               >
                 <div className="flex-1 flex flex-col">
@@ -122,7 +116,7 @@ function CreateInterviewPage() {
                     <h2 className="text-xl font-semibold mb-1 line-clamp-1">{interview.jobTitle}</h2>
                     <div className="flex items-center">
                       <Building size={14} className="mr-1" />
-                      <span className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+                      <span className={`text-sm ${theme === 'dark' ? 'text-gray-700' : 'text-gray-600'}`}>
                         {interview.company}
                       </span>
                     </div>
@@ -133,7 +127,7 @@ function CreateInterviewPage() {
                     {interview.jobTopic.split(', ').map((topic, idx) => (
                       <span
                         key={idx}
-                        className={`px-3 py-1 text-sm rounded-full ${theme === 'dark' ? 'bg-gray-800 text-gray-200' : 'bg-gray-200 text-gray-700'
+                        className={`px-3 py-1 text-sm rounded-full ${theme === 'dark' ? 'bg-orange-200 text-gray-800' : 'bg-orange-100 text-gray-700'
                           }`}
                       >
                         {topic}
@@ -145,24 +139,24 @@ function CreateInterviewPage() {
                   <div className="grid grid-cols-2 gap-3 mb-3">
                     <div className="flex items-center">
                       <Clock size={14} className="mr-1" />
-                      <span className={`text-xs ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+                      <span className={`text-xs ${theme === 'dark' ? 'text-gray-700' : 'text-gray-600'}`}>
                         {interview.duration}
                       </span>
                     </div>
                     <div className="flex items-center">
                       <Briefcase size={14} className="mr-1" />
-                      <span className={`text-xs ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+                      <span className={`text-xs ${theme === 'dark' ? 'text-gray-700' : 'text-gray-600'}`}>
                         {interview.type}
                       </span>
                     </div>
                     <div className="flex items-center">
                       <DollarSign size={14} className="mr-1" />
-                      <span className={`text-xs ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+                      <span className={`text-xs ${theme === 'dark' ? 'text-gray-700' : 'text-gray-600'}`}>
                         {interview.stipend === '0' ? 'Unpaid' : interview.stipend}
                       </span>
                     </div>
                     <div className="flex items-center">
-                      <span className={`text-xs ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+                      <span className={`text-xs ${theme === 'dark' ? 'text-gray-700' : 'text-gray-600'}`}>
                         {interview.jobType}
                       </span>
                     </div>
@@ -172,11 +166,11 @@ function CreateInterviewPage() {
                   <div className="flex justify-between items-center mt-auto">
                     <div className="flex items-center">
                       <Calendar size={14} className="mr-1" />
-                      <span className={`text-xs ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+                      <span className={`text-xs ${theme === 'dark' ? 'text-gray-700' : 'text-gray-600'}`}>
                         Apply by: {interview.lastDate}
                       </span>
                     </div>
-                    <span className={`text-xs font-medium ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>
+                    <span className={`text-xs font-medium ${theme === 'dark' ? 'text-gray-800' : 'text-gray-700'}`}>
                       {interview.numOfQns} Questions
                     </span>
                   </div>
@@ -186,8 +180,8 @@ function CreateInterviewPage() {
                 <div className="mt-5">
                   <button
                     className={`w-full py-2 rounded-xl flex items-center justify-center gap-2 font-semibold transition cursor-pointer ${theme === 'dark'
-                      ? 'bg-[#ff6900] text-black hover:bg-[#ff6900]'
-                      : 'bg-[#ff6900] text-black hover:bg-[#ff6900]'
+                      ? 'bg-[#ff6900] text-white hover:bg-[#ff7f33]'
+                      : 'bg-[#ff6900] text-white hover:bg-[#ff7f33]'
                       }`}
                     onClick={() => {
                       navigate('/aiInterviews/createInterview/attandants');
@@ -213,8 +207,8 @@ function CreateInterviewPage() {
             <div
               key={internship._id}
               className={`rounded-2xl p-6 flex flex-col shadow-md transition h-80 ${theme === 'dark'
-                ? 'bg-gray-900 hover:shadow-[0_0_20px_rgba(255,105,0,0.15)]'
-                : 'bg-white hover:shadow-md'
+                ? 'bg-orange-100 hover:shadow-[0_0_20px_rgba(255,105,0,0.15)] text-gray-900'
+                : 'bg-orange-50 hover:shadow-md text-gray-900'
                 }`}
             >
               <div className="flex-1 flex flex-col">
@@ -222,7 +216,7 @@ function CreateInterviewPage() {
                   <h2 className="text-xl font-semibold mb-1 line-clamp-1">{internship.jobTitle}</h2>
                   <div className="flex items-center">
                     <Building size={14} className="mr-1" />
-                    <span className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+                    <span className={`text-sm ${theme === 'dark' ? 'text-gray-700' : 'text-gray-600'}`}>
                       {internship.company}
                     </span>
                   </div>
@@ -233,7 +227,7 @@ function CreateInterviewPage() {
                   {internship.jobTopic.split(', ').map((topic, idx) => (
                     <span
                       key={idx}
-                      className={`px-3 py-1 text-sm rounded-full ${theme === 'dark' ? 'bg-gray-800 text-gray-200' : 'bg-gray-200 text-gray-700'
+                      className={`px-3 py-1 text-sm rounded-full ${theme === 'dark' ? 'bg-orange-200 text-gray-800' : 'bg-orange-100 text-gray-700'
                         }`}
                     >
                       {topic}
@@ -245,24 +239,24 @@ function CreateInterviewPage() {
                 <div className="grid grid-cols-2 gap-3 mb-3">
                   <div className="flex items-center">
                     <Clock size={14} className="mr-1" />
-                    <span className={`text-xs ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+                    <span className={`text-xs ${theme === 'dark' ? 'text-gray-700' : 'text-gray-600'}`}>
                       {internship.duration}
                     </span>
                   </div>
                   <div className="flex items-center">
                     <Briefcase size={14} className="mr-1" />
-                    <span className={`text-xs ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+                    <span className={`text-xs ${theme === 'dark' ? 'text-gray-700' : 'text-gray-600'}`}>
                       {internship.type}
                     </span>
                   </div>
                   <div className="flex items-center">
                     <DollarSign size={14} className="mr-1" />
-                    <span className={`text-xs ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+                    <span className={`text-xs ${theme === 'dark' ? 'text-gray-700' : 'text-gray-600'}`}>
                       {internship.stipend === '0' ? 'Unpaid' : internship.stipend}
                     </span>
                   </div>
                   <div className="flex items-center">
-                    <span className={`text-xs ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+                    <span className={`text-xs ${theme === 'dark' ? 'text-gray-700' : 'text-gray-600'}`}>
                       {internship.jobType}
                     </span>
                   </div>
@@ -272,11 +266,11 @@ function CreateInterviewPage() {
                 <div className="flex justify-between items-center mt-auto">
                   <div className="flex items-center">
                     <Calendar size={14} className="mr-1" />
-                    <span className={`text-xs ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+                    <span className={`text-xs ${theme === 'dark' ? 'text-gray-700' : 'text-gray-600'}`}>
                       Apply by: {internship.lastDate}
                     </span>
                   </div>
-                  <span className={`text-xs font-medium ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>
+                  <span className={`text-xs font-medium ${theme === 'dark' ? 'text-gray-800' : 'text-gray-700'}`}>
                     {internship.numOfQns} Questions
                   </span>
                 </div>
@@ -285,17 +279,17 @@ function CreateInterviewPage() {
               {/* Open Button fixed at the bottom */}
               <div className="mt-5">
                 <button
-                  className={`w-full py-2 rounded-xl flex items-center justify-center gap-2 font-semibold transition cursor-pointer ${theme === 'dark'
-                    ? 'bg-[#ff6900] text-black hover:bg-[#ff6900]'
-                    : 'bg-[#ff6900] text-black hover:bg-[#ff6900]'
-                    }`}
-                  onClick={() => {
-                    navigate('/aiInterviews/createInterview/attandants');
-                    handleOpenClick(internship._id);
-                  }}
-                >
-                  Open <ArrowRight size={18} />
-                </button>
+                    className={`w-full py-2 rounded-xl flex items-center justify-center gap-2 font-semibold transition cursor-pointer ${theme === 'dark'
+                      ? 'bg-[#ff6900] text-white hover:bg-[#ff7f33]'
+                      : 'bg-[#ff6900] text-white hover:bg-[#ff7f33]'
+                      }`}
+                    onClick={() => {
+                      navigate('/aiInterviews/createInterview/attandants');
+                      handleOpenClick(internship._id);
+                    }}
+                  >
+                    Open <ArrowRight size={18} />
+                  </button>
               </div>
             </div>
           ))}

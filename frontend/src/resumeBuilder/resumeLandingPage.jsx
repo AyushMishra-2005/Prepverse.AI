@@ -1,7 +1,3 @@
-
-
-
-
 import React, { useContext } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
@@ -70,7 +66,7 @@ function ResumeLandingPage() {
             transition={{ duration: 1 }}
             className="flex flex-col items-center text-center gap-6 mb-30"
           >
-            <h1 className="text-4xl md:text-5xl font-bold leading-tight pt--1">
+            <h1 className="text-4xl md:text-5xl font-bold leading-tight pt-1">
               Create Your Professional <span className="text-orange-500">Resume in Minutes</span>
             </h1>
             <p className={`text-xl md:text-2xl max-w-3xl mt-1 font-light ${theme === "dark" ? "text-gray-300" : "text-gray-600"}`}>
@@ -108,8 +104,8 @@ function ResumeLandingPage() {
                   viewport={{ once: true }}
                   className={`p-6 rounded-xl shadow-lg transition-colors duration-300 hover:scale-105 hover:shadow-orange-400/40 cursor-pointer border relative ${
                     theme === "dark" 
-                      ? "bg-gray-800/70 border-gray-700" 
-                      : "bg-white border-gray-200"
+                      ? "bg-orange-100 border-gray-700" 
+                      : "bg-orange-50 border-gray-200"
                   }`}
                 >
                   {/* Step number in orange circle */}
@@ -117,12 +113,12 @@ function ResumeLandingPage() {
                     {index + 1}
                   </div>
                   <h3 className={`text-xl font-semibold mb-4 text-center ${
-                    theme === "dark" ? "text-white" : "text-gray-800"
+                    theme === "dark" ? "text-gray-800" : "text-gray-800"
                   }`}>
                     {step.title}
                   </h3>
                   <p className={`text-base leading-relaxed text-center ${
-                    theme === "dark" ? "text-gray-300" : "text-gray-600"
+                    theme === "dark" ? "text-gray-700" : "text-gray-600"
                   }`}>
                     {step.description}
                   </p>
@@ -145,17 +141,17 @@ function ResumeLandingPage() {
             transition={{ duration: 1 }}
             className="w-full mb-20"
           >
-         <h2 className="text-3xl font-semibold text-center mb-12">
-  Why <span className="text-orange-500">Choose Our Resume Builder</span>
-</h2>
+            <h2 className="text-3xl font-semibold text-center mb-12">
+              Why <span className="text-orange-500">Choose Our Resume Builder</span>
+            </h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               <motion.div 
                 variants={featureVariant}
                 whileHover="hover"
                 className={`p-6 rounded-xl shadow-lg transition-colors duration-300 hover:scale-105 hover:shadow-orange-400/40 cursor-pointer border flex flex-col items-center text-center ${
                   theme === "dark" 
-                    ? "bg-gray-800/70 border-gray-700" 
-                    : "bg-white border-gray-200"
+                    ? "bg-orange-100 border-gray-700" 
+                    : "bg-orange-50 border-gray-200"
                 }`}
               >
                 <div className="flex flex-col items-center mb-5">
@@ -166,7 +162,7 @@ function ResumeLandingPage() {
                   </div>
                   <h3 className="text-xl font-semibold text-orange-500">ATS Optimized</h3>
                 </div>
-                <p className={`text-base ${theme === "dark" ? "text-gray-300" : "text-gray-600"}`}>
+                <p className={`text-base ${theme === "dark" ? "text-gray-700" : "text-gray-600"}`}>
                   Resumes designed to pass through Applicant Tracking Systems and get you noticed
                 </p>
               </motion.div>
@@ -176,8 +172,8 @@ function ResumeLandingPage() {
                 whileHover="hover"
                 className={`p-6 rounded-xl shadow-lg transition-colors duration-300 hover:scale-105 hover:shadow-orange-400/40 cursor-pointer border flex flex-col items-center text-center ${
                   theme === "dark" 
-                    ? "bg-gray-800/70 border-gray-700" 
-                    : "bg-white border-gray-200"
+                    ? "bg-orange-100 border-gray-700" 
+                    : "bg-orange-50 border-gray-200"
                 }`}
               >
                 <div className="flex flex-col items-center mb-5">
@@ -188,7 +184,7 @@ function ResumeLandingPage() {
                   </div>
                   <h3 className="text-xl font-semibold text-orange-500">Easy Customization</h3>
                 </div>
-                <p className={`text-base ${theme === "dark" ? "text-gray-300" : "text-gray-600"}`}>
+                <p className={`text-base ${theme === "dark" ? "text-gray-700" : "text-gray-600"}`}>
                   Change colors, fonts, and layouts with just a few clicks to match your personal brand
                 </p>
               </motion.div>
@@ -198,8 +194,8 @@ function ResumeLandingPage() {
                 whileHover="hover"
                 className={`p-6 rounded-xl shadow-lg transition-colors duration-300 hover:scale-105 hover:shadow-orange-400/40 cursor-pointer border flex flex-col items-center text-center ${
                   theme === "dark" 
-                    ? "bg-gray-800/70 border-gray-700" 
-                    : "bg-white border-gray-200"
+                    ? "bg-orange-100 border-gray-700" 
+                    : "bg-orange-50 border-gray-200"
                 }`}
               >
                 <div className="flex flex-col items-center mb-5">
@@ -210,7 +206,7 @@ function ResumeLandingPage() {
                   </div>
                   <h3 className="text-xl font-semibold text-orange-500">Instant Download</h3>
                 </div>
-                <p className={`text-base ${theme === "dark" ? "text-gray-300" : "text-gray-600"}`}>
+                <p className={`text-base ${theme === "dark" ? "text-gray-700" : "text-gray-600"}`}>
                   Get your professionally formatted PDF resume immediately, ready to send to employers
                 </p>
               </motion.div>

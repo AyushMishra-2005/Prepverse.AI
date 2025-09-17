@@ -32,35 +32,39 @@ export const NavItems = ({ items, className, onItemClick, theme, currentPath }) 
       )}
     >
       {items.map((item, idx) => {
-        const isActive = currentPath === item.link;
+  const isActive = currentPath === item.link;
+  const isAlwaysHighlighted = item.name === "Find Internship"; // ✅ only internship
 
-        return (
-          <a
-            key={idx}
-            href={item.link}
-            onClick={onItemClick}
-            onMouseEnter={() => setHovered(idx)}
-            className={cn(
-              "relative px-3 py-2 rounded-md transition-colors",
-              isActive
-                ? "text-[#FF6900] font-semibold"
-                : "hover:text-[#FF6900]"
-            )}
-          >
-            {(hovered === idx || isActive) && (
-              <motion.div
-                layoutId="hovered"
-                className={`absolute inset-0 rounded-md ${
-                  theme === "dark"
-                    ? "bg-gradient-to-r from-gray-500/10 to-orange-500/10"
-                    : "bg-orange-500/10"
-                }`}
-              />
-            )}
-            <span className="relative z-20">{item.name}</span>
-          </a>
-        );
-      })}
+  return (
+    <a
+      key={idx}
+      href={item.link}
+      onClick={onItemClick}
+      onMouseEnter={() => setHovered(idx)}
+      className={cn(
+        "relative px-3 py-2 rounded-md transition-colors",
+        isAlwaysHighlighted
+          ? "text-[#FF6900] font-bold"   // ✅ internship always highlighted
+          : isActive
+          ? "text-[#FF6900] font-semibold" // ✅ keep old active behavior
+          : "hover:text-[#FF6900]"         // ✅ keep old hover
+      )}
+    >
+      {(hovered === idx || isActive) && ( // ❌ no hover-bg for internship, only others
+        <motion.div
+          layoutId="hovered"
+          className={`absolute inset-0 rounded-md ${
+            theme === "dark"
+              ? "bg-gradient-to-r from-gray-500/10 to-orange-500/10"
+              : "bg-orange-500/10"
+          }`}
+        />
+      )}
+      <span className="relative z-20">{item.name}</span>
+    </a>
+  );
+})}
+
     </motion.div>
   );
 };
