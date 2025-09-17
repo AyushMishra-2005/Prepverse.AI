@@ -15,7 +15,7 @@ import Navbar, {
 } from "../components/ui/resizable-navbar.jsx";
 import { useAuth } from "../context/AuthProvider.jsx";
 import SwipeableTemporaryDrawer from "../components/drawerComponent.jsx";
-import { Sun, Moon } from "lucide-react";
+import { Sun, Moon, ChevronDown, Sparkles, Target, FileText, Brain } from "lucide-react";
 import { ThemeContext } from "../context/ThemeContext";
 
 export function NavbarDemo() {
@@ -31,16 +31,28 @@ export function NavbarDemo() {
   const navItems = [
     { name: "Home", link: "/home2" },
     { name: "Find Internship", link: "/internships" },
-    
     { name: "Interview", link: "/candidate/dashboard" },
-    // { name: "Dashboard", link: "/company/dashboard" },
-    
   ];
 
   const features = [
-    { name: "Mock Interview", link: "/mockInterviewLandingPage" },
-    { name: "Quiz", link: "/quiz" },
-    { name: "Resume", link: "/resume" },
+    { 
+      name: "Mock Interview", 
+      link: "/mockInterviewLandingPage",
+      icon: <Target size={18} />,
+      description: "Practice with AI-powered interviews"
+    },
+    { 
+      name: "Quiz", 
+      link: "/quiz",
+      icon: <Brain size={18} />,
+      description: "Test your knowledge with quizzes"
+    },
+    { 
+      name: "Resume", 
+      link: "/resume",
+      icon: <FileText size={18} />,
+      description: "Create and analyze your resume"
+    },
   ];
 
   const allNavFeatures = navItems.concat(features);
@@ -88,13 +100,18 @@ export function NavbarDemo() {
             {/* Features Dropdown */}
             <button
               onClick={handleMenuOpen}
-              className={`px-4 py-2 rounded-md font-medium shadow-sm transition-all duration-200 ${
+              className={`px-4 py-2 rounded-md font-medium transition-all duration-200 flex items-center gap-1 ${
                 theme === "dark"
                   ? "bg-[#1f2937] text-white hover:bg-[#273244]"
                   : "bg-white text-gray-800 border border-[#EAEAEA] hover:bg-gray-100"
-              }`}
+              } ${Boolean(anchorEl) ? "text-[#FF6900]" : ""}`}
             >
+              <Sparkles size={16} className={Boolean(anchorEl) ? "text-[#FF6900]" : ""} />
               Features
+              <ChevronDown 
+                size={16} 
+                className={`transition-transform ${Boolean(anchorEl) ? "rotate-180 text-[#FF6900]" : ""}`} 
+              />
             </button>
 
             <Menu
@@ -103,11 +120,34 @@ export function NavbarDemo() {
               onClose={handleMenuClose}
               PaperProps={{
                 sx: {
-                  backgroundColor: theme === "dark" ? "#1f2937" : "#ffffff",
+                  backgroundColor: theme === "dark" ? "#1a1a1a" : "#ffffff",
                   color: theme === "dark" ? "#ffffff" : "#111827",
-                  border: theme === "dark" ? "1px solid #374151" : "1px solid #E5E7EB",
+                  border: theme === "dark" ? "1px solid #2A2A2A" : "1px solid #E5E7EB",
+                  borderRadius: "12px",
+                  padding: "8px 0",
+                  marginTop: "8px",
+                  boxShadow: theme === "dark" 
+                    ? "0 10px 30px rgba(0, 0, 0, 0.4)" 
+                    : "0 10px 30px rgba(0, 0, 0, 0.1)",
+                  minWidth: "280px",
+                  overflow: "visible",
+                  "&::before": {
+                    content: '""',
+                    display: "block",
+                    position: "absolute",
+                    top: -6,
+                    right: 14,
+                    width: 12,
+                    height: 12,
+                    backgroundColor: theme === "dark" ? "#1a1a1a" : "#ffffff",
+                    borderTop: theme === "dark" ? "1px solid #2A2A2A" : "1px solid #E5E7EB",
+                    borderLeft: theme === "dark" ? "1px solid #2A2A2A" : "1px solid #E5E7EB",
+                    transform: "rotate(45deg)",
+                  }
                 },
               }}
+              transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+              anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
             >
               {features.map((item) => (
                 <MenuItem
@@ -117,12 +157,31 @@ export function NavbarDemo() {
                     navigate(item.link);
                   }}
                   sx={{
+                    padding: "12px 16px",
+                    margin: "0 8px",
+                    borderRadius: "8px",
+                    display: "flex",
+                    alignItems: "flex-start",
+                    gap: "12px",
+                    transition: "all 0.2s ease",
                     "&:hover": {
-                      backgroundColor: theme === "dark" ? "#374151" : "#F3F4F6",
+                      backgroundColor: theme === "dark" ? "#2A2A2A" : "#F9FAFB",
+                      transform: "translateX(4px)",
                     },
                   }}
                 >
-                  {item.name}
+                  <div className={`p-2 rounded-lg ${theme === "dark" ? "bg-[#2A2A2A]" : "bg-[#FF6900]/10"}`}>
+                    {React.cloneElement(item.icon, { 
+                      size: 18, 
+                      className: theme === "dark" ? "text-[#FF6900]" : "text-[#FF6900]" 
+                    })}
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="font-medium">{item.name}</span>
+                    <span className={`text-sm ${theme === "dark" ? "text-neutral-400" : "text-neutral-500"}`}>
+                      {item.description}
+                    </span>
+                  </div>
                 </MenuItem>
               ))}
             </Menu>
@@ -140,7 +199,6 @@ export function NavbarDemo() {
                 <Avatar
                   alt="User"
                   className="bg-transparent text-white"
-             
                   src={authUser.user?.profilePicURL}
                   sx={{ width: 44, height: 44, cursor: "pointer" }}
                   onClick={toggleDrawer(true)}

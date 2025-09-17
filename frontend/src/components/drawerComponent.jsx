@@ -5,87 +5,179 @@ import Divider from "@mui/material/Divider";
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
-import InboxIcon from "@mui/icons-material/MoveToInbox";
-import MailIcon from "@mui/icons-material/Mail";
 import { useNavigate } from "react-router-dom";
 import { styled } from "@mui/material/styles";
+import { 
+  User, 
+  Settings, 
+  LogOut, 
+  X,
+  Briefcase,
+  FileText,
+  MessageSquare
+} from "lucide-react";
+import { ThemeContext } from "../context/ThemeContext";
 
-const DrawerContainer = styled(Box)({
+// Styled components with theme support
+const DrawerContainer = styled(Box)(({ theme, $isDark }) => ({
   width: 280,
-  background: "rgba(20, 20, 20)", 
+  background: $isDark ? 'rgba(20, 20, 20, 0.98)' : 'rgba(255, 255, 255, 0.98)',
   backdropFilter: "blur(12px)",
-  color: "white",
+  color: $isDark ? 'white' : '#1a1a1a',
   height: "100%",
   display: "flex",
   flexDirection: "column",
   overflow: "hidden",
-  boxShadow: "0 0 30px rgba(0, 0, 0, 0.5)", 
-});
+  boxShadow: $isDark 
+    ? "0 0 30px rgba(0, 0, 0, 0.5)" 
+    : "0 0 30px rgba(0, 0, 0, 0.1)",
+}));
 
-const MenuItem = styled(ListItemButton)(({ theme }) => ({
-  borderRadius: "12px",
+const MenuItem = styled(ListItemButton)(({ theme, $isDark }) => ({
+  borderRadius: "10px",
   margin: theme.spacing(0.5, 1.5),
-  padding: theme.spacing(1.5, 2),
-  transition: "all 0.3s ease",
+  padding: theme.spacing(1, 1.5),
+  transition: "all 0.2s ease",
   "&:hover": {
-    backgroundColor: "rgba(99, 102, 241, 0.2)",
-    transform: "translateX(5px)",
+    backgroundColor: $isDark 
+      ? "rgba(255, 105, 0, 0.15)" 
+      : "rgba(255, 105, 0, 0.08)",
+    transform: "translateX(4px)",
   },
 }));
 
-const StyledListItemIcon = styled(ListItemIcon)({
-  minWidth: "40px",
-  color: "#6366f1",
-});
-
-const LogoutButton = styled(ListItemButton)(({ theme }) => ({
-  borderRadius: "12px",
-  margin: theme.spacing(1, 1.5, 2),
-  padding: theme.spacing(1.5, 2),
-  transition: "all 0.3s ease",
-  backgroundColor: "rgba(244, 63, 94, 0.1)",
-  "&:hover": {
-    backgroundColor: "rgba(244, 63, 94, 0.2)",
-    transform: "translateX(5px)",
-  },
+const StyledListItemIcon = styled(ListItemIcon)(({ $isDark }) => ({
+  minWidth: "36px",
+  color: "#FF6900", // Always orange regardless of theme
 }));
 
-const Header = styled(Box)({
-  padding: "24px 20px 16px",
+const CloseButton = styled(ListItemButton)(({ theme, $isDark }) => ({
+  borderRadius: "50%",
+  width: 40,
+  height: 40,
+  minWidth: "auto",
+  padding: 0,
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
-});
+  backgroundColor: $isDark 
+    ? "rgba(255, 255, 255, 0.05)" 
+    : "rgba(0, 0, 0, 0.03)",
+  "&:hover": {
+    backgroundColor: $isDark 
+      ? "rgba(255, 255, 255, 0.1)" 
+      : "rgba(0, 0, 0, 0.06)",
+  },
+}));
 
-const Logo = styled("div")({
-  fontSize: "24px",
-  fontWeight: "700",
-  background: "linear-gradient(45deg, #6366f1 0%, #8b5cf6 100%)",
-  WebkitBackgroundClip: "text",
-  WebkitTextFillColor: "transparent",
-});
+const LogoutButton = styled(ListItemButton)(({ theme, $isDark }) => ({
+  borderRadius: "10px",
+  margin: theme.spacing(1, 1.5, 2),
+  padding: theme.spacing(1, 1.5),
+  transition: "all 0.2s ease",
+  backgroundColor: $isDark 
+    ? "rgba(244, 63, 94, 0.15)" 
+    : "rgba(244, 63, 94, 0.08)",
+  "&:hover": {
+    backgroundColor: $isDark 
+      ? "rgba(244, 63, 94, 0.25)" 
+      : "rgba(244, 63, 94, 0.12)",
+    transform: "translateX(4px)",
+  },
+}));
+
+const Header = styled(Box)(({ theme, $isDark }) => ({
+  padding: "20px 16px 12px",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "space-between",
+  borderBottom: `1px solid ${$isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)'}`,
+}));
+
+const Title = styled("div")(({ $isDark }) => ({
+  fontSize: "18px",
+  fontWeight: "600",
+  color: "#FF6900", // Always orange
+}));
 
 const Footer = styled(Box)({
   marginTop: "auto",
   padding: "16px 0",
 });
 
+const UserInfo = styled(Box)(({ theme, $isDark }) => ({
+  padding: "16px",
+  display: "flex",
+  alignItems: "center",
+  gap: "12px",
+  borderBottom: `1px solid ${$isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)'}`,
+}));
+
+const Avatar = styled("div")(({ $isDark }) => ({
+  width: 44,
+  height: 44,
+  borderRadius: "12px",
+  backgroundColor: "#FF6900", // Always orange
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  color: "white",
+  fontWeight: "600",
+  fontSize: "16px",
+}));
+
+const UserDetails = styled(Box)({
+  display: "flex",
+  flexDirection: "column",
+});
+
+const UserName = styled("div")(({ $isDark }) => ({
+  fontSize: "15px",
+  fontWeight: "600",
+  color: $isDark ? "white" : "#1a1a1a",
+}));
+
+const UserEmail = styled("div")(({ $isDark }) => ({
+  fontSize: "13px",
+  color: $isDark ? "rgba(255,255,255,0.6)" : "rgba(0,0,0,0.5)",
+}));
+
 export default function SwipeableTemporaryDrawer({ open, onClose, onOpen }) {
   const navigate = useNavigate();
+  const { theme } = React.useContext(ThemeContext);
+  const isDark = theme === "dark";
 
   const menuItems = [
-    { label: "Profile", route: "/profilePage", icon: <InboxIcon /> },
-    { label: "Settings", route: "/settings", icon: <MailIcon /> },
-    { label: "My Interviews", route: "/interviews", icon: <InboxIcon /> },
+    { label: "Profile", route: "/profilePage", icon: <User size={18} /> },
+    { label: "Settings", route: "/settings", icon: <Settings size={18} /> },
+    { label: "My Interviews", route: "/candidate/dashboard", icon: <MessageSquare size={18} /> },
+    { label: "Internships", route: "/internships", icon: <Briefcase size={18} /> },
+    { label: "Resume", route: "/resume", icon: <FileText size={18} /> },
   ];
 
+  // Sample user data - you would replace this with actual user data
+  const user = {
+    name: "Alex Johnson",
+    email: "alex.johnson@example.com",
+    initial: "A"
+  };
+
   const list = (
-    <DrawerContainer role="presentation">
-      <Header>
-        <Logo>Navigation</Logo>
+    <DrawerContainer role="presentation" $isDark={isDark}>
+      <Header $isDark={isDark}>
+        <Title $isDark={isDark}>Menu</Title>
+        <CloseButton onClick={onClose} $isDark={isDark}>
+          <X size={18} />
+        </CloseButton>
       </Header>
       
-      <Divider sx={{ bgcolor: "rgba(255,255,255,0.1)", mb: 1 }} />
+      <UserInfo $isDark={isDark}>
+        <Avatar $isDark={isDark}>{user.initial}</Avatar>
+        <UserDetails>
+          <UserName $isDark={isDark}>{user.name}</UserName>
+          <UserEmail $isDark={isDark}>{user.email}</UserEmail>
+        </UserDetails>
+      </UserInfo>
 
       <Box sx={{ p: 1.5 }}>
         {menuItems.map((item) => (
@@ -95,12 +187,13 @@ export default function SwipeableTemporaryDrawer({ open, onClose, onOpen }) {
               navigate(item.route);
               onClose();
             }}
+            $isDark={isDark}
           >
-            <StyledListItemIcon>{item.icon}</StyledListItemIcon>
+            <StyledListItemIcon $isDark={isDark}>{item.icon}</StyledListItemIcon>
             <ListItemText 
               primary={item.label} 
               primaryTypographyProps={{ 
-                fontSize: "0.95rem",
+                fontSize: "0.9rem",
                 fontWeight: 500 
               }} 
             />
@@ -109,18 +202,26 @@ export default function SwipeableTemporaryDrawer({ open, onClose, onOpen }) {
       </Box>
 
       <Footer>
-        <Divider sx={{ bgcolor: "rgba(255,255,255,0.1)", mb: 2 }} />
+        <Divider sx={{ 
+          bgcolor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)', 
+          mb: 2 
+        }} />
         
-        <LogoutButton onClick={() => {
-          navigate("/logout");
-          onClose();
-        }}>
+        <LogoutButton 
+          onClick={() => {
+            navigate("/logout");
+            onClose();
+          }}
+          $isDark={isDark}
+        >
+          <StyledListItemIcon $isDark={isDark}>
+            <LogOut size={18} />
+          </StyledListItemIcon>
           <ListItemText
             primary="Logout"
             primaryTypographyProps={{ 
-              color: "#f43f5e", 
-              fontWeight: 600,
-              textAlign: "center"
+              fontWeight: 500,
+              fontSize: "0.9rem"
             }}
           />
         </LogoutButton>
@@ -136,14 +237,20 @@ export default function SwipeableTemporaryDrawer({ open, onClose, onOpen }) {
       onOpen={onOpen}
       ModalProps={{
         BackdropProps: {
-          sx: { backgroundColor: "transparent !important" },
+          sx: { 
+            backgroundColor: "transparent",
+            backdropFilter: "blur(4px)",
+            background: isDark 
+              ? "rgba(0, 0, 0, 0.4)" 
+              : "rgba(0, 0, 0, 0.1)",
+          },
         },
       }}
       PaperProps={{
         sx: {
-          bgcolor: "#000",
-          color: "white",
-          boxShadow: "0 0 40px rgba(0, 0, 0, 0.8)",
+          bgcolor: "transparent",
+          boxShadow: "none",
+          overflow: "visible",
         },
       }}
     >

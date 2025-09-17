@@ -36,7 +36,7 @@ export function MockInterviewLandingPage() {
   }
 
   // ✅ Dynamic theme-based styles
-  const bgClass = darkMode ? "bg-black text-white" : "bg-white text-gray-900";
+  const bgClass = darkMode ? "bg-black text-white" : "bg-gray-100 text-gray-900";
   const secondaryTextColor = darkMode ? "text-gray-300" : "text-gray-600";
   const featureBg = darkMode ? "bg-orange-100" : "bg-orange-50";
   const featureHover = darkMode ? "hover:bg-orange-500" : "hover:bg-orange-100";
