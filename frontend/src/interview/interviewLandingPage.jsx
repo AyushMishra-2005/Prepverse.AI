@@ -19,9 +19,8 @@ export function MockInterviewLandingPage() {
 
   // ✅ Get theme context
   const { theme } = useContext(ThemeContext);
-const darkMode = theme === "dark";
-const primary = "#ff6900";
-
+  const darkMode = theme === "dark";
+  const primary = "#ff6900";
 
   const [profileForm, setProfileForm] = useState(false);
   const [topicForm, setTopicForm] = useState(false);
@@ -39,8 +38,8 @@ const primary = "#ff6900";
   // ✅ Dynamic theme-based styles
   const bgClass = darkMode ? "bg-black text-white" : "bg-white text-gray-900";
   const secondaryTextColor = darkMode ? "text-gray-300" : "text-gray-600";
-  const featureBg = darkMode ? "bg-gray-800/60" : "bg-white/80";
-  const featureHover = darkMode ? "hover:bg-gray-700/70" : "hover:bg-orange-50";
+  const featureBg = darkMode ? "bg-orange-100" : "bg-orange-50";
+  const featureHover = darkMode ? "hover:bg-orange-500" : "hover:bg-orange-100";
 
   return (
     <main
@@ -74,8 +73,8 @@ const primary = "#ff6900";
         <p
           className={`text-lg md:text-xl max-w-3xl mx-auto ${secondaryTextColor} mb-10`}
         >
-          Practice focused or personalized interviews and get instant AI feedback
-          to level up your skills.
+          Practice focused or personalized interviews and get instant AI
+          feedback to level up your skills.
         </p>
 
         {/* 🔵 Buttons */}
@@ -115,30 +114,38 @@ const primary = "#ff6900";
           animate={{ opacity: 1 }}
           transition={{ delay: 1.2, duration: 0.6 }}
         >
-          {["Real-time feedback", "Performance analytics", "Customized questions"].map(
-            (feature, idx) => (
-              <div
-                key={idx}
-                className={`flex items-center py-2 px-4 rounded-full shadow-sm transition-colors duration-300 ${featureBg} ${featureHover}`}
+          {[
+            "Real-time feedback",
+            "Performance analytics",
+            "Customized questions",
+          ].map((feature, idx) => (
+            <div
+              key={idx}
+              className={`flex items-center py-2 px-4 rounded-full shadow-sm transition-colors duration-300 ${featureBg} ${featureHover}`}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5 mr-2"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke={primary}
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5 mr-2"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke={primary}
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M5 13l4 4L19 7"
-                  />
-                </svg>
-                <span className="font-medium">{feature}</span>
-              </div>
-            )
-          )}
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M5 13l4 4L19 7"
+                />
+              </svg>
+              <span
+                className={`font-medium ${
+                  theme === "dark" ? "text-gray-900" : "text-gray-700"
+                }`}
+              >
+                {feature}
+              </span>
+            </div>
+          ))}
         </motion.div>
       </motion.section>
 

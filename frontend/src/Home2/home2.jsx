@@ -659,33 +659,30 @@ const Home2 = () => {
         ))}
 
         {/* Call to Action */}
-        <section className="py-12 md:py-20 text-center w-full px-6 sm:px-12 md:px-16 lg:px-24">
+        {/* Call to Action */}
+        <section className="py-16 text-center w-full">
           <div
-            className={`relative p-6 md:p-10 lg:p-12 rounded-3xl max-w-4xl mx-auto shadow-lg ${
-              theme === "dark"
-                ? "bg-orange-100 border border-[#2A2A2A] shadow-black/30"
-                : "bg-orange-50 border border-[#EAEAEA] shadow-md"
-            }`}
+            className={`p-8 rounded-xl max-w-4xl mx-auto shadow-md border 
+              ${theme === "dark" ? "bg-orange-100 border-[#2A2A2A]" : "bg-orange-50 border-[#EAEAEA]"}`}
           >
-            <h2
-              className={`text-2xl md:text-3xl lg:text-4xl font-extrabold mb-6 font-poppins ${
-                theme === "dark" ? "text-[#222222]" : "text-[#222222]"
-              }`}
-            >
-              Get Matched with Your{" "}
-              <PrimaryAccentText text="Perfect Interview" />
+            <h2 className={`text-3xl md:text-4xl font-bold mb-4 font-poppins ${theme === "dark" ? "text-black" : "text-black"
+              }`}>
+              Ready to <span className="text-[#FF6900]">Launch?</span>
             </h2>
             <p
-              className={`text-base md:text-lg mb-8 md:mb-10 font-inter max-w-2xl mx-auto ${
-                theme === "dark" ? "text-[#333333]" : "text-[#444444]"
-              }`}
+              className={`text-base mb-8 max-w-lg mx-auto ${theme === "dark" ? "text-[#1a1a1a]" : "text-[#555555]"
+                }`}
             >
-              Practice in real-world interview settings by getting matched with
-              AI-driven mock sessions tailored to your skills, role, and goals.
+              Don't just look for a job, find the perfect launchpad for your
+              career with Prepverse.AI.
             </p>
             <Link to="/internships">
-              <button className="px-5 py-3 md:px-8 md:py-3.5 rounded-2xl font-semibold bg-[#FF6900] text-white font-poppins transition-transform hover:scale-105 hover:shadow-[0_0_20px_#FF6900aa] text-sm md:text-base">
-                Match Me With an Interview
+              <button
+                className="px-8 py-3 rounded-md font-medium 
+                  bg-[#FF6900] text-white hover:bg-[#e65f00] 
+                  transition-colors duration-300"
+              >
+                Get Started Now
                 <Rocket size={18} className="inline-block ml-2" />
               </button>
             </Link>

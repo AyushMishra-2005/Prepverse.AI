@@ -553,35 +553,7 @@ const InternshipPage = () => {
           </div>
         </div>
 
-        {/* Call to Action */}
-        <section className="py-16 text-center w-full">
-          <div
-            className={`p-8 rounded-xl max-w-4xl mx-auto shadow-md border 
-              ${theme === "dark" ? "bg-orange-100 border-[#2A2A2A]" : "bg-orange-50 border-[#EAEAEA]"}`}
-          >
-            <h2 className={`text-3xl md:text-4xl font-bold mb-4 font-poppins ${theme === "dark" ? "text-black" : "text-black"
-              }`}>
-              Ready to <span className="text-[#FF6900]">Launch?</span>
-            </h2>
-            <p
-              className={`text-base mb-8 max-w-lg mx-auto ${theme === "dark" ? "text-[#1a1a1a]" : "text-[#555555]"
-                }`}
-            >
-              Don't just look for a job, find the perfect launchpad for your
-              career with Prepverse.AI.
-            </p>
-            <Link to="/internships">
-              <button
-                className="px-8 py-3 rounded-md font-medium 
-                  bg-[#FF6900] text-white hover:bg-[#e65f00] 
-                  transition-colors duration-300"
-              >
-                Get Started Now
-                <Rocket size={18} className="inline-block ml-2" />
-              </button>
-            </Link>
-          </div>
-        </section>
+        
       </main>
     </div>
   );
