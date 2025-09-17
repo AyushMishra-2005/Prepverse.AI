@@ -17,6 +17,7 @@ import {
   MessageSquare
 } from "lucide-react";
 import { ThemeContext } from "../context/ThemeContext";
+import { useAuth } from "../context/AuthProvider.jsx";
 
 // Styled components with theme support
 const DrawerContainer = styled(Box)(({ theme, $isDark }) => ({
@@ -52,9 +53,9 @@ const StyledListItemIcon = styled(ListItemIcon)(({ $isDark }) => ({
 }));
 
 const CloseButton = styled(ListItemButton)(({ theme, $isDark }) => ({
-  borderRadius: "50%",
-  width: 40,
-  height: 40,
+  borderRadius: "50%",   
+  width: 36,             
+  height: 36,            
   minWidth: "auto",
   padding: 0,
   display: "flex",
@@ -69,6 +70,7 @@ const CloseButton = styled(ListItemButton)(({ theme, $isDark }) => ({
       : "rgba(0, 0, 0, 0.06)",
   },
 }));
+
 
 const LogoutButton = styled(ListItemButton)(({ theme, $isDark }) => ({
   borderRadius: "10px",
@@ -95,7 +97,7 @@ const Header = styled(Box)(({ theme, $isDark }) => ({
 }));
 
 const Title = styled("div")(({ $isDark }) => ({
-  fontSize: "18px",
+  fontSize: "26px",
   fontWeight: "600",
   color: "#FF6900", // Always orange
 }));
@@ -146,6 +148,7 @@ export default function SwipeableTemporaryDrawer({ open, onClose, onOpen }) {
   const navigate = useNavigate();
   const { theme } = React.useContext(ThemeContext);
   const isDark = theme === "dark";
+  const { authUser } = useAuth();
 
   const menuItems = [
     { label: "Profile", route: "/profilePage", icon: <User size={18} /> },
@@ -157,9 +160,9 @@ export default function SwipeableTemporaryDrawer({ open, onClose, onOpen }) {
 
   // Sample user data - you would replace this with actual user data
   const user = {
-    name: "Alex Johnson",
-    email: "alex.johnson@example.com",
-    initial: "A"
+    name: authUser.user.name,
+    email: authUser.user.email,
+    initial: authUser.user.name?.charAt(0).toUpperCase() || ""
   };
 
   const list = (
