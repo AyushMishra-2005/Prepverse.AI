@@ -1,3 +1,5 @@
+
+
 import React, { useEffect, useRef, useState } from "react";
 import { FaceMesh } from "@mediapipe/face_mesh";
 import * as cam from "@mediapipe/camera_utils";
@@ -128,18 +130,18 @@ export default function EyeContactDetector() {
         {!interviewEnded ? (
           <>
             <div
-              className={`absolute top-2 right-2 px-2 py-1 rounded-full text-xs font-medium shadow-md ${isLooking ? "bg-green-500" : "bg-red-600"
+              className={`absolute top-2 right-2 px-2 py-1 rounded-full text-xs font-medium shadow-md ${isLooking ? "bg-gray-600" : "bg-[#ff6900]"
                 } text-white`}
             >
               {isLooking ? "Looking" : "Not Looking"}
             </div>
 
-            <div className="absolute top-2 left-2 px-2 py-1 bg-yellow-600 text-white rounded-full text-xs font-medium shadow-md">
+            <div className="absolute top-2 left-2 px-2 py-1 bg-[#ff6900] text-white rounded-full text-xs font-medium shadow-md">
               Warnings: {warningCount} / 5
             </div>
 
             {!isLooking && (
-              <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 bg-red-600 text-white px-3 py-1 rounded text-xs font-semibold animate-pulse">
+              <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 bg-[#ff6900] text-white px-3 py-1 rounded text-xs font-semibold animate-pulse">
                 Please look at the screen
               </div>
             )}
