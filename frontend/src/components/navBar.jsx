@@ -33,7 +33,7 @@ export function NavbarDemo() {
     { name: "Find Internship", link: "/internships" },
     
     { name: "Interview", link: "/candidate/dashboard" },
-    { name: "Dashboard", link: "/company/dashboard" },
+    // { name: "Dashboard", link: "/company/dashboard" },
     
   ];
 

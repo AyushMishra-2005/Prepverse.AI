@@ -47,18 +47,18 @@ function AttendInterviews() {
   return (
     <div
       className={`w-full min-h-screen flex flex-col items-center relative z-10 ${
-        theme === "dark" ? "bg-black" : "bg-gray-50"
+        theme === "dark" ? "bg-black" : "bg-gray-100"
       }`}
     >
       <div className="flex flex-col w-full max-w-3xl px-6 mt-[4rem]">
         <h2
           className={`text-2xl sm:text-5xl font-bold text-center mb-5 ${
             theme === "dark"
-              ? "text-transparent bg-clip-text bg-gradient-to-r from-[#ff6900] to-gray-400"
-              : "text-gray-800"
+              ? "text-[#ff6900]"
+              : "text-[#ff6900]"
           }`}
         >
-          Meet Your AI Interview Coach
+          Meet Your New Opportunity
         </h2>
 
         <PlaceholdersAndVanishInput
@@ -71,7 +71,7 @@ function AttendInterviews() {
       <div className="w-full max-w-6xl px-6 mt-16 pb-16">
         <h3
           className={`text-2xl font-semibold mb-6 ${
-            theme === "dark" ? "text-white" : "text-gray-900"
+            theme === "dark" ? "text-white" : "text-[#ff6900]"
           }`}
         >
           Available AI Interviews
@@ -83,8 +83,8 @@ function AttendInterviews() {
               key={idx}
               className={`rounded-2xl p-6 shadow-lg flex flex-col justify-between border transition-all duration-300 ${
                 theme === "dark"
-                  ? "bg-gray-900 text-white hover:shadow-[0_0_20px_rgba(255,105,0,0.15)] hover:border-[#ff6900]/30"
-                  : "bg-white text-gray-900 border-gray-200 hover:shadow-md"
+                  ? "bg-orange-100 text-gray-900 hover:shadow-[0_0_20px_rgba(255,105,0,0.15)] hover:border-[#ff6900]/30"
+                  : "bg-orange-50 text-gray-900 border-gray-200 hover:shadow-md"
               }`}
             >
               <div>
@@ -93,7 +93,7 @@ function AttendInterviews() {
                 </h4>
                 <p
                   className={`text-center font-medium mb-3 ${
-                    theme === "dark" ? "text-gray-300" : "text-gray-700"
+                    theme === "dark" ? "text-gray-700" : "text-gray-700"
                   }`}
                 >
                   {interview.jobTitle}
@@ -105,8 +105,8 @@ function AttendInterviews() {
                       key={i}
                       className={`text-xs px-3 py-1 rounded-full ${
                         theme === "dark"
-                          ? "bg-gray-800 text-gray-200"
-                          : "bg-gray-200 text-gray-700"
+                          ? "bg-orange-200 text-gray-800"
+                          : "bg-orange-100 text-gray-700"
                       }`}
                     >
                       {topic.trim()}
@@ -116,7 +116,7 @@ function AttendInterviews() {
 
                 <div
                   className={`space-y-1 text-sm text-center ${
-                    theme === "dark" ? "text-gray-400" : "text-gray-600"
+                    theme === "dark" ? "text-gray-700" : "text-gray-600"
                   }`}
                 >
                   <p>
@@ -143,8 +143,8 @@ function AttendInterviews() {
                   <button
                     className={`w-full font-medium text-sm py-2 px-4 rounded-full shadow transition duration-300 ${
                       theme === "dark"
-                        ? "bg-gray-800 text-gray-200 hover:bg-gray-700"
-                        : "bg-gray-200 text-gray-800 hover:bg-gray-300"
+                        ? "bg-[#ff6900] text-white hover:bg-[#ff7f33]"
+                        : "bg-[#ff6900] text-white hover:bg-[#ff7f33]"
                     }`}
                   >
                     Register Now

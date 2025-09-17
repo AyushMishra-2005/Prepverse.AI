@@ -80,20 +80,20 @@ function CandidateLandingPage() {
         transition={{ delay: 0.2, duration: 0.8, ease: "easeOut" }}
         className={`text-center text-5xl md:text-7xl font-poppins font-bold tracking-tight leading-tight ${headingText}`}
       >
-        Attend <span className={`${highlightText} drop-shadow-lg`}>AI Interviews</span>
+        Crack Your  <span className={`${highlightText} drop-shadow-lg`}>Next Interview</span>
       </motion.h1>
 
       {/* Subtext */}
       <motion.p
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.4, duration: 0.6 }}
-        className={`text-center text-lg md:text-xl mt-6 max-w-2xl font-inter ${subHeadingText}`}
-      >
-        Practice, prepare, and perform with{" "}
-        <span className={`font-semibold ${headingText}`}>AI-driven mock interviews</span>{" "}
-        designed by top companies to boost your confidence.
-      </motion.p>
+  initial={{ opacity: 0, y: 20 }}
+  animate={{ opacity: 1, y: 0 }}
+  transition={{ delay: 0.4, duration: 0.6 }}
+  className={`text-center text-lg md:text-xl mt-6 max-w-2xl font-inter ${subHeadingText}`}
+>
+  Get ready to{" "}
+  <span className={`font-semibold ${headingText}`}>practice, prepare, and crack interviews</span>{" "}
+  with AI-driven mock sessions tailored to real company standards.
+</motion.p>
 
       {/* Feature Highlights */}
       <motion.div
@@ -126,14 +126,14 @@ function CandidateLandingPage() {
           Attend Interviews
         </motion.button>
 
-        <motion.button
+        {/* <motion.button
           whileHover={{ scale: 1.07, backgroundColor: "#FF6900", color: "#fff" }}
           whileTap={{ scale: 0.95 }}
           transition={{ type: "spring", stiffness: 300 }}
           className="px-10 py-4 border border-[#FF6900] text-[#FF6900] font-semibold rounded-full hover:bg-[#FF6900] hover:text-white transition"
         >
           Learn More
-        </motion.button>
+        </motion.button> */}
       </div>
     </div>
   );

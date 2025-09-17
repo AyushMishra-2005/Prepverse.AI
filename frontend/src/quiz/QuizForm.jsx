@@ -57,12 +57,14 @@ const QuizForm = () => {
     }
   };
 
-  // Theme based styles
-  const inputBg = theme === 'dark' ? 'bg-gray-800/70' : 'bg-white/90';
-  const inputText = theme === 'dark' ? 'text-white' : 'text-gray-900';
-  const placeholderText = theme === 'dark' ? 'placeholder-gray-400' : 'placeholder-gray-500';
+  // 🔑 Input backgrounds now always orange depending on theme
+  const inputBg = theme === 'dark' ? 'bg-orange-100' : 'bg-orange-50';
+  const inputText = theme === 'dark' ? 'text-black' : 'text-gray-900'; // black text so it's visible on orange
   const borderColor = theme === 'dark' ? 'border-gray-700' : 'border-gray-300';
-  const dropdownHover = theme === 'dark' ? 'hover:bg-[#ff6900] hover:text-black' : 'hover:bg-orange-400 hover:text-white';
+  const dropdownHover =
+    theme === 'dark'
+      ? 'hover:bg-[#ff6900] hover:text-black'
+      : 'hover:bg-orange-400 hover:text-white';
   const buttonBg = theme === 'dark' ? 'bg-[#ff6900]' : 'bg-orange-600';
   const buttonHover = theme === 'dark' ? 'hover:bg-[#e85d00]' : 'hover:bg-orange-500';
 
@@ -76,7 +78,9 @@ const QuizForm = () => {
         type="text"
         name="jobRole"
         placeholder="Target Job Role"
-        className={`w-full px-4 py-3 rounded-lg ${inputBg} ${inputText} ${placeholderText} border ${borderColor} focus:outline-none focus:ring-2 focus:ring-[#ff6900] focus:border-[#ff6900] transition-all`}
+        className={`w-full px-4 py-3 rounded-lg ${inputBg} ${inputText} border ${borderColor}
+                    focus:outline-none focus:ring-2 focus:ring-[#ff6900] focus:border-[#ff6900]
+                    transition-all duration-300`}
         onChange={handleChange}
         required
       />
@@ -86,7 +90,9 @@ const QuizForm = () => {
         type="text"
         name="subject"
         placeholder="Topic For Quiz"
-        className={`w-full px-4 py-3 rounded-lg ${inputBg} ${inputText} ${placeholderText} border ${borderColor} focus:outline-none focus:ring-2 focus:ring-[#ff6900] focus:border-[#ff6900] transition-all`}
+        className={`w-full px-4 py-3 rounded-lg ${inputBg} ${inputText} border ${borderColor}
+                    focus:outline-none focus:ring-2 focus:ring-[#ff6900] focus:border-[#ff6900]
+                    transition-all duration-300`}
         onChange={handleChange}
         required
       />
@@ -98,7 +104,9 @@ const QuizForm = () => {
           onClick={() =>
             setFormData((prev) => ({ ...prev, openDifficulty: !prev.openDifficulty }))
           }
-          className={`w-full px-4 py-3 rounded-lg ${inputBg} ${inputText} border ${borderColor} focus:outline-none focus:ring-2 focus:ring-[#ff6900] focus:border-[#ff6900] flex justify-between items-center`}
+          className={`w-full px-4 py-3 rounded-lg ${inputBg} ${inputText} border ${borderColor}
+                      focus:outline-none focus:ring-2 focus:ring-[#ff6900] focus:border-[#ff6900]
+                      flex justify-between items-center`}
         >
           {formData.level || "Select Difficulty"}
           <span className="ml-2">▼</span>
@@ -128,7 +136,9 @@ const QuizForm = () => {
         min="1"
         max="20"
         placeholder="Number of Questions"
-        className={`w-full px-4 py-3 rounded-lg ${inputBg} ${inputText} ${placeholderText} border ${borderColor} focus:outline-none focus:ring-2 focus:ring-[#ff6900] focus:border-[#ff6900] transition-all`}
+        className={`w-full px-4 py-3 rounded-lg ${inputBg} ${inputText} border ${borderColor}
+                    focus:outline-none focus:ring-2 focus:ring-[#ff6900] focus:border-[#ff6900]
+                    transition-all duration-300`}
         onChange={handleChange}
         required
       />
@@ -137,7 +147,8 @@ const QuizForm = () => {
       <button
         type="submit"
         disabled={loading}
-        className={`w-full py-3 ${buttonBg} ${buttonHover} text-white font-bold rounded-lg transition-all duration-200 ease-in-out shadow-lg flex items-center justify-center`}
+        className={`w-full py-3 ${buttonBg} ${buttonHover} text-white font-bold rounded-lg
+                    transition-all duration-200 ease-in-out shadow-lg flex items-center justify-center`}
       >
         {loading ? (
           <div className="w-5 h-5 border-3 border-white border-t-transparent rounded-full animate-spin"></div>

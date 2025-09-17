@@ -118,11 +118,11 @@ export function AttandantPage() {
                         </motion.h3>
                         <motion.p
                           layoutId={`description-${active.email}-${id}`}
-                          className={theme === "dark" ? "text-gray-300" : "text-gray-700"}
+                          className={`${theme === "dark" ? "text-gray-300" : "text-gray-700"}`}
                         >
                           {active.email}
                         </motion.p>
-                        <p className={theme === "dark" ? "text-gray-400" : "text-gray-600"}>
+                        <p className={`${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
                           Username: {active.username}
                         </p>
                         <p className="text-sm font-semibold text-green-600">
@@ -188,7 +188,7 @@ export function AttandantPage() {
                   </motion.h3>
                   <motion.p
                     layoutId={`description-${card.email}-${id}`}
-                    className={theme === "dark" ? "text-gray-300" : "text-gray-700"}
+                    className={`${theme === "dark" ? "text-gray-300" : "text-gray-700"}`}
                   >
                     {card.email}
                   </motion.p>

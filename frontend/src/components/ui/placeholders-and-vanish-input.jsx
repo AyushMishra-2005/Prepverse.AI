@@ -145,8 +145,8 @@ export function PlaceholdersAndVanishInput({ placeholders, onChange, onSubmit })
     <form
       onSubmit={handleSubmit}
       className={cn(
-        "w-full relative max-w-xl mx-auto h-12 rounded-full overflow-hidden border border-[#3c4e5a] bg-[#2a3c48]",
-        value && "bg-[#2f4452]"
+        "w-full relative max-w-xl mx-auto h-12 rounded-full overflow-hidden border border-[#ff6900] bg-white",
+        value && "bg-[#c2c2c2]"
       )}
     >
       <canvas
@@ -178,7 +178,7 @@ export function PlaceholdersAndVanishInput({ placeholders, onChange, onSubmit })
       <button
         disabled={!value}
         type="submit"
-        className="absolute right-2 top-1/2 z-50 -translate-y-1/2 h-8 w-8 rounded-full bg-[#1e2a33] text-white disabled:bg-[#38464f] transition duration-200 flex items-center justify-center"
+        className="absolute right-2 top-1/2 z-50 -translate-y-1/2 h-8 w-8 rounded-full bg-[#ff6900] text-white disabled:bg-black transition duration-200 flex items-center justify-center"
       >
         <motion.svg
           xmlns="http://www.w3.org/2000/svg"

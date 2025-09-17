@@ -21,7 +21,7 @@ import Button from "./Button.jsx";
 import { ThemeContext } from "../context/ThemeContext";
 import interviewImage from "../assets/attend2.png";
 import internshipimage from "../assets/Internship_image.png";
-import mockInterviewImage from "../assets/mock4.png";
+import mockInterviewImage from "../assets/attend2.png";
 import quizImage from "../assets/heroquiz.png";
 import resumeBuilderImage from "../assets/heroresume.png";
 
@@ -205,32 +205,32 @@ const Home2 = () => {
         link: "/resume",
       },
     },
-    {
-      id: "attend-interview",
-      title: "Attend Interview",
-      description:
-        "Empower your hiring process with AI-driven interview design, seamless candidate invites, and performance evaluation.",
-      icon: <FaRobot className="text-[#FF6900] text-2xl" />,
-      image: interviewImage,
-      features: [
-        {
-          title: "Custom Interview Design",
-          desc: "Easily create structured interview processes tailored to your company's needs.",
-        },
-        {
-          title: "Candidate Insights",
-          desc: "Analyze candidate performance with AI-powered evaluation and actionable feedback.",
-        },
-        {
-          title: "Streamlined Process",
-          desc: "Simplify your hiring workflow with intuitive tools and automated scheduling.",
-        },
-      ],
-      cta: {
-        text: "Learn More",
-        link: "/candidate/dashboard",
-      },
-    },
+    // {
+    //   id: "attend-interview",
+    //   title: "Attend Interview",
+    //   description:
+    //     "Empower your hiring process with AI-driven interview design, seamless candidate invites, and performance evaluation.",
+    //   icon: <FaRobot className="text-[#FF6900] text-2xl" />,
+    //   image: interviewImage,
+    //   features: [
+    //     {
+    //       title: "Custom Interview Design",
+    //       desc: "Easily create structured interview processes tailored to your company's needs.",
+    //     },
+    //     {
+    //       title: "Candidate Insights",
+    //       desc: "Analyze candidate performance with AI-powered evaluation and actionable feedback.",
+    //     },
+    //     {
+    //       title: "Streamlined Process",
+    //       desc: "Simplify your hiring workflow with intuitive tools and automated scheduling.",
+    //     },
+    //   ],
+    //   cta: {
+    //     text: "Learn More",
+    //     link: "/candidate/dashboard",
+    //   },
+    // },
   ];
 
   return (
@@ -276,27 +276,29 @@ const Home2 = () => {
                 theme === "dark" ? "text-[#CCCCCC]" : "text-[#666666]"
               }`}
             >
-              Discover the perfect internship match with our AI-powered
-              recommendation system — tailored to your skills, background, and
+              Discover the perfect internship match with our Al-powered
+              recommendation system - tailored to your skills, background, and
               aspirations.
             </p>
             <div className="flex flex-wrap gap-4 pt-2">
-              <Button />
+              <Link to="/signup">
+                <Button />
+              </Link>
             </div>
           </div>
 
-          {/* Right - Recommendation visualization */}
+          {/* Right - Lottie Globe */}
           <div className="flex justify-center items-center ml-0 sm:ml-10">
-            <div className="w-[330px] h-[330px] sm:w-[370px] sm:h-[370px] md:w-[410px] md:h-[410px] lg:w-[450px] lg:h-[450px]">
+            <div className="w-[350px] h-[370px] sm:w-[390px] sm:h-[390px] md:w-[430px] md:h-[430px] lg:w-[470px] lg:h-[470px]">
               <Lottie animationData={globeAnimation} loop={true} />
             </div>
           </div>
         </section>
 
         {/* Internship Section */}
-        <section className="py-12 md:py-16 px-6 sm:px-12 md:px-16 lg:px-24 relative">
+        <section className="py-12 md:py-16 px-6 sm:px-10 md:px-14 lg:px-24 xl:px-32 relative">
           <div className="mx-auto">
-            <div className="grid md:grid-cols-2 gap-10 items-center">
+            <div className="grid md:grid-cols-2 gap-12 items-center">
               {/* Left Side: Image */}
               <div className="flex justify-center">
                 <img
@@ -306,8 +308,8 @@ const Home2 = () => {
                 />
               </div>
 
-              {/* Right Side: Content */}
-              <div>
+              {/* Right Side: Content - Added right padding for balance */}
+              <div className="pr-8 md:pr-12 lg:pr-16">
                 <h2 className="text-3xl md:text-4xl font-poppins font-bold mb-6">
                   Land Your Dream <PrimaryAccentText text="Internship" />
                 </h2>
@@ -385,7 +387,7 @@ const Home2 = () => {
 
                 {/* CTA Button */}
                 <div className="mt-8">
-                  <Link to="/signup">
+                  <Link to="/internships">
                     <button className="px-6 py-3 md:px-8 md:py-3 rounded-2xl font-semibold bg-gradient-to-r from-[#FF6900] to-[#FF8C00] text-white font-poppins transition-all duration-300 hover:scale-105 hover:shadow-[0_0_15px_#FF6900] text-base md:text-lg flex items-center">
                       Start Your Internship Journey
                       <Rocket size={18} className="ml-2" />
@@ -396,9 +398,8 @@ const Home2 = () => {
             </div>
           </div>
         </section>
-
         {/* Features Section */}
-        <section className="mx-auto px-6 sm:px-12 md:px-16 lg:px-24 py-12 md:py-20">
+        <section className="mx-auto px-6 sm:px-10 md:px-14 lg:px-24 xl:px-32 py-12 md:py-20">
           <div className="text-center mb-8 md:mb-12">
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-poppins font-bold">
               Supercharge Your <PrimaryAccentText text="Career Journey" />
@@ -422,13 +423,13 @@ const Home2 = () => {
               },
               {
                 title: "AI Skill Quiz",
-                desc: "Discover strengths with AI-powered quizzes & insights, fully customized just choose subject, number of question and level of difficulty and you are good to go.",
+                desc: "Discover strengths with AI-powered quizzes, fully customized choose subject, number of question and difficulty level and done.",
                 link: "/quiz",
                 btn: "Take a Quiz",
               },
               {
                 title: "Resume Builder",
-                desc: "Craft a professional resume that gets noticed, choose template, fill your details and download it.",
+                desc: "Craft a professional resume that gets noticed, choose your template, fill your details and just download it.",
                 link: "/resume",
                 btn: "Build My Resume",
               },
@@ -470,7 +471,7 @@ const Home2 = () => {
         </section>
 
         {/* Workflow Section */}
-        <section className="py-12 md:py-20 relative px-6 sm:px-12 md:px-16 lg:px-24">
+        <section className="py-12 md:py-20 relative px-6 sm:px-10 md:px-14 lg:px-24 xl:px-32">
           <div className="mx-auto text-center">
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-poppins font-bold mb-4">
               How <PrimaryAccentText text="Prepverse.AI" /> Works
@@ -538,7 +539,7 @@ const Home2 = () => {
           <section
             key={section.id}
             id={section.id}
-            className={`py-12 md:py-20 px-6 sm:px-12 md:px-16 lg:px-24 ${
+            className={`py-12 md:py-20 px-6 sm:px-10 md:px-14 lg:px-24 xl:px-32 ${
               index % 2 === 1
                 ? "bg-gradient-to-r from-transparent via-[#FF6900]/5 to-transparent"
                 : ""
@@ -546,7 +547,7 @@ const Home2 = () => {
           >
             <div className="mx-auto">
               <div
-                className={`grid md:grid-cols-2 gap-10 md:gap-16 items-center ${
+                className={`grid md:grid-cols-2 gap-12 md:gap-16 items-center ${
                   index % 2 === 1 ? "md:direction-rtl" : ""
                 }`}
               >
@@ -671,19 +672,20 @@ const Home2 = () => {
                 theme === "dark" ? "text-[#222222]" : "text-[#222222]"
               }`}
             >
-              Ready to enter the <PrimaryAccentText text="Prepverse?" />
+              Get Matched with Your{" "}
+              <PrimaryAccentText text="Perfect Interview" />
             </h2>
             <p
               className={`text-base md:text-lg mb-8 md:mb-10 font-inter max-w-2xl mx-auto ${
                 theme === "dark" ? "text-[#333333]" : "text-[#444444]"
               }`}
             >
-              Start your AI-powered preparation today — mock interviews, resume
-              help, and more!
+              Practice in real-world interview settings by getting matched with
+              AI-driven mock sessions tailored to your skills, role, and goals.
             </p>
-            <Link to="/mockInterviewLandingPage">
+            <Link to="/internships">
               <button className="px-5 py-3 md:px-8 md:py-3.5 rounded-2xl font-semibold bg-[#FF6900] text-white font-poppins transition-transform hover:scale-105 hover:shadow-[0_0_20px_#FF6900aa] text-sm md:text-base">
-                Launch AI Interview
+                Match Me With an Interview
                 <Rocket size={18} className="inline-block ml-2" />
               </button>
             </Link>
