@@ -267,7 +267,7 @@ const Home2 = () => {
                 Welcome to <PrimaryAccentText text="Prepverse.AI" />
               </span>
               <span className="block mt-2 text-2xl md:text-3xl font-normal">
-                Your AI-powered career universe
+                Your personalized internship recommender
               </span>
             </h1>
 
@@ -276,21 +276,23 @@ const Home2 = () => {
                 theme === "dark" ? "text-[#CCCCCC]" : "text-[#666666]"
               }`}
             >
-              Step into the multiverse of preparation — mock interviews, resume
-              scoring, ATS analysis, and personalized quizzes.
+              Discover the perfect internship match with our AI-powered
+              recommendation system — tailored to your skills, background, and
+              aspirations.
             </p>
             <div className="flex flex-wrap gap-4 pt-2">
               <Button />
             </div>
           </div>
 
-          {/* Right - Lottie Globe */}
+          {/* Right - Recommendation visualization */}
           <div className="flex justify-center items-center ml-0 sm:ml-10">
             <div className="w-[330px] h-[330px] sm:w-[370px] sm:h-[370px] md:w-[410px] md:h-[410px] lg:w-[450px] lg:h-[450px]">
               <Lottie animationData={globeAnimation} loop={true} />
             </div>
           </div>
         </section>
+
         {/* Internship Section */}
         <section className="py-12 md:py-16 px-6 sm:px-12 md:px-16 lg:px-24 relative">
           <div className="mx-auto">
