@@ -1,9 +1,12 @@
 
-import React, { useEffect, useState } from "react";
+
+import React, { useEffect, useState, useContext } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { ThemeContext } from "../context/ThemeContext";
 
 const CountdownTimer = ({ duration = 30, onComplete }) => {
   const [timeLeft, setTimeLeft] = useState(duration);
+  const { theme } = useContext(ThemeContext);
 
   useEffect(() => {
     if (timeLeft <= 0) {
@@ -29,7 +32,7 @@ const CountdownTimer = ({ duration = 30, onComplete }) => {
         <motion.circle
           cx="50" cy="50" r="45"
           stroke="currentColor"
-          className="text-blue-500"
+          style={{ color: "#ff6900" }}
           strokeWidth="10"
           strokeDasharray="282.6"
           strokeDashoffset={(282.6 * (100 - percentage)) / 100}
@@ -41,7 +44,7 @@ const CountdownTimer = ({ duration = 30, onComplete }) => {
       </svg>
 
       <div className="absolute inset-0 flex items-center justify-center">
-        <span className="text-xl font-semibold text-gray-800 dark:text-gray-100">
+        <span className={`text-xl font-semibold ${theme === "dark" ? "text-white" : "text-black"}`}>
           {timeLeft}s
         </span>
       </div>
@@ -50,3 +53,4 @@ const CountdownTimer = ({ duration = 30, onComplete }) => {
 };
 
 export default CountdownTimer;
+
