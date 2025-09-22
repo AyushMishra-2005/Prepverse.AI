@@ -7,6 +7,7 @@ from dotenv import load_dotenv
 from pymongo import MongoClient
 from sentence_transformers import SentenceTransformer
 
+
 load_dotenv()
 
 MONGO_URI = os.getenv("MONGO_URI")
@@ -14,7 +15,7 @@ DB_NAME = os.getenv("DB_NAME")
 COLLECTION_NAME = os.getenv("COLLECTION_NAME")
 
 MODEL_NAME = "Alibaba-NLP/gte-large-en-v1.5"
-CSV_FILE_PATH = "Final_New_Internship_Dataset.csv"
+CSV_FILE_PATH = "Internship_dataset.csv"  
 
 random.seed(42)
 
@@ -23,26 +24,22 @@ def clean_text(text: str) -> str:
     if not isinstance(text, str):
         return ""
     text = text.lower().strip()
-    text = re.sub(r"\s+", " ", text)  
-    text = re.sub(r"[^a-z0-9.,;:!?()\- ]", "", text)  
+    text = re.sub(r"\s+", " ", text)
+    text = re.sub(r"[^a-z0-9.,;:!?()\- ]", "", text)
     return text
-
 
 def build_combined_text(row: pd.Series) -> str:
     """Builds a semantically rich internship representation with weighted fields."""
     parts = []
-
     if row.get("Job Title"):
         parts.append(f"Internship Title: {clean_text(row['Job Title'])}. ")
     if row.get("Job Role"):
         parts.append((f"Role: {clean_text(row['Job Role'])}. ") * 2)
     if row.get("Job Topics"):
-        parts.append((f"Topic: {clean_text(row['Job Topics'])}. ") * 3)
+        parts.append((f"Topic: {clean_text(row['Job Topics'])}. ") * 4)
     if row.get("Job Description"):
-        parts.append((f"Responsibilities include: {clean_text(row['Job Description'])}. ") * 3)
-
+        parts.append((f"Responsibilities include: {clean_text(row['Job Description'])}. ") * 2)
     return " ".join(parts).strip()
-
 
 def connect_mongo():
     """Connect to MongoDB Atlas with validation."""
@@ -57,7 +54,6 @@ def connect_mongo():
     except Exception as e:
         raise RuntimeError(f"MongoDB connection failed: {e}")
 
-
 def load_model():
     """Load SentenceTransformer model."""
     print(f"Loading model: {MODEL_NAME} ...")
@@ -68,17 +64,27 @@ def load_model():
     except Exception as e:
         raise RuntimeError(f"Error loading model: {e}")
 
-
 def process_csv():
     """Load and preprocess internship dataset."""
     if not os.path.exists(CSV_FILE_PATH):
         raise FileNotFoundError(f"File not found: {CSV_FILE_PATH}")
-
     print(f"Loading dataset: {CSV_FILE_PATH} ...")
     df = pd.read_csv(CSV_FILE_PATH)
     print(f"Loaded {len(df)} internships from CSV.")
     return df
 
+def parse_coordinates(coord_str: str):
+    """Parses 'lat,lon' string and returns GeoJSON Point [lon, lat]."""
+    if not isinstance(coord_str, str) or "," not in coord_str:
+        return None
+    try:
+        lat, lon = map(float, coord_str.split(","))
+        return {
+            "type": "Point",
+            "coordinates": [lon, lat]  
+        }
+    except Exception:
+        return None
 
 def main():
     client = connect_mongo()
@@ -99,6 +105,8 @@ def main():
         if not combined_text:
             continue
 
+        coord_geojson = parse_coordinates(row.get("Coordinates"))
+
         internship_texts.append(combined_text)
         internship_metadata.append({
             "jobTitle": row.get("Job Title"),
@@ -112,6 +120,8 @@ def main():
             "description": row.get("Job Description"),
             "jobRole": row.get("Job Role"),
             "numOfQns": random.randint(2, 5),
+            "locationName": row.get("Location"),
+            "location": coord_geojson
         })
 
     print("Generating embeddings in batches ...")
@@ -119,7 +129,7 @@ def main():
         internship_texts,
         batch_size=32,
         convert_to_numpy=True,
-        normalize_embeddings=True,  
+        normalize_embeddings=True,
         show_progress_bar=True
     )
 
@@ -133,9 +143,11 @@ def main():
     except Exception as e:
         print(f"Error during insertion: {e}")
 
+    collection.create_index([("location", "2dsphere")])
+    print("2dsphere index created on 'location'.")
+
     client.close()
     print("MongoDB connection closed.")
-
 
 if __name__ == "__main__":
     main()

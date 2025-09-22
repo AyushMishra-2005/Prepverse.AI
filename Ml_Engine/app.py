@@ -85,6 +85,9 @@ def build_combined_text(data: dict) -> str:
 
     return " ".join(parts)
 
+
+
+
 @app.route("/recommend", methods=["POST"])
 def recommend():
     if bi_encoder is None or cross_encoder is None or collection is None:
@@ -99,50 +102,46 @@ def recommend():
         return jsonify({"error": "Invalid input. Provide 'embedding' as a list of floats."}), 400
 
     match_conditions = {}
-
-    # Duration filter
     if "duration" in filters and filters["duration"]:
         match_conditions["duration"] = {"$in": filters["duration"]}
 
-    # Type / JobType filters
     type_filters = build_or_regex_for_values(filters.get("type", []))
     jobtype_filters = build_or_regex_for_values(filters.get("jobType", []))
 
-    # Build match properly
     if type_filters and jobtype_filters:
-        # Both exist, use $or
         or_conditions = [{"type": r} for r in type_filters] + [{"jobType": r} for r in jobtype_filters]
         match_conditions["$or"] = or_conditions
     elif type_filters:
-        # Only type filter exists
         match_conditions["type"] = type_filters[0] if len(type_filters) == 1 else {"$in": type_filters}
     elif jobtype_filters:
-        # Only jobType filter exists
         match_conditions["jobType"] = jobtype_filters[0] if len(jobtype_filters) == 1 else {"$in": jobtype_filters}
 
-    print(match_conditions)
-    # --- Build pipeline ---
+   
     pipeline = [
-        {"$vectorSearch": {
-            "index": "vector_index",
-            "path": "embedding",
-            "queryVector": user_vector,
-            "numCandidates": 1000,
-            "limit": 50
-        }}
+        {
+            "$vectorSearch": {
+                "index": "vector_index",
+                "path": "embedding",
+                "queryVector": user_vector,
+                "numCandidates": 1000,
+                "limit": 200
+            }
+        }
     ]
 
     if match_conditions:
         pipeline.append({"$match": match_conditions})
 
-    pipeline.append({"$project": {
-        "_id": 1,
-        "jobTitle": 1, "company": 1, "description": 1,
-        "jobRole": 1, "jobTopic": 1, "duration": 1, "type": 1,
-        "stipend": 1, "jobType": 1, "lastDate": 1, "skills": 1,
-        "numOfQns": 1,
-        "score": {"$meta": "vectorSearchScore"}
-    }})
+    pipeline.append({
+        "$project": {
+            "_id": 1,
+            "jobTitle": 1, "company": 1, "description": 1,
+            "jobRole": 1, "jobTopic": 1, "duration": 1, "type": 1,
+            "stipend": 1, "jobType": 1, "lastDate": 1, "skills": 1,
+            "numOfQns": 1, "locationName": 1, "location": 1,
+            "score": {"$meta": "vectorSearchScore"}
+        }
+    })
 
     try:
         print("Executing vector search against MongoDB...")
@@ -153,6 +152,47 @@ def recommend():
     if not candidates:
         return jsonify([])
 
+   
+    location_filters = filters.get("location", [])
+    if location_filters:
+        print("Applying location filter in Python...")
+        filtered_by_location = []
+
+        loc_docs = list(collection.find(
+            {"locationName": {"$in": location_filters}},
+            {"locationName": 1, "location": 1}
+        ))
+
+        target_coords = [doc["location"]["coordinates"] for doc in loc_docs if "location" in doc]
+
+        def haversine(coord1, coord2):
+            import math
+            R = 6371
+            lon1, lat1 = coord1
+            lon2, lat2 = coord2
+            phi1, phi2 = math.radians(lat1), math.radians(lat2)
+            dphi = math.radians(lat2 - lat1)
+            dlambda = math.radians(lon2 - lon1)
+            a = math.sin(dphi/2)**2 + math.cos(phi1)*math.cos(phi2)*math.sin(dlambda/2)**2
+            return 2 * R * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+
+        for cand in candidates:
+            cand_coords = cand.get("location", {}).get("coordinates")
+            if not cand_coords:
+                continue
+
+            if cand.get("locationName") in location_filters:
+                filtered_by_location.append(cand)
+                continue
+
+            for tc in target_coords:
+                if haversine(tc, cand_coords) <= 100:
+                    filtered_by_location.append(cand)
+                    break
+
+        candidates = filtered_by_location if filtered_by_location else candidates
+
+   
     filtered_after_meta = []
     stipend_filters = []
     if "stipend" in filters and isinstance(filters["stipend"], list):
@@ -183,29 +223,50 @@ def recommend():
     if not filtered_after_meta:
         return jsonify([])
 
+
     try:
-        print("Re-ranking internships with Cross-Encoder...")
+        print("Re-ranking internships with Hybrid Score (Vector + Cross-Encoder)...")
         pairs = [
             (
-                data.get("resumeSummary", ""),  
+                data.get("resumeSummary", ""),
                 f"{c.get('jobTitle', '')}. {c.get('jobRole', '')}. {c.get('jobTopic', '')}. {c.get('description', '')}"
             )
             for c in filtered_after_meta
         ]
-        scores = cross_encoder.predict(pairs)
-        for cand, score in zip(filtered_after_meta, scores):
-            cand["rerank_score"] = float(score)
+
+        cross_scores = np.array(cross_encoder.predict(pairs)).flatten()
+        vector_scores = np.array([c.get("score", 0) for c in filtered_after_meta])
+
+        alpha = 0.6  
+        hybrid_scores = alpha * vector_scores + (1 - alpha) * cross_scores
+
+        percentile_threshold = np.percentile(hybrid_scores, 60)  
+        filtered_after_meta = [
+            dict(c, rerank_score=float(hs))
+            for c, hs in zip(filtered_after_meta, hybrid_scores)
+            if hs >= percentile_threshold
+        ]
+
+        if not filtered_after_meta:
+            return jsonify([])
 
         filtered_after_meta.sort(key=lambda x: x["rerank_score"], reverse=True)
         top_results = filtered_after_meta[:10]
 
         for item in top_results:
             item["_id"] = str(item["_id"])
+            item.pop("location", None)
 
         return jsonify(top_results)
 
     except Exception as e:
-        return jsonify({"error": f"Cross-encoder re-ranking failed: {e}"}), 500
+        return jsonify({"error": f"Hybrid re-ranking failed: {e}"}), 500
+
+
+
+
+
+
 
 
 

@@ -15,11 +15,26 @@ const InternshipSchema = new mongoose.Schema(
     numOfQns: { type: Number, required: true },
     embedding: {
       type: [Number],
-      required: true,
-      index: "2dsphere"
+      required: true
+    },
+
+    locationName: { type: String, required: true, trim: true }, 
+
+    location: {
+      type: {
+        type: String,
+        enum: ['Point'],
+        required: true
+      },
+      coordinates: {
+        type: [Number], 
+        required: true
+      }
     }
   },
   { timestamps: true }
 );
+
+InternshipSchema.index({ location: "2dsphere" });
 
 export default mongoose.model("Internship", InternshipSchema, "new_internships_data");

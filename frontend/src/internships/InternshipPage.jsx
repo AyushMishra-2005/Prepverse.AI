@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext, useRef } from "react";
 import {
   DollarSign,
   Calendar,
@@ -106,6 +106,12 @@ const InternshipCard = ({ internship, isTopPick }) => {
             <Calendar size={14} className="mr-2 text-[#FF6900]" />
             <span>Apply by {internship.lastDate}</span>
           </div>
+          {internship.locationName && (
+            <div className="flex items-center">
+              <MapPin size={14} className="mr-2 text-[#FF6900]" />
+              <span>{internship.locationName}</span>
+            </div>
+          )}
         </div>
       </div>
 
@@ -160,20 +166,28 @@ const InternshipPage = () => {
   const { theme } = useContext(ThemeContext);
   const { internshipsData, setInternshipsData } = useInternships();
   const navigate = useNavigate();
+  const locationDropdownRef = useRef(null);
 
   const [filters, setFilters] = useState({
     type: [],
     jobType: [],
     duration: [],
-    stipend: []
+    stipend: [],
+    location: []
   });
 
   const [expandedSections, setExpandedSections] = useState({
     type: true,
     jobType: true,
     duration: true,
-    stipend: true
+    stipend: true,
+    location: true
   });
+
+
+  const [locationSearch, setLocationSearch] = useState("");
+  const [showLocationDropdown, setShowLocationDropdown] = useState(false);
+  const [filteredLocations, setFilteredLocations] = useState([]);
 
   const filterOptions = {
     type: ["Short Term", "Long Term", "Converting", "Summer", "Semester", "Research"],
@@ -213,6 +227,44 @@ const InternshipPage = () => {
     internshipDetails();
   }, []);
 
+  // Handle clicks outside the dropdown to close it
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (locationDropdownRef.current && !locationDropdownRef.current.contains(event.target)) {
+        setShowLocationDropdown(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  useEffect(() => {
+    const findLocations = async () => {
+      try {
+        const { data } = await axios.post(
+          `${server}/internships/get-locations`,
+          { location: locationSearch },
+          { withCredentials: true }
+        );
+
+        setFilteredLocations(data.locations);
+        setShowLocationDropdown(true);
+      } catch (err) {
+        console.log(err);
+      }
+    };
+
+    if (locationSearch.length > 1) {
+      findLocations();
+    } else {
+      setFilteredLocations([]);
+      setShowLocationDropdown(false);
+    }
+  }, [locationSearch]);
+
   const handleFilterChange = (category, value) => {
     setFilters(prev => {
       const newFilters = { ...prev };
@@ -225,12 +277,30 @@ const InternshipPage = () => {
     });
   };
 
+  const handleLocationSearch = (e) => {
+    setLocationSearch(e.target.value);
+  };
+
+  const selectLocation = (location) => {
+    setLocationSearch("");
+    setShowLocationDropdown(false);
+
+    if (!filters.location.includes(location)) {
+      setFilters(prev => ({
+        ...prev,
+        location: [...prev.location, location]
+      }));
+    }
+  };
+
   const clearAllFilters = () => {
+    console.log(filters);
     setFilters({
       type: [],
       jobType: [],
       duration: [],
-      stipend: []
+      stipend: [],
+      location: []
     });
     console.log("All filters cleared");
   };
@@ -246,38 +316,30 @@ const InternshipPage = () => {
   const otherInternships = filteredInternships.slice(3);
 
   const handleResuggest = async () => {
-    // setLoading(true);
-    // setTimeout(() => {
-    //   // Simulate fetching new relevant internships
-    //   setAllInternships([...allInternships].sort(() => Math.random() - 0.5));
-    //   setLoading(false);
-    //   setShowAll(false);
-    // }, 1000);
-    
-      setLoading(true);
-      try {
-        const { data } = await axios.post(
-          `${server}/internships/get-recomended-internships`,
-          { filters },
-          { withCredentials: true }
-        );
+    setLoading(true);
+    try {
+      const { data } = await axios.post(
+        `${server}/internships/get-recomended-internships`,
+        { filters },
+        { withCredentials: true }
+      );
 
-        if (!data.recommend_internships) {
-          toast.error("Please complete your profile to access Internships!");
-          return navigate("/profilePage");
-        }
-
-        const recommend_internships = data.recommend_internships;
-        setAllInternships(recommend_internships);
-        setFilteredInternships(recommend_internships);
-        setInternshipsData(recommend_internships);
-        setLoading(false);
-      } catch (err) {
-        console.log(err);
-        setLoading(false);
-      } finally {
-        setLoading(false);
+      if (!data.recommend_internships) {
+        toast.error("Please complete your profile to access Internships!");
+        return navigate("/profilePage");
       }
+
+      const recommend_internships = data.recommend_internships;
+      setAllInternships(recommend_internships);
+      setFilteredInternships(recommend_internships);
+      setInternshipsData(recommend_internships);
+      setLoading(false);
+    } catch (err) {
+      console.log(err);
+      setLoading(false);
+    } finally {
+      setLoading(false);
+    }
   };
 
   // Count active filters
@@ -449,6 +511,61 @@ const InternshipPage = () => {
                   </div>
                 ))}
               </FilterSection>
+
+              {/* Location Filter */}
+              <FilterSection
+                title="Location"
+                isOpen={expandedSections.location}
+                onToggle={() => toggleFilterSection("location")}
+                icon={MapPin}
+              >
+                <div className="relative mb-3" ref={locationDropdownRef}>
+                  <input
+                    type="text"
+                    placeholder="Search locations..."
+                    value={locationSearch}
+                    onChange={handleLocationSearch}
+                    className={`w-full px-3 py-2 text-sm rounded-md border 
+                      ${theme === "dark"
+                        ? "bg-[#2A2A2A] border-[#444444] text-white"
+                        : "bg-white border-[#EAEAEA] text-[#1A1A1A]"
+                      } focus:outline-none focus:ring-1 focus:ring-[#FF6900]`}
+                  />
+
+                  {showLocationDropdown && filteredLocations.length > 0 && (
+                    <div className={`absolute z-10 w-full mt-1 rounded-md shadow-lg 
+                      ${theme === "dark" ? "bg-[#2A2A2A] border border-[#444444]" : "bg-white border border-[#EAEAEA]"}
+                      max-h-60 overflow-auto`}>
+                      {filteredLocations.map((location, index) => (
+                        <div
+                          key={index}
+                          className={`px-4 py-2 text-sm cursor-pointer hover:bg-[#FF690010] 
+                            ${theme === "dark" ? "text-white" : "text-[#1A1A1A]"}`}
+                          onClick={() => selectLocation(location)}
+                        >
+                          {location}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Selected locations */}
+                {filters.location.map(location => (
+                  <div key={location} className="flex items-center mb-2">
+                    <input
+                      type="checkbox"
+                      id={`location-${location}`}
+                      checked={true}
+                      onChange={() => handleFilterChange("location", location)}
+                      className="mr-2 h-4 w-4 rounded border-gray-300 text-[#FF6900] focus:ring-[#FF6900]"
+                    />
+                    <label htmlFor={`location-${location}`} className="text-sm">
+                      {location}
+                    </label>
+                  </div>
+                ))}
+              </FilterSection>
             </div>
           )}
 
@@ -553,7 +670,7 @@ const InternshipPage = () => {
           </div>
         </div>
 
-        
+
       </main>
     </div>
   );
