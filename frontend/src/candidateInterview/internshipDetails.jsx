@@ -36,6 +36,7 @@ const InternshipDetails = () => {
     console.log("Number of questions are : "+ numOfQns);
     try {
       setOpenStepProgress(true);
+      console.log("Number of qns in frontend: "+numOfQns);
       const { data } = await axios.post(
         `${server}/profileInterview/profileBasedInterview`,
         {  topics, role, numberOfQns: numOfQns, interviewId},

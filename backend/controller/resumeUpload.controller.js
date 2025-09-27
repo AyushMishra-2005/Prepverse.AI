@@ -41,7 +41,6 @@ export const uploadResume = async (req, res) => {
 
     const resumeReview = resumeReview_data.data.summary;
 
-    console.log(resumeReview);
 
     const resume_embedding = await axios.post(
       "http://127.0.0.1:5000/embed_candidate",

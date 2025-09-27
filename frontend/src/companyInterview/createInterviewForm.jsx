@@ -20,7 +20,8 @@ function CreateInterviewForm() {
     jobType: "",
     lastDate: "",
     description: "",
-    numOfQns: 2
+    numOfQns: 2,
+    location: ""
   });
 
   const [topics, setTopics] = useState([""]);
@@ -54,13 +55,13 @@ function CreateInterviewForm() {
     if (!formData.jobTitle || !formData.jobRole || !formData.numOfQns || topics.length === 0) return;
 
     setIsLoading(true);
-    
+
     try {
       const topicsString = topics.join(", ");
-      
+
       await axios.post(
         `${server}/interview/create-companyInterview`,
-        { 
+        {
           ...formData,
           jobTopic: topicsString
         },
@@ -78,7 +79,8 @@ function CreateInterviewForm() {
         jobType: "",
         lastDate: "",
         description: "",
-        numOfQns: 2
+        numOfQns: 2,
+        location: "",
       });
       setTopics([""]);
       toast.success("Interview Created");
@@ -93,22 +95,19 @@ function CreateInterviewForm() {
 
   return (
     <div
-      className={`flex items-center justify-center px-4 py-8 ${
-        theme === "dark" ? "bg-black" : "bg-gray-50"
-      } min-h-[100vh] w-full`}
+      className={`flex items-center justify-center px-4 py-8 ${theme === "dark" ? "bg-black" : "bg-gray-50"
+        } min-h-[100vh] w-full`}
     >
       <form
         onSubmit={handleSubmit}
-        className={`relative max-w-4xl p-6 rounded-2xl shadow-lg w-full ${
-          theme === "dark"
+        className={`relative max-w-4xl p-6 rounded-2xl shadow-lg w-full ${theme === "dark"
             ? "bg-orange-100 border border-gray-700 text-gray-900"
             : "bg-orange-50 border border-gray-300 text-gray-900"
-        }`}
+          }`}
       >
         <h2
-          className={`text-2xl font-bold text-center mb-6 ${
-            theme === "dark" ? "text-[#ff6900]" : "text-[#ff6900]"
-          }`}
+          className={`text-2xl font-bold text-center mb-6 ${theme === "dark" ? "text-[#ff6900]" : "text-[#ff6900]"
+            }`}
         >
           Create Your Custom AI Interview
         </h2>
@@ -123,11 +122,10 @@ function CreateInterviewForm() {
               value={formData.jobTitle}
               onChange={handleInputChange}
               placeholder="e.g., Senior Frontend Developer"
-              className={`w-full px-3 py-2 rounded-lg border placeholder-gray-400 focus:outline-none focus:ring-2 ${
-                theme === "dark"
+              className={`w-full px-3 py-2 rounded-lg border placeholder-gray-400 focus:outline-none focus:ring-2 ${theme === "dark"
                   ? "bg-white border-gray-300 text-black focus:ring-[#ff6900]"
                   : "bg-white border-gray-300 text-black focus:ring-[#ff6900]"
-              }`}
+                }`}
               required
             />
           </div>
@@ -141,11 +139,10 @@ function CreateInterviewForm() {
               value={formData.jobRole}
               onChange={handleInputChange}
               placeholder="e.g., Frontend Developer"
-              className={`w-full px-3 py-2 rounded-lg border placeholder-gray-400 focus:outline-none focus:ring-2 ${
-                theme === "dark"
+              className={`w-full px-3 py-2 rounded-lg border placeholder-gray-400 focus:outline-none focus:ring-2 ${theme === "dark"
                   ? "bg-white border-gray-300 text-black focus:ring-[#ff6900]"
                   : "bg-white border-gray-300 text-black focus:ring-[#ff6900]"
-              }`}
+                }`}
               required
             />
           </div>
@@ -159,11 +156,10 @@ function CreateInterviewForm() {
               value={formData.company}
               onChange={handleInputChange}
               placeholder="Company name"
-              className={`w-full px-3 py-2 rounded-lg border placeholder-gray-400 focus:outline-none focus:ring-2 ${
-                theme === "dark"
+              className={`w-full px-3 py-2 rounded-lg border placeholder-gray-400 focus:outline-none focus:ring-2 ${theme === "dark"
                   ? "bg-white border-gray-300 text-black focus:ring-[#ff6900]"
                   : "bg-white border-gray-300 text-black focus:ring-[#ff6900]"
-              }`}
+                }`}
             />
           </div>
 
@@ -176,11 +172,10 @@ function CreateInterviewForm() {
               value={formData.duration}
               onChange={handleInputChange}
               placeholder="e.g., 3 months, Full-time"
-              className={`w-full px-3 py-2 rounded-lg border placeholder-gray-400 focus:outline-none focus:ring-2 ${
-                theme === "dark"
+              className={`w-full px-3 py-2 rounded-lg border placeholder-gray-400 focus:outline-none focus:ring-2 ${theme === "dark"
                   ? "bg-white border-gray-300 text-black focus:ring-[#ff6900]"
                   : "bg-white border-gray-300 text-black focus:ring-[#ff6900]"
-              }`}
+                }`}
             />
           </div>
 
@@ -191,11 +186,10 @@ function CreateInterviewForm() {
               name="type"
               value={formData.type}
               onChange={handleInputChange}
-              className={`w-full px-3 py-2 rounded-lg border focus:outline-none focus:ring-2 ${
-                theme === "dark"
+              className={`w-full px-3 py-2 rounded-lg border focus:outline-none focus:ring-2 ${theme === "dark"
                   ? "bg-white border-gray-300 text-black focus:ring-[#ff6900]"
                   : "bg-white border-gray-300 text-black focus:ring-[#ff6900]"
-              }`}
+                }`}
             >
               <option value="">Select type</option>
               <option value="Short Term">Short Term</option>
@@ -214,11 +208,10 @@ function CreateInterviewForm() {
               name="jobType"
               value={formData.jobType}
               onChange={handleInputChange}
-              className={`w-full px-3 py-2 rounded-lg border focus:outline-none focus:ring-2 ${
-                theme === "dark"
+              className={`w-full px-3 py-2 rounded-lg border focus:outline-none focus:ring-2 ${theme === "dark"
                   ? "bg-white border-gray-300 text-black focus:ring-[#ff6900]"
                   : "bg-white border-gray-300 text-black focus:ring-[#ff6900]"
-              }`}
+                }`}
             >
               <option value="">Select job type</option>
               <option value="Full Time">Full Time</option>
@@ -238,11 +231,10 @@ function CreateInterviewForm() {
               value={formData.stipend}
               onChange={handleInputChange}
               placeholder="e.g., $50,000 - $70,000"
-              className={`w-full px-3 py-2 rounded-lg border placeholder-gray-400 focus:outline-none focus:ring-2 ${
-                theme === "dark"
+              className={`w-full px-3 py-2 rounded-lg border placeholder-gray-400 focus:outline-none focus:ring-2 ${theme === "dark"
                   ? "bg-white border-gray-300 text-black focus:ring-[#ff6900]"
                   : "bg-white border-gray-300 text-black focus:ring-[#ff6900]"
-              }`}
+                }`}
             />
           </div>
 
@@ -254,32 +246,45 @@ function CreateInterviewForm() {
               name="lastDate"
               value={formData.lastDate}
               onChange={handleInputChange}
-              className={`w-full px-3 py-2 rounded-lg border focus:outline-none focus:ring-2 ${
-                theme === "dark"
+              className={`w-full px-3 py-2 rounded-lg border focus:outline-none focus:ring-2 ${theme === "dark"
                   ? "bg-white border-gray-300 text-black focus:ring-[#ff6900] [color-scheme:light]"
                   : "bg-white border-gray-300 text-black focus:ring-[#ff6900] [color-scheme:light]"
-              }`}
+                }`}
             />
           </div>
+        </div>
+
+        <div className="mb-2">
+          <label className="block mb-1 text-sm font-medium">Location</label>
+          <input
+            type="text"
+            name="location"
+            value={formData.location}
+            onChange={handleInputChange}
+            placeholder="e.g., Vijayawada, Andhra Pradesh, India"
+            className={`w-full px-3 py-2 rounded-lg border placeholder-gray-400 focus:outline-none focus:ring-2 ${theme === "dark"
+                ? "bg-white border-gray-300 text-black focus:ring-[#ff6900]"
+                : "bg-white border-gray-300 text-black focus:ring-[#ff6900]"
+              }`}
+          />
         </div>
 
         {/* Number of Questions */}
         <div className="mb-5">
           <label className="block mb-1 text-sm font-medium">Number of Questions</label>
-            <input
-              type="number"
-              name="numOfQns"
-              min={2}
-              max={25}
-              value={formData.numOfQns}
-              onChange={handleInputChange}
-              className={`w-full px-3 py-2 rounded-lg border placeholder-gray-400 focus:outline-none focus:ring-2 ${
-                theme === "dark"
-                  ? "bg-white border-gray-300 text-black focus:ring-[#ff6900]"
-                  : "bg-white border-gray-300 text-black focus:ring-[#ff6900]"
+          <input
+            type="number"
+            name="numOfQns"
+            min={2}
+            max={25}
+            value={formData.numOfQns}
+            onChange={handleInputChange}
+            className={`w-full px-3 py-2 rounded-lg border placeholder-gray-400 focus:outline-none focus:ring-2 ${theme === "dark"
+                ? "bg-white border-gray-300 text-black focus:ring-[#ff6900]"
+                : "bg-white border-gray-300 text-black focus:ring-[#ff6900]"
               }`}
-              required
-            />
+            required
+          />
         </div>
 
         {/* Description Input */}
@@ -291,13 +296,14 @@ function CreateInterviewForm() {
             onChange={handleInputChange}
             placeholder="Enter job description"
             rows="3"
-            className={`w-full px-3 py-2 rounded-lg border placeholder-gray-400 focus:outline-none focus:ring-2 ${
-              theme === "dark"
+            className={`w-full px-3 py-2 rounded-lg border placeholder-gray-400 focus:outline-none focus:ring-2 ${theme === "dark"
                 ? "bg-white border-gray-300 text-black focus:ring-[#ff6900]"
                 : "bg-white border-gray-300 text-black focus:ring-[#ff6900]"
-            }`}
+              }`}
           />
         </div>
+
+
 
         {/* Topics */}
         <div className="mb-6">
@@ -309,11 +315,10 @@ function CreateInterviewForm() {
                 value={topic}
                 onChange={(e) => handleTopicChange(index, e.target.value)}
                 placeholder={`Topic ${index + 1}`}
-                className={`w-full px-3 py-2 pr-10 rounded-lg border placeholder-gray-400 focus:outline-none focus:ring-2 ${
-                  theme === "dark"
+                className={`w-full px-3 py-2 pr-10 rounded-lg border placeholder-gray-400 focus:outline-none focus:ring-2 ${theme === "dark"
                     ? "bg-white border-gray-300 text-black focus:ring-[#ff6900]"
                     : "bg-white border-gray-300 text-black focus:ring-[#ff6900]"
-                }`}
+                  }`}
                 required
               />
               {index !== 0 && (
@@ -330,11 +335,10 @@ function CreateInterviewForm() {
           <button
             type="button"
             onClick={handleAddTopic}
-            className={`text-sm mt-2 px-3 py-1 rounded-md border transition ${
-              theme === "dark"
+            className={`text-sm mt-2 px-3 py-1 rounded-md border transition ${theme === "dark"
                 ? "border-[#ff6900] text-[#ff6900] hover:bg-[#ff6900]/20"
                 : "border-[#ff6900] text-[#ff6900] hover:bg-[#ff6900]/20"
-            }`}
+              }`}
           >
             + Add New Topic
           </button>
@@ -344,13 +348,12 @@ function CreateInterviewForm() {
         <button
           type="submit"
           disabled={isLoading}
-          className={`w-full py-2.5 rounded-lg font-semibold transition duration-200 flex items-center justify-center ${
-            isLoading 
-              ? "bg-gray-400 cursor-not-allowed" 
+          className={`w-full py-2.5 rounded-lg font-semibold transition duration-200 flex items-center justify-center ${isLoading
+              ? "bg-gray-400 cursor-not-allowed"
               : theme === "dark"
                 ? "bg-[#ff6900] text-white hover:bg-[#ff7f33]"
                 : "bg-[#ff6900] text-white hover:bg-[#ff7f33]"
-          }`}
+            }`}
         >
           {isLoading ? (
             <>

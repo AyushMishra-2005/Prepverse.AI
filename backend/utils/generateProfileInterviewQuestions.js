@@ -64,9 +64,9 @@ Now generate the questions.
       format: "json"
     });
 
-    const rawOutput = response.data.response;
+    console.log("questions from llm: "+numberOfQns);
 
-    console.log(rawOutput);
+    const rawOutput = response.data.response;
 
     try {
       const parsed = JSON.parse(rawOutput);

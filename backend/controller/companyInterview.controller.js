@@ -10,10 +10,11 @@ import InterviewData from "../models/interview.model.js";
 import { evaluateResult } from "../utils/evaluateResult.js";
 import Internship from "../models/internships.model.js";
 import { getTransporter } from '../config/nodemailer.config.js';
-import {sendTemplateMessage, sendTextMessage} from '../utils/sendWhatsappMessage.js'
+import { sendTemplateMessage, sendTextMessage } from '../utils/sendWhatsappMessage.js'
 
 
 const transporter = getTransporter();
+const GEOAPIFY_KEY = process.env.GEOAPIFY_KEY;
 
 export const createCompanyInterview = async (req, res) => {
   const userId = req.user._id;
@@ -29,6 +30,7 @@ export const createCompanyInterview = async (req, res) => {
     lastDate,
     description,
     numOfQns,
+    location
   } = req.body;
 
   const requiredFields = {
@@ -43,6 +45,7 @@ export const createCompanyInterview = async (req, res) => {
     lastDate,
     description,
     numOfQns,
+    location
   };
 
   const missingFields = Object.entries(requiredFields)
@@ -58,6 +61,23 @@ export const createCompanyInterview = async (req, res) => {
   try {
     const role = jobRole;
     const topics = jobTopic.split(",").map(t => t.trim());
+
+    const url = `https://api.geoapify.com/v1/geocode/search?text=${encodeURIComponent(location)}&apiKey=${GEOAPIFY_KEY}`;
+
+    const geoResponse = await axios.get(url);
+    const locationData = geoResponse.data;
+    let lat;
+    let lon;
+
+    if (locationData.features && locationData.features.length > 0) {
+      const propertiesObject = locationData.features[0].properties;
+      lat = propertiesObject.lat;
+      lon = propertiesObject.lon;
+    } else {
+      console.log("No coordinates found for", location);
+      return res.status(500).json({ message: "No coordinates found for!" }); 
+    }
+
     const { valid } = await validateRoleAndTopic({ role, topics });
 
     if (!valid) {
@@ -82,6 +102,11 @@ export const createCompanyInterview = async (req, res) => {
       description,
       numOfQns,
       embedding: data.embedding,
+      locationName: location,
+      location: {
+        type: 'Point',
+        coordinates: [lon, lat]
+      },
     });
     await newData.save();
 
@@ -117,6 +142,7 @@ export const createCompanyInterview = async (req, res) => {
             <p><strong>Duration:</strong> ${duration}</p>
             <p><strong>Company:</strong> <span style="color: #2980b9; font-weight: bold;">${company}</span></p>
             <p><strong>Stipend:</strong> ${stipend}</p>
+            <p><strong>Location:</strong> ${location}</p>
           </div>
           
           <p style="margin-top: 20px;">
@@ -141,9 +167,9 @@ export const createCompanyInterview = async (req, res) => {
 
       await transporter.sendMail(mailOptions);
 
-      if(user.mobileNumber){
+      if (user.mobileNumber) {
         await sendTextMessage({
-          to: user.mobileNumber, 
+          to: user.mobileNumber,
           name: user.name,
           jobTitle,
           jobRole,

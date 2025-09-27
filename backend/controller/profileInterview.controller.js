@@ -47,7 +47,6 @@ export const checkRoleValidity = async (req, res) => {
 
     const { valid } = await validateRoleAndTopic({ role, topics });
     io.to(userSocketId).emit("validateRoleAndTopic", { valid });
-    console.log(valid);
 
     if (!valid) {
       deleteFile(filePath);
@@ -88,8 +87,6 @@ export const checkRoleValidity = async (req, res) => {
         Array.isArray(topics) ? topics : topics.split(","),
         parseInt(numberOfQns) || 5
       );
-
-      console.log(questions)
 
       if (questions) {
         const newData = new InterviewData({
@@ -135,8 +132,7 @@ export const checkRoleValidity = async (req, res) => {
 export const profileBasedInterview = async (req, res) => {
   let { role, topics, numberOfQns, interviewId } = req.body;
   const participant = req.user._id;
-
-  console.log(numberOfQns);
+  console.log("Number of questions in profileBasedInterview: "+numberOfQns);
 
   if (typeof topics === "string") {
     topics = [topics];
@@ -175,11 +171,8 @@ export const profileBasedInterview = async (req, res) => {
 
     const { valid } = await validateRoleAndTopic({ role, topics });
     io.to(userSocketId).emit("validateRoleAndTopic", { valid });
-    console.log(valid);
 
     const data = await ResumeData.findOne({ userId: participant });
-
-    console.log(data.resumeJSONdata);
 
     if (!data.resumeJSONdata) {
       return res.status(501).json({ message: "Resume Data not found!" });
@@ -199,8 +192,6 @@ export const profileBasedInterview = async (req, res) => {
     const totalScore = response.data.evaluation.total_score;
     const summaryFeedback = response.data.evaluation.summary_feedback;
 
-    console.log({ summaryFeedback, totalScore });
-
     if (response.data.evaluation.total_score < 30) {
       io.to(userSocketId).emit("resumeScore", { totalScore, summaryFeedback });
       return res.status(501).json({ message: "Resume doesn't fit for the Role" });
@@ -215,7 +206,9 @@ export const profileBasedInterview = async (req, res) => {
       parseInt(numberOfQns) || 5
     );
 
-    console.log(questions)
+    console.log("profileBasedInterviewQuestions: ");
+    console.log(questions);
+
 
     if (questions) {
       const newData = new InterviewData({

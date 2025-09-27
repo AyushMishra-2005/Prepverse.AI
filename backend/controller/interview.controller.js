@@ -336,8 +336,6 @@ export const checkRoleAndTopic = async (req, res) => {
 
         questions = questions.slice(0, numOfQns);
 
-        console.log(questions);
-
         const newData = new InterviewData({
           participant,
           questions,

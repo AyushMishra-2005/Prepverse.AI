@@ -49,7 +49,7 @@ export function AttandantPage() {
         <InterviewFeedback 
           data={active.fullData} 
           onBack={() => setShowFeedback(false)}
-          theme={theme} // Pass theme to InterviewFeedback
+          theme={theme} 
         />
       ) : (
         <div className={`min-h-screen w-screen overflow-x-hidden ${

@@ -123,8 +123,8 @@ def recommend():
                 "index": "vector_index",
                 "path": "embedding",
                 "queryVector": user_vector,
-                "numCandidates": 1000,
-                "limit": 200
+                "numCandidates": 500,
+                "limit": 100
             }
         }
     ]
