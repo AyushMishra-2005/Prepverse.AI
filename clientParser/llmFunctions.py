@@ -135,9 +135,9 @@ def evaluate_resume(resume_json, job_title, topics):
     ### SCORING SCALE:
 
     - **100**: Candidate used all topics across multiple real-world projects and roles. E.g., built full-stack apps with React + Node + MongoDB and deployed them.
-    - **70–90**: Candidate used most topics with hands-on depth. E.g., 2 projects using React, Firebase, and Express.js but lacking deployment or team-based complexity.
-    - **40–60**: Candidate has surface-level or academic experience. E.g., mentions Django in one small academic project without deep explanation.
-    - **10–30**: Topics only appear in skills section or are vaguely used (e.g., just listing Python or Java).
+    - **70-90**: Candidate used most topics with hands-on depth. E.g., 2 projects using React, Firebase, and Express.js but lacking deployment or team-based complexity.
+    - **40-60**: Candidate has surface-level or academic experience. E.g., mentions Django in one small academic project without deep explanation.
+    - **10-30**: Topics only appear in skills section or are vaguely used (e.g., just listing Python or Java).
     - **0**: No mention or usage of any required topics.
 
     ---
