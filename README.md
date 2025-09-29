@@ -58,12 +58,18 @@ npm run dev
 ### ML Engine
 ```bash
 cd ml_engine
+python -m venv myenv
+myenv\Scripts\activate
+pip install -r requirements.txt
 python app.py
 ```
 
 ### Client Parser
 ```bash
 cd clientParser
+python -m venv myenv
+myenv\Scripts\activate
+pip install -r requirements.txt
 python app.py
 ```
 
