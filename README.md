@@ -10,6 +10,7 @@
 
 ## Table of Contents
 
+- [Pulling the Repository](#pulling-the-repository)
 - [Features](#features)
 - [Prerequisites](#prerequisites)
 - [Installation](#installation)
@@ -17,6 +18,22 @@
 - [Environment Variables](#environment-variables)
 - [Contributing](#contributing)
 - [Repository](#repository)
+
+---
+
+## Pulling the Repository
+
+First, clone the repository from GitHub:
+
+```bash
+git clone https://github.com/PrepverseOrganization/Prepverse.AI.git
+```
+
+Then move into the project folder:
+
+```bash
+cd Prepverse.AI
+```
 
 ---
 
@@ -36,6 +53,8 @@
 - MongoDB  
 - npm or yarn  
 - llama3.1:8b
+- Alibaba-NLP/gte-large-en-v1.5
+- cross-encoder/ms-marco-electra-base
 
 ---
 
