@@ -30,6 +30,7 @@ const userSchema = new Schema(
     },
     mobileNumber: {
       type: String,
+      default: "",
     }
   },
   {

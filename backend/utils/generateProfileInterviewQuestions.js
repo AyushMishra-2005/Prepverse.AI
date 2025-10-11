@@ -30,11 +30,12 @@ Return a valid JSON object in this exact format:
 
 {
   "questions": [
-    { "question": "How did you design your database schema for the inventory system, and what performance issues did you run into?", "time": 48 },
-    { "question": "What was your strategy for debugging and optimizing the authentication module in your mobile app project?", "time": 52 },
-    { "question": "How would you approach load testing for a backend API built with Node.js and Express?", "time": 60 }
+    { "question": "First unique question?", "time": 30 },
+    { "question": "Second unique question?", "time": 50 }
+    // ...${numOfQns} total
   ]
 }
+
 
 - The "time" must be a **number only** (integer), representing the **estimated number of seconds** it would take to answer the question orally.
 - Do not include the word "seconds" or any extra text.
