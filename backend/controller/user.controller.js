@@ -89,7 +89,6 @@ export const signup = async (req, res) => {
           email: newUser.email,
           username: newUser.username,
           profilePicURL: newUser.profilePicURL,
-          mobileNumber: user.mobileNumber
         }
       });
     }
