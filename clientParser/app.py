@@ -3,7 +3,6 @@ import fitz
 import tempfile
 import os
 import requests
-from llmFunctions import evaluate_resume
 import asyncio
 import edge_tts
 from flask_cors import CORS
@@ -37,18 +36,6 @@ def parse_resume():
 
   except Exception as e:
     return jsonify({"message": str(e)}), 500
-  
-  
-@app.route("/evaluate-resume", methods=["POST"])
-def evaluate_resume_endpoint():
-    data = request.json
-    resume_json = data.get("resume_data")
-    job_title = data.get("job_title")
-    topics = data.get("topics") 
-
-    result = evaluate_resume(resume_json, job_title, topics)
-    return jsonify({"evaluation": result})
-
 
 
 @app.route("/speak", methods=["POST"])

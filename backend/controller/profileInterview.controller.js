@@ -7,6 +7,9 @@ import { generateInterviewQuestions } from '../utils/generateProfileInterviewQue
 import InterviewData from '../models/interview.model.js';
 import { io, getUserSocketId } from '../SocketIO/server.js'
 import ResumeData from '../models/resumeData.model.js';
+import { evaluateResume } from '../utils/evaluateResume.js'
+import { parseResumeWithLLM } from '../utils/resumeParser.js'
+
 
 
 export const checkRoleValidity = async (req, res) => {
@@ -54,27 +57,29 @@ export const checkRoleValidity = async (req, res) => {
     }
 
     const flaskUrl = "http://127.0.0.1:3000/parse-resume";
-
     const { data } = await axios.post(flaskUrl, form, {
       headers: form.getHeaders(),
     });
 
-    if (data.resume_data) {
+    if (!data.resume_text) {
+      deleteFile(filePath);
+      return res.status(400).json({ message: "Parsing Resume Failed!" });
+    }
+
+    const resume_data = await parseResumeWithLLM(data.resume_text);
+
+    if (resume_data) {
 
       io.to(userSocketId).emit("resumeParsed");
 
-      const resume_data = data.resume_data;
       const job_title = role;
 
-      const response = await axios.post(
-        'http://127.0.0.1:3000/evaluate-resume',
-        { resume_data, job_title, topics }
-      );
+      const evaluation = await evaluateResume(resume_data, job_title, topics);
 
-      const totalScore = response.data.evaluation.total_score;
-      const summaryFeedback = response.data.evaluation.summary_feedback;
+      const totalScore = evaluation.total_score;
+      const summaryFeedback = evaluation.summary_feedback;
 
-      if (response.data.evaluation.total_score < 30) {
+      if (totalScore < 30) {
         io.to(userSocketId).emit("resumeScore", { totalScore, summaryFeedback });
         return res.status(501).json({ message: "Resume doesn't fit for the Role" });
       }
@@ -82,7 +87,7 @@ export const checkRoleValidity = async (req, res) => {
       io.to(userSocketId).emit("resumeScore", { totalScore, summaryFeedback });
 
       const questions = await generateInterviewQuestions(
-        data.resume_data,
+        resume_data,
         role,
         Array.isArray(topics) ? topics : topics.split(","),
         parseInt(numberOfQns) || 3
@@ -108,7 +113,7 @@ export const checkRoleValidity = async (req, res) => {
 
       deleteFile(filePath);
       return res.status(200).json({
-        resume_data: data.resume_data,
+        resume_data: resume_data,
         questions,
         message: "Resume Parsing successful"
       });
@@ -118,12 +123,12 @@ export const checkRoleValidity = async (req, res) => {
       return res.status(500).json({ message: "Resume parsing failed." });
     }
 
-
-
   } catch (err) {
     console.log(err);
     deleteFile(filePath);
     return res.status(501).json({ message: "server error" });
+  } finally {
+    deleteFile(filePath);
   }
 }
 
@@ -183,13 +188,10 @@ export const profileBasedInterview = async (req, res) => {
     const resume_data = data.resumeJSONdata;
     const job_title = role;
 
-    const response = await axios.post(
-      'http://127.0.0.1:3000/evaluate-resume',
-      { resume_data, job_title, topics }
-    );
+    const evaluation = await evaluateResume(resume_data, job_title, topics);
 
-    const totalScore = response.data.evaluation.total_score;
-    const summaryFeedback = response.data.evaluation.summary_feedback;
+    const totalScore = evaluation.total_score;
+    const summaryFeedback = evaluation.summary_feedback;
 
     if (response.data.evaluation.total_score < 30) {
       io.to(userSocketId).emit("resumeScore", { totalScore, summaryFeedback });
