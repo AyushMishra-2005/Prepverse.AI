@@ -36,7 +36,7 @@ def parse_resume():
     
     parsed_resume_data = parse_resume_with_llm(resume_text)
     
-    return jsonify({"resume_data" : parsed_resume_data})
+    return jsonify({"resume_data": parsed_resume_data})
   except Exception as e:
     return jsonify({"message" : str(e)}), 500
   

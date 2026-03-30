@@ -1,110 +1,130 @@
 import requests
 import json
+import os
+from dotenv import load_dotenv
+from groq import Groq
+import re
+
+load_dotenv()
+
+client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
 def parse_resume_with_llm(text):
+
   prompt = f"""
-You are an intelligent and structured JSON resume parser.
+    You are an intelligent and structured JSON resume parser.
 
-Your task is to read the raw text of a candidate's resume and extract **only the professional, academic, and domain-relevant information**.  
-Ignore personal details such as name, email, phone, or address.
+    Your task is to read the raw text of a candidate's resume and extract only the professional, academic, and domain-relevant information.
+    Ignore personal details such as name, email, phone, or address.
 
-### General Rules:
-- Output must be a valid JSON object.
-- Do **not** include explanations, comments, or extra text.
-- If a section is missing, return an empty list or empty string for its fields.
-- Always preserve the schema structure exactly as given below.
-- Capture **hands-on skills and applications** from experience/projects separately from general skills.
-- The `skills` field must be grouped by category, where each category has a `name` and a list of `items`.
-- Be flexible across domains (e.g., software, science, arts, finance, law, teaching, medicine).
+    ### General Rules:
+    - Output must be a valid JSON object.
+    - Do not include explanations or extra text.
+    - If a section is missing, return an empty list or empty string.
+    - Always preserve the schema structure exactly as given.
 
-### Schema to Extract:
+    ### Schema to Extract:
 
-{{
-  "skills": [
     {{
-      "name": "",
-      "items": []
+    "skills": [
+      {{
+        "name": "",
+        "items": []
+      }}
+    ],
+    "experience": [
+      {{
+        "organization": "",
+        "role": "",
+        "duration": "",
+        "skills_used": [],
+        "responsibilities": []
+      }}
+    ],
+    "projects": [
+      {{
+        "name": "",
+        "role": "",
+        "description": "",
+        "skills_used": [],
+        "link": ""
+      }}
+    ],
+    "certifications": [
+      {{
+        "title": "",
+        "issuing_organization": "",
+        "issue_date": "",
+        "certificate_link": ""
+      }}
+    ],
+    "publications": [
+      {{
+        "title": "",
+        "journal_or_publisher": "",
+        "publication_date": "",
+        "link": ""
+      }}
+    ],
+    "contributions": [
+      {{
+        "project_or_activity": "",
+        "description": "",
+        "skills_used": [],
+        "contribution_link": ""
+      }}
+    ],
+    "education": [
+      {{
+        "degree": "",
+        "field_of_study": "",
+        "institution": "",
+        "graduation_year": ""
+      }}
+    ]
     }}
-  ],
-  "experience": [
-    {{
-      "organization": "",
-      "role": "",
-      "duration": "",
-      "skills_used": [],
-      "responsibilities": []
-    }}
-  ],
-  "projects": [
-    {{
-      "name": "",
-      "role": "",
-      "description": "",
-      "skills_used": [],
-      "link": ""
-    }}
-  ],
-  "certifications": [
-    {{
-      "title": "",
-      "issuing_organization": "",
-      "issue_date": "",
-      "certificate_link": ""
-    }}
-  ],
-  "publications": [
-    {{
-      "title": "",
-      "journal_or_publisher": "",
-      "publication_date": "",
-      "link": ""
-    }}
-  ],
-  "contributions": [
-    {{
-      "project_or_activity": "",
-      "description": "",
-      "skills_used": [],
-      "contribution_link": ""
-    }}
-  ],
-  "education": [
-    {{
-      "degree": "",
-      "field_of_study": "",
-      "institution": "",
-      "graduation_year": ""
-    }}
-  ]
-}}
 
-Here is the resume content:
-\"\"\" 
-{text} 
-\"\"\"
+    Here is the resume content:
+    \"\"\"
+    {text}
+    \"\"\"
 
-Respond ONLY with the final JSON object.
-"""
+    Respond ONLY with the final JSON object.
+    """
 
+  try:
 
-  response = requests.post("http://localhost:11434/api/generate", json={
-    "model": "llama3.1:8b",
-    "prompt": prompt,
-    "stream": False,
-    "temperature": 0.2,         
-    "format": "json"           
-  })
+    completion = client.chat.completions.create(
+      model="llama-3.1-8b-instant",
+      messages=[
+        {
+          "role": "user",
+          "content": prompt
+        }
+      ],
+      temperature=0.2
+    )
 
+    raw_output = completion.choices[0].message.content.strip()
+    raw_output = raw_output.replace("```json", "").replace("```", "").strip()
+    json_match = re.search(r"\{[\s\S]*\}", raw_output)
 
-  resp_json = response.json()
-  if "response" not in resp_json:
-    raise ValueError(f"Missing 'response' in Ollama output: {resp_json}")
-  return resp_json["response"].strip()
+    if json_match:
+      parsed_json = json.loads(json_match.group())
+      return parsed_json
+    else:
+      raise ValueError("No valid JSON found in LLM response")
+
+  except Exception as e:
+      print("Groq API error:", e)
+      return {"error": "Groq API failed", "details": str(e)}
+
 
 def evaluate_resume(resume_json, job_title, topics):
-    topics_str = ", ".join(topics)
 
-    prompt = f"""
+  topics_str = ", ".join(topics)
+
+  prompt = f"""
     You are a highly strict and technical hiring evaluator.
 
     You are provided with:
@@ -112,135 +132,122 @@ def evaluate_resume(resume_json, job_title, topics):
     - A list of required technologies or topics
     - A parsed resume in structured JSON format
 
-    Your task is to **rigorously assess** how well the candidate's resume aligns with the job requirements, based **only** on the required topics and job title.
-
-    ---
+    Your task is to rigorously assess how well the candidate's resume aligns with the job requirements.
 
     ### SCORING INSTRUCTIONS (STRICT MODE):
 
-    You must assign a score **out of 10**, based **strictly** on the candidate's **hands-on experience** and **project usage** of the listed topics. Ignore unrelated content.
+    You must assign a score out of 100 based strictly on the candidate's hands-on experience with the listed topics.
 
-      - Award points **only** when:
-      - The topic is **explicitly mentioned** in projects, job roles, or experience **AND**
-      - The candidate demonstrates **actual usage**, implementation, or problem-solving with that topic
+    Award points only when:
+    - The topic is explicitly mentioned in projects or experience
+    - The candidate demonstrates actual implementation
 
-      - Do **not** give points for:
-      - Topics listed under "skills" or "technologies" without context
-      - Vague or buzzword mentions without concrete examples
-      - Academic mentions without hands-on application
-      - General-purpose tools (e.g. Python, Java) unless directly applied to a required topic
-
-    ---
+    Do not give points for:
+    - Skills lists without context
+    - Buzzword mentions
+    - Academic mentions without implementation
 
     ### SCORING SCALE:
 
-    - **100**: Candidate used all topics across multiple real-world projects and roles. E.g., built full-stack apps with React + Node + MongoDB and deployed them.
-    - **70-90**: Candidate used most topics with hands-on depth. E.g., 2 projects using React, Firebase, and Express.js but lacking deployment or team-based complexity.
-    - **40-60**: Candidate has surface-level or academic experience. E.g., mentions Django in one small academic project without deep explanation.
-    - **10-30**: Topics only appear in skills section or are vaguely used (e.g., just listing Python or Java).
-    - **0**: No mention or usage of any required topics.
-
-    ---
+    - 100: Used all topics across real-world projects
+    - 70-90: Used most topics with depth
+    - 40-60: Surface-level or academic experience
+    - 10-30: Topics vaguely listed
+    - 0: No mention
 
     ### OUTPUT FORMAT:
-    Respond with only the raw JSON object.
-    Do not include any markdown formatting or explanation.
-    No ```json block.
+    Respond with only raw JSON.
 
     {{
-      "resumeScore" : {{
+      "resumeScore": {{
         "total_score": <integer from 0 to 100>,
-        "summary_feedback": "<3–4 sentence explanation justifying the score. Use specific project/experience references from the resume. Be concise and critical — do not praise irrelevant content.>"
+        "summary_feedback": "<3-4 sentence explanation>"
       }}
     }}
 
-    ---
+    ### INPUTS
 
-    ### INPUTS:
-
-    Job Title: "{job_title}"  
+    Job Title: "{job_title}"
     Required Topics: [{topics_str}]
 
     Candidate Resume:
     {json.dumps(resume_json, indent=2)}
     """
 
+  try:
+    completion = client.chat.completions.create(
+      model="llama-3.1-8b-instant",
+      messages=[
+        {
+          "role": "user",
+          "content": prompt
+        }
+      ],
+      temperature=0.5
+    )
 
+    raw_output = completion.choices[0].message.content.strip()
 
-    response = requests.post("http://localhost:11434/api/generate", json={
-      "model": "llama3.1:8b",
-      "prompt": prompt,
-      "stream": False,
-      "temperature": 0.5,
-      "format": "json"
-    })
+    parsed_output = json.loads(raw_output)
 
-    resp_json = response.json()
-    if "response" not in resp_json:
-      raise ValueError(f"Missing 'response' in Ollama output: {resp_json}")
-    raw_output = resp_json["response"].strip()
+    return parsed_output.get(
+      "resumeScore",
+      {"error": "Missing resumeScore key", "raw": parsed_output}
+    )
 
-    try:
-      parsed_output = json.loads(raw_output)
-      return parsed_output.get("resumeScore", {"error": "Missing resumeScore key", "raw": parsed_output})
-    except json.JSONDecodeError as e:
-      print("Failed to parse LLM response:", e)
-      return {"error": "Invalid JSON from LLM", "raw": raw_output}
+  except json.JSONDecodeError as e:
+    print("Failed to parse LLM response:", e)
+    return {"error": "Invalid JSON from LLM", "raw": raw_output}
+
+  except Exception as e:
+    print("Groq API error:", e)
+    return {"error": "Groq API failed", "details": str(e)}
     
+
+
 def generate_user_summary(user_data: dict) -> str:
   """
-  Generates a professional summary of a user's profile using a local LLM via Ollama.
-
-  Args:
-      user_data: A dictionary containing the user's profile information.
-
-  Returns:
-      A string containing the generated summary, or an error message.
+  Generates a professional summary of a user's profile using Groq API.
   """
+
   user_data_str = json.dumps(user_data, indent=2)
 
   prompt = f"""
-  You are an expert system that generates a structured, factual professional summary for internship recommendation purposes.
+    You are an expert system that generates a structured, factual professional summary for internship recommendation purposes.
 
-  Instructions:
-  1. Analyze the provided JSON profile of a candidate.
-  2. Extract all relevant factual information: education, programming languages, frameworks/libraries, databases, tools, project experience, technical stacks, and transferable strengths (problem-solving, research, leadership, teamwork, design, communication).
-  3. Do NOT include subjective praise, filler text, bullet points, headings, or any special symbols other than periods and commas.
-  4. Write a concise, structured summary of 3–4 sentences with only factual data suitable for machine learning-based internship recommendation.
-  5. Explicitly mention project names, technologies, and skills used in projects.
-  6. At the end of the summary, list all relevant domains/tech stacks based on the candidate's experience and skills, including both technical domains (e.g., Web Development, Data Science, Machine Learning, Generative AI) and non-technical domains (e.g., Leadership, Teamwork, Research, Communication, Design), separated by commas.
+    Instructions:
+    1. Analyze the provided JSON profile of a candidate.
+    2. Extract all relevant factual information: education, programming languages, frameworks/libraries, databases, tools, project experience, technical stacks, and transferable strengths (problem-solving, research, leadership, teamwork, design, communication).
+    3. Do NOT include subjective praise, filler text, bullet points, headings, or any special symbols other than periods and commas.
+    4. Write a concise, structured summary of 3–4 sentences with only factual data suitable for machine learning-based internship recommendation.
+    5. Explicitly mention project names, technologies, and skills used in projects.
+    6. At the end of the summary, list all relevant domains/tech stacks based on the candidate's experience and skills, including both technical domains (e.g., Web Development, Data Science, Machine Learning, Generative AI) and non-technical domains (e.g., Leadership, Teamwork, Research, Communication, Design), separated by commas.
 
-  Candidate JSON Profile:
-  {user_data_str}
+    Candidate JSON Profile:
+    {user_data_str}
 
-  Structured Factual Summary:
-  """
-
-
-
-  payload = {
-    "model": "llama3.1:8b",
-    "prompt": prompt,
-    "stream": False,
-    "options": {
-      "temperature": 0.5
-    }
-  }
+    Structured Factual Summary:
+    """
 
   try:
-    print("Sending request to Ollama...")
-    response = requests.post("http://localhost:11434/api/generate", json=payload, timeout=60) 
-    response.raise_for_status()
-    
-    response_data = response.json()
-    summary = response_data.get("response", "").strip()
-    
+
+    completion = client.chat.completions.create(
+      model="llama-3.1-8b-instant",
+      messages=[
+        {
+          "role": "user",
+          "content": prompt
+        }
+      ],
+      temperature=0.5
+    )
+
+    summary = completion.choices[0].message.content.strip()
+
     if not summary:
       return "Error: Received an empty summary from the model."
-        
+
     return summary
 
-  except requests.exceptions.RequestException as e:
-    return f"Error: Could not connect to Ollama"
   except Exception as e:
-    return f"Error: An unexpected error occurred. Details: {e}"
+    return f"Error: Groq API request failed. Details: {e}"
