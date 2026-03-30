@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import useConversation from "../stateManage/useConversation";
+import axios from 'axios';
 
 function TextToVoice({ onStart, onEnd, setStopSpeakingCallback }) {
   const { assistantContent } = useConversation();
@@ -11,15 +12,16 @@ function TextToVoice({ onStart, onEnd, setStopSpeakingCallback }) {
     try {
       onStart?.();
 
-      const response = await fetch("http://localhost:3000/speak", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text: assistantContent }),
-      });
+      const response = await axios.post(
+        "http://localhost:3000/speak",
+        { text: assistantContent },
+        {
+          headers: { "Content-Type": "application/json" },
+          responseType: "blob",
+        },
+      );
 
-      if (!response.ok) throw new Error("Failed to fetch voice");
-
-      const blob = await response.blob();
+      const blob = response.data;
       const audioUrl = URL.createObjectURL(blob);
       const audio = new Audio(audioUrl);
       audioRef.current = audio;
@@ -57,3 +59,12 @@ function TextToVoice({ onStart, onEnd, setStopSpeakingCallback }) {
 }
 
 export default TextToVoice;
+
+
+
+
+
+
+
+
+
