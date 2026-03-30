@@ -11,7 +11,7 @@ export const createResume = async (req, res) => {
   if (!email || !resumeTitle || !fullName) {
     return res.status(501).json({ message: "Invalid Data" });
   }
-
+  
   try {
 
     const newResumeDetails = new ResumeDetails({

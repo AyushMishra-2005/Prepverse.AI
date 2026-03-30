@@ -4,6 +4,8 @@ import FormData from "form-data";
 import { deleteFile } from "../utils/deleteFile.js";
 import ResumeData from "../models/resumeData.model.js";
 import { v2 as cloudinary } from 'cloudinary';
+import { parseResumeWithLLM } from '../utils/resumeParser.js'
+import { generateResumeSummary } from '../utils/generateResumeSummary.js'
 
 export const uploadResume = async (req, res) => {
   if (!req.file) {
@@ -22,33 +24,28 @@ export const uploadResume = async (req, res) => {
       headers: flaskForm.getHeaders(),
     });
 
-    if (!data.resume_data) {
+    if (!data.resume_text) {
       deleteFile(filePath);
       return res.status(400).json({ message: "Parsing Resume Failed!" });
     }
 
-    const resume_data = data.resume_data;
+    const resume_data = await parseResumeWithLLM(data.resume_text);
 
-    const resumeReview_data = await axios.post(
-      "http://127.0.0.1:3000/summarize",
-      {resume_data},
-    );
+    const resumeReview = await generateResumeSummary(resume_data);
 
-    if(!resumeReview_data.data){
+    if (!resumeReview) {
       deleteFile(filePath);
-      return res.status(400).json({ message: "Parsing Resume Failed!" });
+      return res.status(400).json({ message: "Resume summary generation failed!" });
     }
-
-    const resumeReview = resumeReview_data.data.summary;
 
 
     const resume_embedding = await axios.post(
       "http://127.0.0.1:5000/embed_candidate",
-      {summary : resumeReview},
+      { summary: resumeReview },
     );
 
-    if(!resume_embedding.data.embedding){
-      return res.status(501).json({message: "resume embedding failed"});
+    if (!resume_embedding.data.embedding) {
+      return res.status(501).json({ message: "resume embedding failed" });
     }
 
     const embedding = resume_embedding.data.embedding;
@@ -73,7 +70,7 @@ export const uploadResume = async (req, res) => {
     cloudForm.append("access_mode", "public");
     cloudForm.append("upload_preset", "ml_default");
     cloudForm.append("signature", signature);
-    cloudForm.append("resource_type", "auto"); 
+    cloudForm.append("resource_type", "auto");
 
 
     const cloudinaryUrl = `https://api.cloudinary.com/v1_1/${process.env.CLOUDINARY_CLOUD_NAME}/auto/upload`;
@@ -104,6 +101,8 @@ export const uploadResume = async (req, res) => {
     console.error("Error in uploadResume:", err.response?.data || err.message);
     deleteFile(filePath);
     return res.status(400).json({ message: "Server Error" });
+  } finally {
+    deleteFile(filePath);
   }
 };
 
@@ -112,16 +111,16 @@ export const getResumeData = async (req, res) => {
 
   const userId = req.user._id;
 
-  try{
+  try {
 
-    const resume_data = await ResumeData.findOne({userId : userId});
+    const resume_data = await ResumeData.findOne({ userId: userId });
 
     // const resumeString = JSON.stringify(resume_data.resumeJSONdata, null, 2);
     // console.log(resumeString);
 
-    return res.status(200).json({resume_data, message: "Resume data fetched successfully!"});
+    return res.status(200).json({ resume_data, message: "Resume data fetched successfully!" });
 
-  }catch(err){
+  } catch (err) {
     console.log(err);
   }
 }
