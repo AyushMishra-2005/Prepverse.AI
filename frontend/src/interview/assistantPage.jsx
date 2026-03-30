@@ -1,5 +1,3 @@
-
-
 import React, { useContext } from 'react';
 import { CardBody, CardContainer, CardItem } from "../components/ui/3d-card.jsx";
 import Lottie from 'lottie-react';

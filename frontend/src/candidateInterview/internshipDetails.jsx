@@ -15,7 +15,7 @@ const InternshipDetails = () => {
   const { searchInternships } = useInternships();
   const internshipsData = searchInternships;
   const internship = internshipsData.find((item) => item._id === id);
-  const { setInterviewData, setInterviewModelId, setAccessInterviewPage } = useConversation();
+  const {interviewData , setInterviewData, setInterviewModelId, setAccessInterviewPage } = useConversation();
   const [openStepProgress, setOpenStepProgress] = useState(false);
 
   const navigate = useNavigate();
@@ -33,10 +33,8 @@ const InternshipDetails = () => {
   }
 
   const handleAttendClick = async (topics, role, numOfQns, interviewId) => {
-    console.log("Number of questions are : "+ numOfQns);
     try {
       setOpenStepProgress(true);
-      console.log("Number of qns in frontend: "+numOfQns);
       const { data } = await axios.post(
         `${server}/profileInterview/profileBasedInterview`,
         {  topics, role, numberOfQns: numOfQns, interviewId},

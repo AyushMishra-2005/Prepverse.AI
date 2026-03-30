@@ -1,6 +1,3 @@
-
-
-
 import * as React from 'react';
 import Avatar from '@mui/material/Avatar';
 import { CardBody, CardContainer, CardItem } from "../components/ui/3d-card.jsx";

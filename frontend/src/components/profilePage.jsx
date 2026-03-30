@@ -588,7 +588,7 @@ function ProfilePage() {
               <motion.label
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.98 }}
-                className={`inline-flex items-center px-4 py-2 rounded-md ${theme === 'dark' ? 'bg-orange-100 border-gray-600' : 'bg-orange-500 border-gray-300'} border text-gray-200 text-sm cursor-pointer hover:bg-gray-600 transition-colors shadow-md`}
+                className={`inline-flex items-center px-4 py-2 rounded-md ${theme === 'dark' ? 'bg-orange-100 border-gray-600' : 'bg-orange-500 border-gray-300'} border text-gray-900 text-sm cursor-pointer transition-colors shadow-md`}
               >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
                   <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.380-8.379-2.83-2.828z" />

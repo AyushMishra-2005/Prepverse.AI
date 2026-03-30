@@ -1,7 +1,3 @@
-
-
-
-
 import { cn } from "../lib/utils.js";
 import React, { useEffect, useState, useRef, useContext } from "react";
 import AssistantPage from "./assistantPage.jsx";
