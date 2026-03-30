@@ -4,8 +4,6 @@ import tempfile
 import os
 import requests
 from llmFunctions import evaluate_resume
-from llmFunctions import parse_resume_with_llm
-from llmFunctions import generate_user_summary
 import asyncio
 import edge_tts
 from flask_cors import CORS
@@ -19,7 +17,7 @@ CORS(app)
 def parse_resume():
 
   if 'file' not in request.files:
-    return jsonify({"message" : "No file Found"}), 400
+    return jsonify({"message": "No file Found"}), 400
   
   uploaded_file = request.files['file']
   
@@ -28,17 +26,17 @@ def parse_resume():
     temp_path = temp.name
   
   try:
-    
     doc = fitz.open(temp_path)
     resume_text = "\n".join([page.get_text() for page in doc])
     doc.close()
     os.remove(temp_path)
     
-    parsed_resume_data = parse_resume_with_llm(resume_text)
-    
-    return jsonify({"resume_data": parsed_resume_data})
+    return jsonify({
+      "resume_text": resume_text
+    })
+
   except Exception as e:
-    return jsonify({"message" : str(e)}), 500
+    return jsonify({"message": str(e)}), 500
   
   
 @app.route("/evaluate-resume", methods=["POST"])
@@ -84,32 +82,5 @@ def speak():
     return jsonify({"error": str(e)}), 500
   
   
-@app.route("/summarize", methods=["POST"])
-def summarize_profile():
-  """
-  API endpoint to receive user JSON and return a generated summary.
-  """
-  print("Received request on /summarize endpoint.")
-  
-  data = request.get_json()
-  if not data or "resume_data" not in data:
-    return jsonify({"error": "Invalid input: resume_data missing."}), 400
-
-  resume_data = data["resume_data"]
-
-  try:
-    summary = generate_user_summary(resume_data)
-
-    if summary.startswith("Error:"):
-      print(f"An error occurred: {summary}")
-      return jsonify({"error": summary}), 500
-
-    print("Successfully generated summary.")
-    return jsonify({"summary": summary})
-
-  except Exception as e:
-    print(f"Unexpected error in summarize_profile: {e}")
-    return jsonify({"error": str(e)}), 500
-
 if __name__ == "__main__":
     app.run(port=3000, debug=True)
