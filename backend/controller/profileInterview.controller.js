@@ -85,7 +85,7 @@ export const checkRoleValidity = async (req, res) => {
         data.resume_data,
         role,
         Array.isArray(topics) ? topics : topics.split(","),
-        parseInt(numberOfQns) || 5
+        parseInt(numberOfQns) || 3
       );
 
       if (questions) {
@@ -132,7 +132,6 @@ export const checkRoleValidity = async (req, res) => {
 export const profileBasedInterview = async (req, res) => {
   let { role, topics, numberOfQns, interviewId } = req.body;
   const participant = req.user._id;
-  console.log("Number of questions in profileBasedInterview: "+numberOfQns);
 
   if (typeof topics === "string") {
     topics = [topics];
@@ -203,12 +202,8 @@ export const profileBasedInterview = async (req, res) => {
       resume_data,
       role,
       Array.isArray(topics) ? topics : topics.split(","),
-      parseInt(numberOfQns) || 5
+      parseInt(numberOfQns) || 3
     );
-
-    console.log("profileBasedInterviewQuestions: ");
-    console.log(questions);
-
 
     if (questions) {
       const newData = new InterviewData({

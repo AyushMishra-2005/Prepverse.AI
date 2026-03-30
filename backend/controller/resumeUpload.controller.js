@@ -27,7 +27,7 @@ export const uploadResume = async (req, res) => {
       return res.status(400).json({ message: "Parsing Resume Failed!" });
     }
 
-    const resume_data = JSON.parse(data.resume_data);
+    const resume_data = data.resume_data;
 
     const resumeReview_data = await axios.post(
       "http://127.0.0.1:3000/summarize",

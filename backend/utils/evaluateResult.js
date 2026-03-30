@@ -1,4 +1,12 @@
 import axios from 'axios';
+import Groq from 'groq-sdk'
+import dotenv from "dotenv";
+
+dotenv.config();
+
+const groq = new Groq({
+  apiKey: process.env.GROQ_API_KEY
+});
 
 export async function evaluateResult({ questions, answers }) {
   if (!questions || !answers || questions.length !== answers.length) {
@@ -12,64 +20,57 @@ export async function evaluateResult({ questions, answers }) {
   const prompt = `
     You are an expert technical interview evaluator.
 
-    Evaluate the candidate's answers to the following interview questions.
+    Evaluate the candidate's answers.
 
     Instructions:
 
     1. For each question-answer pair, write a **two-line review**:
-      - Line 1: Assess how well the candidate answered the question.
-      - Line 2: Suggest **specific topics or concepts** the candidate should improve, based on the question and answer.
+    - Line 1: Assess answer quality.
+    - Line 2: Suggest improvements.
 
-    2. Assign a **score out of 10** (integer only) for each answer, based on clarity, completeness, and technical correctness.
+    2. Give **score out of 10** (integer).
 
-    3. At the end, write an **"overAllReview"** with **exactly two lines**:
-      - Line 1: Summarize how the candidate performed overall.
-      - Line 2: Mention the candidate’s key strengths and weaknesses, based on the provided answers.
+    3. Add "overAllReview" (exactly 2 lines):
+    - Line 1: Overall performance
+    - Line 2: Strengths & weaknesses
 
     Rules:
-    - If an answer is missing, vague, or irrelevant (e.g. “Answer not provided” or “I will not answer this”), state that clearly and assign a score of **0**.
-    - Do **not** repeat the original questions or answers in your review.
-    - Respond **strictly** in the following JSON format with no extra commentary:
+    - Missing/irrelevant answer → score 0
+    - Do NOT repeat Q/A
+    - STRICT JSON ONLY
 
+    Format:
     {
       "reviews": [
         {
-          "review": "Two-line review for Q1.",
+          "review": "text",
           "score": 7
-        },
-        {
-          "review": "Two-line review for Q2.",
-          "score": 8
         }
       ],
-      "overAllReview": "Two-line summary about candidate's overall performance."
+      "overAllReview": "text"
     }
 
-    Evaluate the following Q&A pairs:
+    Q&A:
     ${qaBlock}
     `;
 
 
 
   try {
-    const response = await axios.post("http://localhost:11434/api/generate", {
-      model: "llama3.1:8b",
-      prompt,
-      stream: false,
-      format: "json",
-      options: {
-        temperature: 0.7
-      }
+    const completion = await groq.chat.completions.create({
+      model: "llama-3.1-8b-instant", 
+      messages: [
+        {
+          role: "user",
+          content: prompt
+        }
+      ],
+      temperature: 0.5,
+      response_format: { type: "json_object" }
     });
 
-    const raw = response.data.response;
-    const match = raw.match(/\{[\s\S]*\}/);
+    const result = JSON.parse(completion.choices[0].message.content);
 
-    if (!match) {
-      throw new Error("Could not extract valid JSON from LLaMA output.");
-    }
-
-    const result = JSON.parse(match[0]);
     const { reviews, overAllReview } = result;
 
     const totalScore = reviews.reduce((sum, r) => sum + r.score, 0);

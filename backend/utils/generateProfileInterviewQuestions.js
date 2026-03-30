@@ -1,89 +1,82 @@
-import axios from 'axios'
+import Groq from "groq-sdk";
+import dotenv from 'dotenv'
+dotenv.config();
 
-export async function generateInterviewQuestions(resumeData, role, topics, numberOfQns = 2) {
+const groq = new Groq({
+  apiKey: process.env.GROQ_API_KEY
+});
+
+export async function generateInterviewQuestions(
+  resumeData,
+  role,
+  topics,
+  numberOfQns = 2
+) {
+
   const topicsStr = topics.join(", ");
 
   const prompt = `
-You are a smart and professional AI interviewer preparing to interview a candidate for the role of **${role}**.
+    You are an AI interviewer for the role: ${role}.
 
-You are provided with:
-- The candidate's resume (in structured JSON format)
-- A list of technical topics relevant to the role: [${topicsStr}]
+    Generate ${numberOfQns} technical interview questions.
 
----
+    Input:
+    - Candidate resume (JSON)
+    - Topics: ${topicsStr}
 
-### TASK:
+    Rules:
+    • 70% questions should relate to the resume.
+    • 30% should come from the topics.
+    • Questions must be natural, open-ended, and non-repetitive.
+    • Avoid yes/no or definition questions.
 
-Generate exactly **${numberOfQns}** technical interview questions that follow these guidelines:
+    For each question include:
+    {
+    "question": "...",
+    "time": number
+    }
 
-1. **70%** of the questions should be based on the candidate's resume — including their experience, projects, skills, tools, and technologies.
-2. **30%** of the questions should be based strictly on the provided topics — even if those topics are not mentioned in the resume.
-3. Questions should sound **natural, human, and conversational** — avoid robotic or repetitive phrasing like "in your previous projects."
-4. All questions must be **open-ended**, **non-repetitive**, and **answerable orally within approximately 45–60 seconds**.
-5. Avoid yes/no questions, overly generic prompts, or definition-based questions.
-6. Do **not** include any explanations, instructions, or extra text — only return the questions and estimated time.
+    Time rules:
+    • 30–40 → simple questions
+    • 40–50 → moderate reasoning
+    • 50–60 → complex technical questions
 
----
+    Return only JSON:
+    {
+    "questions": [
+      {"question":"...","time":45}
+    ]
+    }
 
-### OUTPUT FORMAT:
-Return a valid JSON object in this exact format:
-
-{
-  "questions": [
-    { "question": "First unique question?", "time": 30 },
-    { "question": "Second unique question?", "time": 50 }
-    // ...${numOfQns} total
-  ]
-}
-
-
-- The "time" must be a **number only** (integer), representing the **estimated number of seconds** it would take to answer the question orally.
-- Do not include the word "seconds" or any extra text.
-- Time should vary based on complexity:
-- Simpler reflective questions → 45–50 seconds
-- Multi-part or technical deep-dives → 55–60 seconds
-
-Important:
-- Always return an object with the key "questions".
-- Even if there is only one question, wrap it in an array.
-- Do not return a plain array or a single object.
-- Do not include explanations, notes, or additional fields.
----
-
-### CANDIDATE RESUME:
-${JSON.stringify(resumeData)}
-
-Now generate the questions.
-`;
+    Resume:
+    ${JSON.stringify(resumeData)}
+    `;
 
   try {
-    const response = await axios.post("http://localhost:11434/api/generate", {
-      model: "llama3.1:8b",
-      prompt,
-      stream: false,
+
+    const completion = await groq.chat.completions.create({
+      model: "llama-3.1-8b-instant",
+      messages: [
+        {
+          role: "user",
+          content: prompt
+        }
+      ],
       temperature: 0.7,
-      format: "json"
+      response_format: { type: "json_object" }
     });
 
-    console.log("questions from llm: "+numberOfQns);
+    const parsed = JSON.parse(completion.choices[0].message.content);
 
-    const rawOutput = response.data.response;
-
-    try {
-      const parsed = JSON.parse(rawOutput);
-
-      if (parsed.questions && Array.isArray(parsed.questions)) {
-        return parsed.questions;
-      } else {
-        console.error("Unexpected LLM format:", parsed);
-        return [];
-      }
-    } catch (err) {
-      console.error("Failed to parse LLM response:", err.message);
+    if (parsed.questions && Array.isArray(parsed.questions)) {
+      return parsed.questions;
+    } else {
+      console.error("Unexpected LLM format:", parsed);
       return [];
     }
+
   } catch (err) {
-    console.error("LLM request failed:", err.message);
+    console.error("Groq request failed:", err.message);
     return [];
   }
 }
