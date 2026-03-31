@@ -1,0 +1,12 @@
+Flask
+flask-cors
+pymongo
+sentence-transformers
+torch
+numpy
+pandas
+tqdm
+python-dotenv
+scikit-learn
+PyMuPDF
+edge-tts
