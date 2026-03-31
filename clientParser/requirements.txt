@@ -1,7 +1,0 @@
-Flask
-flask-cors
-requests
-PyMuPDF
-edge-tts
-python-dotenv
-groq
