@@ -1,8 +1,5 @@
+import 'dotenv/config';
 import express from 'express'
-
-import dotenv from 'dotenv'
-dotenv.config();
-
 import cors from 'cors'
 import axios from 'axios'
 import interviewSection from './route/interview.route.js'
@@ -18,6 +15,7 @@ import profileInterviewRoute from './route/profileInterview.route.js'
 import {app, io, server} from './SocketIO/server.js'
 import resumeUploadRoute from './route/resumeUpload.route.js'
 import internshipRoute from './route/internships.route.js'
+
 
 
 app.use(express.json());
