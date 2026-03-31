@@ -19,7 +19,7 @@ export const uploadResume = async (req, res) => {
     const flaskForm = new FormData();
     flaskForm.append("file", fs.createReadStream(filePath), req.file.originalname);
 
-    const flaskUrl = "http://127.0.0.1:3000/parse-resume";
+    const flaskUrl = "http://127.0.0.1:5000/parse-resume";
     const { data } = await axios.post(flaskUrl, flaskForm, {
       headers: flaskForm.getHeaders(),
     });

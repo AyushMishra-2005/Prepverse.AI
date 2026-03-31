@@ -13,7 +13,7 @@ function TextToVoice({ onStart, onEnd, setStopSpeakingCallback }) {
       onStart?.();
 
       const response = await axios.post(
-        "http://localhost:3000/speak",
+        "http://localhost:5000/speak",
         { text: assistantContent },
         {
           headers: { "Content-Type": "application/json" },
