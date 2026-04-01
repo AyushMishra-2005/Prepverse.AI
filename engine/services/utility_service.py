@@ -3,7 +3,7 @@ import tempfile
 import os
 import asyncio
 import edge_tts
-
+from utils.resume_preprocess import preprocess_resume_text
 
 def parse_resume_service(uploaded_file):
     with tempfile.NamedTemporaryFile(delete=False, suffix='.pdf') as temp:
@@ -12,11 +12,14 @@ def parse_resume_service(uploaded_file):
 
     try:
         doc = fitz.open(temp_path)
-        resume_text = "\n".join([page.get_text() for page in doc])
+        raw_text = "\n".join([page.get_text() for page in doc])
+        
+        processed_text = preprocess_resume_text(raw_text)
+        
         doc.close()
         os.remove(temp_path)
 
-        return {"resume_text": resume_text}
+        return {"resume_text": processed_text}
 
     except Exception as e:
         return {"message": str(e)}, 500
