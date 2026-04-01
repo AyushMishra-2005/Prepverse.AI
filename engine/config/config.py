@@ -8,5 +8,5 @@ class Config:
     DB_NAME = os.getenv("DB_NAME")
     COLLECTION_NAME = os.getenv("COLLECTION_NAME")
 
-    BI_ENCODER_MODEL = "Alibaba-NLP/gte-large-en-v1.5"
+    BI_ENCODER_MODEL = "BAAI/bge-large-en-v1.5"
     CROSS_ENCODER_MODEL = "cross-encoder/ms-marco-electra-base"

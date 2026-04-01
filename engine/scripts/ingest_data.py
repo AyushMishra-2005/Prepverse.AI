@@ -6,6 +6,7 @@ from tqdm import tqdm
 from dotenv import load_dotenv
 from pymongo import MongoClient
 from sentence_transformers import SentenceTransformer
+import torch
 
 
 load_dotenv()
@@ -14,7 +15,7 @@ MONGO_URI = os.getenv("MONGO_URI")
 DB_NAME = os.getenv("DB_NAME")
 COLLECTION_NAME = os.getenv("COLLECTION_NAME")
 
-MODEL_NAME = "Alibaba-NLP/gte-large-en-v1.5"
+MODEL_NAME = "BAAI/bge-large-en-v1.5"
 CSV_FILE_PATH = "../data/Internship_dataset.csv"
 
 random.seed(42)
@@ -32,13 +33,13 @@ def build_combined_text(row: pd.Series) -> str:
     """Builds a semantically rich internship representation with weighted fields."""
     parts = []
     if row.get("Job Title"):
-        parts.append(f"Internship Title: {clean_text(row['Job Title'])}. ")
+        parts.append(("Internship Title: " + clean_text(row["Job Title"]) + ". ") * 2)
     if row.get("Job Role"):
-        parts.append((f"Role: {clean_text(row['Job Role'])}. ") * 2)
+        parts.append((f"Role: {clean_text(row['Job Role'])}. ") * 1)
     if row.get("Job Topics"):
-        parts.append((f"Topic: {clean_text(row['Job Topics'])}. ") * 4)
+        parts.append((f"Topic: {clean_text(row['Job Topics'])}. ") * 3)
     if row.get("Job Description"):
-        parts.append((f"Responsibilities include: {clean_text(row['Job Description'])}. ") * 2)
+        parts.append((f"Responsibilities include: {clean_text(row['Job Description'])}. ") * 3)
     return " ".join(parts).strip()
 
 def connect_mongo():
@@ -55,10 +56,17 @@ def connect_mongo():
         raise RuntimeError(f"MongoDB connection failed: {e}")
 
 def load_model():
-    """Load SentenceTransformer model."""
     print(f"Loading model: {MODEL_NAME} ...")
     try:
-        model = SentenceTransformer(MODEL_NAME, trust_remote_code=True)
+        device = "cuda" if torch.cuda.is_available() else "cpu"
+        print(f"Using device: {device}")
+
+        model = SentenceTransformer(
+            MODEL_NAME,
+            device=device,
+            trust_remote_code=True
+        )
+
         print("Model loaded successfully.")
         return model
     except Exception as e:
