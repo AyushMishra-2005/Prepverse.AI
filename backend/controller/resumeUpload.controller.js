@@ -5,7 +5,7 @@ import { deleteFile } from "../utils/deleteFile.js";
 import ResumeData from "../models/resumeData.model.js";
 import { v2 as cloudinary } from 'cloudinary';
 import { parseResumeWithLLM } from '../utils/resumeParser.js'
-import { generateResumeSummary } from '../utils/generateResumeSummary.js'
+import { extractEmbeddingData } from '../utils/generateResumeSummary.js'
 
 export const uploadResume = async (req, res) => {
   if (!req.file) {
@@ -31,7 +31,7 @@ export const uploadResume = async (req, res) => {
 
     const resume_data = await parseResumeWithLLM(data.resume_text);
 
-    const resumeReview = await generateResumeSummary(resume_data);
+    const resumeReview = await extractEmbeddingData(resume_data);
 
     if (!resumeReview) {
       deleteFile(filePath);

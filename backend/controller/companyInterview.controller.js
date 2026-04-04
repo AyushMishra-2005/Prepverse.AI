@@ -9,11 +9,9 @@ import { generateQuestions } from '../utils/generateQuestions.js'
 import InterviewData from "../models/interview.model.js";
 import { evaluateResult } from "../utils/evaluateResult.js";
 import Internship from "../models/internships.model.js";
-import { getTransporter } from '../config/nodemailer.config.js';
 import { sendTemplateMessage, sendTextMessage } from '../utils/sendWhatsappMessage.js'
+import { emailApi } from '../config/bravo.config.js';
 
-
-const transporter = getTransporter();
 const GEOAPIFY_KEY = process.env.GEOAPIFY_KEY;
 
 export const createCompanyInterview = async (req, res) => {
@@ -75,7 +73,7 @@ export const createCompanyInterview = async (req, res) => {
       lon = propertiesObject.lon;
     } else {
       console.log("No coordinates found for", location);
-      return res.status(500).json({ message: "No coordinates found for!" }); 
+      return res.status(500).json({ message: "No coordinates found for!" });
     }
 
     const { valid } = await validateRoleAndTopic({ role, topics });
@@ -127,45 +125,138 @@ export const createCompanyInterview = async (req, res) => {
 
 
     for (const user of users) {
-      const mailOptions = {
-        from: process.env.SENDER_EMAIL,
-        to: user.email,
-        subject: `Exciting Internship Opportunity: ${jobTitle} at ${company}`,
-        html: `
-        <div style="font-family: Arial, sans-serif; color: #333; line-height: 1.6; max-width: 600px; margin: auto;">
-          <h2 style="color: #2c3e50;">Hello ${user.name},</h2>
-          <p>We’re excited to share a new <strong>internship opportunity</strong> that perfectly matches your profile!</p>
-          
-          <div style="padding: 20px; border: 1px solid #ddd; border-radius: 10px; background-color: #fefefe; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
-            <h3 style="color: #ff6900; margin-bottom: 10px;">${jobTitle}</h3>
-            <p><strong>Role:</strong> ${jobRole}</p>
-            <p><strong>Duration:</strong> ${duration}</p>
-            <p><strong>Company:</strong> <span style="color: #2980b9; font-weight: bold;">${company}</span></p>
-            <p><strong>Stipend:</strong> ${stipend}</p>
-            <p><strong>Location:</strong> ${location}</p>
-          </div>
-          
-          <p style="margin-top: 20px;">
-            🌟 Don’t miss this chance to grow your skills and advance your career.  
-            Click below to apply now:
-          </p>
-          
-          <a href="https://prepverse-ai.onrender.com/" 
-            style="display: inline-block; margin-top: 10px; padding: 12px 25px; background-color: #ff6900; color: #fff; text-decoration: none; border-radius: 5px; font-weight: bold;">
-            Apply Now
-          </a>
+      await emailApi.sendTransacEmail({
+        sender: {
+          email: process.env.SENDER_EMAIL,
+          name: "Prepverse.AI"
+        },
+        to: [
+          {
+            email: user.email
+          }
+        ],
+        subject: `🚀 Internship Opportunity: ${jobTitle} at ${company}`,
+        htmlContent: `
+          <!DOCTYPE html>
+          <html>
+          <body style="margin:0; padding:0; background-color:#0D0D0D; font-family:Arial, sans-serif;">
 
-          <p style="margin-top: 30px; font-size: 13px; color: #888;">
-            Best regards,<br/>
-            <b>The Prepverse.AI Team</b><br/>
-            <a href="https://prepverse-ai.onrender.com/" style="color:#2980b9;">https://prepverse-ai.onrender.com</a> | support@prepverse.com
-          </p>
-        </div>
-        `,
-      };
+            <table width="100%" cellpadding="0" cellspacing="0" style="padding:20px 0;">
+              <tr>
+                <td align="center">
 
+                  <!-- Card -->
+                  <table width="600" cellpadding="0" cellspacing="0" 
+                    style="background:#141414; border-radius:12px; padding:30px; box-shadow:0 0 25px rgba(255,105,0,0.15);">
 
-      await transporter.sendMail(mailOptions);
+                    <!-- Header -->
+                    <tr>
+                      <td align="center" style="padding-bottom:20px;">
+                        <h1 style="margin:0; color:#FF6900; font-size:26px;">
+                          Prepverse.AI 🚀
+                        </h1>
+                      </td>
+                    </tr>
+
+                    <!-- Greeting -->
+                    <tr>
+                      <td style="color:#FFFFFF; font-size:16px; line-height:1.6;">
+                        <p style="margin:0 0 10px;">Hello <strong>${user.name}</strong>,</p>
+
+                        <p style="margin:0 0 15px; color:#CCCCCC;">
+                          We found an <span style="color:#FF6900; font-weight:bold;">internship opportunity</span> 
+                          that perfectly matches your profile!
+                        </p>
+                      </td>
+                    </tr>
+
+                    <!-- Job Card -->
+                    <tr>
+                      <td style="padding:15px 0;">
+                        <div style="
+                          padding:20px;
+                          border:1px solid #2A2A2A;
+                          border-radius:10px;
+                          background:#1A1A1A;
+                          box-shadow:0 0 15px rgba(255,105,0,0.15);
+                        ">
+
+                          <h2 style="color:#FF6900; margin:0 0 10px;">
+                            ${jobTitle}
+                          </h2>
+
+                          <p style="margin:6px 0; color:#CCCCCC;"><strong>Role:</strong> ${jobRole}</p>
+                          <p style="margin:6px 0; color:#CCCCCC;"><strong>Duration:</strong> ${duration}</p>
+                          <p style="margin:6px 0; color:#CCCCCC;">
+                            <strong>Company:</strong> 
+                            <span style="color:#FF8C00; font-weight:bold;">${company}</span>
+                          </p>
+                          <p style="margin:6px 0; color:#CCCCCC;"><strong>Stipend:</strong> ${stipend}</p>
+                          <p style="margin:6px 0; color:#CCCCCC;"><strong>Location:</strong> ${location}</p>
+
+                        </div>
+                      </td>
+                    </tr>
+
+                    <!-- CTA -->
+                    <tr>
+                      <td align="center" style="padding:25px 0;">
+                        <a href="https://prepverse-ai.onrender.com/"
+                          style="
+                            background:linear-gradient(90deg,#FF6900,#FF8C00);
+                            color:#ffffff;
+                            padding:14px 30px;
+                            text-decoration:none;
+                            border-radius:8px;
+                            font-weight:bold;
+                            display:inline-block;
+                            box-shadow:0 0 15px rgba(255,105,0,0.6);
+                          ">
+                          Apply Now 🚀
+                        </a>
+                      </td>
+                    </tr>
+
+                    <!-- Message -->
+                    <tr>
+                      <td style="color:#CCCCCC; font-size:14px; text-align:center;">
+                        <p style="margin:0;">
+                          🌟 Don’t miss this chance to grow your skills and advance your career.
+                        </p>
+                      </td>
+                    </tr>
+
+                    <!-- Divider -->
+                    <tr>
+                      <td style="padding-top:25px;">
+                        <hr style="border:none; border-top:1px solid #2A2A2A;">
+                      </td>
+                    </tr>
+
+                    <!-- Footer -->
+                    <tr>
+                      <td style="text-align:center; color:#888888; font-size:13px; padding-top:10px;">
+                        <p style="margin:5px 0;">Best regards,</p>
+                        <p style="margin:5px 0; color:#FF6900;"><b>The Prepverse.AI Team</b></p>
+                        <p style="margin:5px 0;">
+                          <a href="https://prepverse-ai.onrender.com/" style="color:#FF6900; text-decoration:none;">
+                            www.prepverse.com
+                          </a>
+                        </p>
+                        <p style="margin:5px 0;">support@prepverse.com</p>
+                      </td>
+                    </tr>
+
+                  </table>
+
+                </td>
+              </tr>
+            </table>
+
+          </body>
+          </html>
+          `
+      });
 
       if (user.mobileNumber) {
         await sendTextMessage({

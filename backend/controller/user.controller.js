@@ -1,11 +1,10 @@
 import User from '../models/user.model.js'
 import bcrypt from 'bcrypt'
 import createTokenAndSaveCookie from '../jwt/generateToken.js'
-import { getTransporter } from '../config/nodemailer.config.js';
 import StoreOTP from '../models/otp.model.js'
-import {sendTemplateMessage} from '../utils/sendWhatsappMessage.js'
+import { sendTemplateMessage } from '../utils/sendWhatsappMessage.js'
+import { emailApi } from '../config/bravo.config.js'
 
-const transporter = getTransporter();
 
 export const signup = async (req, res) => {
   try {
@@ -51,33 +50,115 @@ export const signup = async (req, res) => {
       console.log("User saved successfully!");
     });
 
-    const mailOptions = {
-      from: process.env.SENDER_EMAIL,
-      to: email,
-      subject: 'Welcome to AIspire',
-      text: `Hi [${name}],
+    await emailApi.sendTransacEmail({
+      sender: {
+        email: process.env.SENDER_EMAIL,
+        name: "PowerNest"
+      },
+      to: [
+        {
+          email: email
+        }
+      ],
+      subject: "Welcome to Prepverse.AI",
+      htmlContent: `
+        <!DOCTYPE html>
+        <html>
+        <body style="margin:0; padding:0; background-color:#0D0D0D; font-family:Arial, sans-serif;">
 
-          Welcome to AI Spire — we're thrilled to have you on board!
+          <table width="100%" cellpadding="0" cellspacing="0" style="padding:20px 0;">
+            <tr>
+              <td align="center">
 
-          You’ve just joined a community that’s passionate about harnessing the power of AI to achieve more, think smarter, and build the future. Whether you’re here to explore, create, or innovate, we’re here to support you every step of the way.
+                <!-- Card -->
+                <table width="600" cellpadding="0" cellspacing="0" 
+                  style="background:#141414; border-radius:12px; padding:30px; box-shadow:0 0 25px rgba(255,105,0,0.15);">
 
-          Here’s what you can do next:
-          🔍 Explore your dashboard to get familiar with the tools.
+                  <!-- Header -->
+                  <tr>
+                    <td align="center" style="padding-bottom:20px;">
+                      <h1 style="margin:0; color:#FF6900; font-size:28px;">
+                        Prepverse.AI 🚀
+                      </h1>
+                    </td>
+                  </tr>
 
-          🎯 Set up your profile to personalize your experience.
+                  <!-- Greeting -->
+                  <tr>
+                    <td style="color:#FFFFFF; font-size:16px; line-height:1.6;">
+                      <p style="margin:0 0 10px;">Hi <strong>${name}</strong>,</p>
 
-          📘 Check out our getting started guide to make the most of AI Spire.
+                      <p style="margin:0 0 15px;">
+                        Welcome to <span style="color:#FF6900; font-weight:bold;">Prepverse.AI</span> — 
+                        we're thrilled to have you on board!
+                      </p>
 
-          If you have any questions or need help getting started, our team is always here for you — just hit reply or visit our Help Center.
+                      <p style="margin:0 0 15px; color:#CCCCCC;">
+                        You’ve just joined a community that’s passionate about harnessing AI to achieve more, 
+                        think smarter, and build the future. Whether you’re here to explore, create, or innovate, 
+                        we’re here to support you every step of the way.
+                      </p>
+                    </td>
+                  </tr>
 
-          Thanks again for joining us. We’re excited to see what you’ll create!
+                  <!-- Steps -->
+                  <tr>
+                    <td style="padding-top:10px; color:#CCCCCC;">
+                      <p style="margin-bottom:10px;">Here’s what you can do next:</p>
 
-          Warm regards,
-          The AI Spire Team
-          www.aispire.com | support@aispire.com`
-    }
+                      <p style="margin:6px 0;">🔍 Explore your dashboard</p>
+                      <p style="margin:6px 0;">🎯 Set up your profile</p>
+                      <p style="margin:6px 0;">📘 Start interviews & quizzes</p>
+                    </td>
+                  </tr>
 
-    await transporter.sendMail(mailOptions);
+                  <!-- CTA Button -->
+                  <tr>
+                    <td align="center" style="padding:25px 0;">
+                      <a href="https://www.prepverse.com"
+                        style="
+                          background:linear-gradient(90deg,#FF6900,#FF8C00);
+                          color:#ffffff;
+                          padding:14px 30px;
+                          text-decoration:none;
+                          border-radius:8px;
+                          font-weight:bold;
+                          display:inline-block;
+                          box-shadow:0 0 15px rgba(255,105,0,0.6);
+                        ">
+                        Get Started 🚀
+                      </a>
+                    </td>
+                  </tr>
+
+                  <!-- Divider -->
+                  <tr>
+                    <td>
+                      <hr style="border:none; border-top:1px solid #2A2A2A;">
+                    </td>
+                  </tr>
+
+                  <!-- Footer -->
+                  <tr>
+                    <td style="text-align:center; color:#888888; font-size:13px; padding-top:10px;">
+                      <p style="margin:5px 0;">
+                        Need help? <span style="color:#FF6900;">support@prepverse.com</span>
+                      </p>
+                      <p style="margin:5px 0;">www.prepverse.com</p>
+                      <p style="margin:5px 0;">© Prepverse.AI</p>
+                    </td>
+                  </tr>
+
+                </table>
+
+              </td>
+            </tr>
+          </table>
+
+        </body>
+        </html>
+        `
+    });
 
     if (newUser) {
       createTokenAndSaveCookie(newUser._id, res);
@@ -162,20 +243,13 @@ export const sendOtp = async (req, res) => {
   const { email } = req.body;
 
   if (!email) {
-    res.status(500).json({ message: "Please provide a valid email" });
+    return res.status(400).json({ message: "Please provide a valid email" });
   }
 
   try {
     await StoreOTP.findOneAndDelete({ email });
 
     const otp = String(Math.floor(100000 + Math.random() * 900000));
-
-    const mailOptions = {
-      from: process.env.SENDER_EMAIL,
-      to: email,
-      subject: "AIspire Accout verification OTP",
-      text: `Your OTP is ${otp}. Verify your email ID using this OTP. It is valid for 24 hours.`
-    }
 
     const otpData = new StoreOTP({
       email,
@@ -185,16 +259,116 @@ export const sendOtp = async (req, res) => {
 
     await otpData.save();
 
-    await transporter.sendMail(mailOptions);
+    await emailApi.sendTransacEmail({
+      sender: {
+        email: process.env.SENDER_EMAIL,
+        name: "Prepverse.AI"
+      },
+      to: [
+        {
+          email: email
+        }
+      ],
+      subject: "Your OTP for Prepverse.AI Verification",
+      htmlContent: `
+        <!DOCTYPE html>
+        <html>
+        <body style="margin:0; padding:0; background-color:#0D0D0D; font-family:Arial, sans-serif;">
 
-    return res.status(200).json({ message: "OTP send successful" });
+          <table width="100%" cellpadding="0" cellspacing="0" style="padding:20px 0;">
+            <tr>
+              <td align="center">
+
+                <!-- Card -->
+                <table width="600" cellpadding="0" cellspacing="0" 
+                  style="background:#141414; border-radius:12px; padding:30px; box-shadow:0 0 25px rgba(255,105,0,0.15);">
+
+                  <!-- Header -->
+                  <tr>
+                    <td align="center" style="padding-bottom:20px;">
+                      <h1 style="margin:0; color:#FF6900; font-size:28px;">
+                        Prepverse.AI 🔐
+                      </h1>
+                    </td>
+                  </tr>
+
+                  <!-- Title -->
+                  <tr>
+                    <td style="color:#FFFFFF; text-align:center;">
+                      <h2 style="margin:0 0 10px;">Verify Your Email</h2>
+                      <p style="color:#CCCCCC; margin:0 0 20px;">
+                        Use the OTP below to complete your verification
+                      </p>
+                    </td>
+                  </tr>
+
+                  <!-- OTP Box -->
+                  <tr>
+                    <td align="center" style="padding:20px 0;">
+                      <div style="
+                        display:inline-block;
+                        padding:15px 30px;
+                        font-size:28px;
+                        letter-spacing:4px;
+                        font-weight:bold;
+                        color:#FF6900;
+                        border:2px solid #FF6900;
+                        border-radius:10px;
+                        box-shadow:0 0 15px rgba(255,105,0,0.5);
+                      ">
+                        ${otp}
+                      </div>
+                    </td>
+                  </tr>
+
+                  <!-- Info -->
+                  <tr>
+                    <td style="color:#CCCCCC; text-align:center; font-size:14px; line-height:1.6;">
+                      <p style="margin:0 0 10px;">
+                        This OTP is valid for <strong style="color:#FF6900;">24 hours</strong>.
+                      </p>
+                      <p style="margin:0;">
+                        Do not share this code with anyone for security reasons.
+                      </p>
+                    </td>
+                  </tr>
+
+                  <!-- Divider -->
+                  <tr>
+                    <td style="padding-top:25px;">
+                      <hr style="border:none; border-top:1px solid #2A2A2A;">
+                    </td>
+                  </tr>
+
+                  <!-- Footer -->
+                  <tr>
+                    <td style="text-align:center; color:#888888; font-size:13px; padding-top:10px;">
+                      <p style="margin:5px 0;">
+                        Need help? <span style="color:#FF6900;">support@prepverse.com</span>
+                      </p>
+                      <p style="margin:5px 0;">www.prepverse.com</p>
+                      <p style="margin:5px 0;">© Prepverse.AI</p>
+                    </td>
+                  </tr>
+
+                </table>
+
+              </td>
+            </tr>
+          </table>
+
+        </body>
+        </html>
+        `
+    });
+
+    return res.status(200).json({ message: "OTP sent successfully" });
 
   } catch (err) {
     console.log("Error in sendOtp : ", err);
     return res.status(500).json({ message: "Failed to send OTP" });
   }
-
-}
+};
 
 
 export const verifyOtp = async (req, res) => {
@@ -239,10 +413,10 @@ export const updateMobile = async (req, res) => {
   const userId = req.user._id;
   const { mobileNumber } = req.body;
   try {
-    if(!mobileNumber){
-      return res.status(500).json({message: "Please provide a mobile number!"});
+    if (!mobileNumber) {
+      return res.status(500).json({ message: "Please provide a mobile number!" });
     }
-    const mobileRegex = /^[0-9]{10}$/; 
+    const mobileRegex = /^[0-9]{10}$/;
     if (!mobileRegex.test(mobileNumber)) {
       return res.status(500).json({
         message: "Please enter a valid mobile number (10digits)."
@@ -252,14 +426,14 @@ export const updateMobile = async (req, res) => {
     const updatedUser = await User.findByIdAndUpdate(
       userId,
       { mobileNumber },
-      { new: true } 
+      { new: true }
     );
 
     if (!updatedUser) {
       return res.status(404).json({ message: "User not found." });
     }
 
-    await sendTemplateMessage({to : mobileNumber});
+    await sendTemplateMessage({ to: mobileNumber });
 
     return res.status(200).json({
       message: "Mobile number updated successfully!",
@@ -287,7 +461,7 @@ export const deleteMobile = async (req, res) => {
     const updatedUser = await User.findByIdAndUpdate(
       userId,
       { mobileNumber: "" },
-      { new: true } 
+      { new: true }
     );
 
     if (!updatedUser) {
