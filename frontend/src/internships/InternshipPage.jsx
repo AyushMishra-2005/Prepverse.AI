@@ -24,6 +24,13 @@ import { toast } from 'react-hot-toast';
 const InternshipCard = ({ internship, isTopPick }) => {
   const { theme } = useContext(ThemeContext);
 
+  const topics = Array.isArray(internship.jobTopic)
+    ? internship.jobTopic
+    : (internship.jobTopic || "")
+      .toString()
+      .split(",")
+      .filter(Boolean);
+
   return (
     <div
       className={`relative p-4 rounded-lg border flex flex-col justify-between
@@ -71,11 +78,11 @@ const InternshipCard = ({ internship, isTopPick }) => {
 
         {/* Topics */}
         <div className="flex flex-wrap gap-1.5 mb-4">
-          {internship.jobTopic.split(",").map((topic, index) => (
+          {topics.map((topic, index) => (
             <span
               key={index}
               className={`px-2 py-0.5 rounded-md text-xs
-                ${theme === "dark"
+        ${theme === "dark"
                   ? "text-[#1a1a1a] bg-white border border-[#e0e0e0]"
                   : "text-[#1a1a1a] bg-white border border-[#FF690050]"
                 }`}
