@@ -27,9 +27,14 @@ def recommend(data):
     type_filters = build_or_regex_for_values(filters.get("type", []))
     jobtype_filters = build_or_regex_for_values(filters.get("jobType", []))
 
-    if type_filters:
+    if type_filters and jobtype_filters:
+        match_conditions["$or"] = (
+            [{"type": r} for r in type_filters] +
+            [{"jobType": r} for r in jobtype_filters]
+        )
+    elif type_filters:
         match_conditions["type"] = {"$in": type_filters}
-    if jobtype_filters:
+    elif jobtype_filters:
         match_conditions["jobType"] = {"$in": jobtype_filters}
 
     stipend_filters = []
@@ -46,7 +51,7 @@ def recommend(data):
                 "path": "embedding",
                 "queryVector": user_vector,
                 "numCandidates": 500,
-                "limit": 150
+                "limit": 200
             }
         }
     ]
@@ -76,36 +81,40 @@ def recommend(data):
     if not candidates:
         return []
 
-    # ---------------- LOCATION FILTER ---------------- #
 
     location_filters = filters.get("location", [])
-    if location_filters:
-        filtered = []
 
+    if location_filters:
         loc_docs = list(collection.find(
             {"locationName": {"$in": location_filters}},
-            {"locationName": 1, "location": 1}
+            {"location": 1}
         ))
 
-        target_coords = [doc["location"]["coordinates"] for doc in loc_docs if "location" in doc]
+        target_coords = [
+            doc["location"]["coordinates"]
+            for doc in loc_docs if doc.get("location")
+        ]
 
-        for cand in candidates:
-            cand_coords = cand.get("location", {}).get("coordinates")
-            if not cand_coords:
-                continue
+        if target_coords:
+            filtered = []
 
-            if cand.get("locationName") in location_filters:
-                filtered.append(cand)
-                continue
+            for cand in candidates:
+                coords = cand.get("location", {}).get("coordinates")
+                if not coords:
+                    continue
 
-            for tc in target_coords:
-                if haversine(tc, cand_coords) <= 100:
+                if cand.get("locationName") in location_filters:
                     filtered.append(cand)
-                    break
+                    continue
 
-        candidates = filtered if filtered else candidates
+                for tc in target_coords:
+                    if haversine(tc, coords) <= 500:
+                        filtered.append(cand)
+                        break
 
-    # ---------------- META FILTER ---------------- #
+            if filtered:
+                candidates = filtered
+
 
     filtered_after_meta = []
 
@@ -134,7 +143,6 @@ def recommend(data):
     if not filtered_after_meta:
         return []
 
-    # ---------------- DOMAIN FILTER (NEW) ---------------- #
 
     def is_relevant_job(job):
         text = f"{job.get('jobTitle','')} {job.get('jobRole','')} {job.get('jobTopic','')}".lower()
@@ -150,12 +158,10 @@ def recommend(data):
 
         return True
 
-    filtered_after_meta = [c for c in filtered_after_meta if is_relevant_job(c)]
+    temp_filtered = [c for c in filtered_after_meta if is_relevant_job(c)]
+    if temp_filtered:
+        filtered_after_meta = temp_filtered
 
-    if not filtered_after_meta:
-        return []
-
-    # ---------------- RERANKING ---------------- #
 
     try:
         pairs = [
@@ -169,9 +175,7 @@ def recommend(data):
         cross_scores = np.array(cross_encoder.predict(pairs)).flatten()
         vector_scores = np.array([c.get("score", 0) for c in filtered_after_meta])
 
-        # FIXED skill matching (use summary)
         skill_scores = []
-
         for c in filtered_after_meta:
             job_skills = " ".join(c.get("skills", [])).lower()
             overlap = sum(1 for skill in job_skills.split() if skill in resume_summary)
@@ -179,15 +183,10 @@ def recommend(data):
 
         skill_scores = np.array(skill_scores)
 
-        # UPDATED WEIGHTS
-        alpha = 0.4
-        beta = 0.4
-        gamma = 0.2
-
         final_scores = (
-            alpha * vector_scores +
-            beta * cross_scores +
-            gamma * skill_scores
+            0.4 * vector_scores +
+            0.4 * cross_scores +
+            0.2 * skill_scores
         )
 
         ranked = [
@@ -197,7 +196,6 @@ def recommend(data):
 
         ranked.sort(key=lambda x: x["rerank_score"], reverse=True)
 
-        # diversification
         seen = set()
         diversified = []
 
@@ -212,6 +210,22 @@ def recommend(data):
         for item in diversified:
             item["_id"] = str(item["_id"])
             item.pop("location", None)
+
+            skills = item.get("skills", [])
+            if isinstance(skills, str):
+                item["skills"] = [s.strip() for s in skills.split(",") if s.strip()]
+            elif isinstance(skills, list):
+                item["skills"] = skills
+            else:
+                item["skills"] = []
+
+            topics = item.get("jobTopic", "")
+            if isinstance(topics, str):
+                item["jobTopic"] = [t.strip() for t in topics.split(",") if t.strip()]
+            elif isinstance(topics, list):
+                item["jobTopic"] = topics
+            else:
+                item["jobTopic"] = []
 
         return diversified
 
