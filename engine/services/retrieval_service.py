@@ -1,17 +1,21 @@
-from models.ml_model import get_models
+import os
+from dotenv import load_dotenv
+from huggingface_hub import InferenceClient
 from services.pinecone_service import get_index
+
+load_dotenv()
+
+client = InferenceClient(api_key=os.getenv("HF_TOKEN"))
+
+MODEL = "BAAI/bge-large-en-v1.5"
 
 
 def retrieve_resume_chunks(user_id, query, top_k=3):
-    bi_encoder, _ = get_models()
     index = get_index()
 
-    if bi_encoder is None:
-        return []
-
-    query_vector = bi_encoder.encode(
+    query_vector = client.feature_extraction(
         query,
-        normalize_embeddings=True
+        model=MODEL
     ).tolist()
 
     results = index.query(
@@ -27,11 +31,3 @@ def retrieve_resume_chunks(user_id, query, top_k=3):
     ]
 
     return chunks
-  
-  
-  
-  
-  
-  
-  
-  
