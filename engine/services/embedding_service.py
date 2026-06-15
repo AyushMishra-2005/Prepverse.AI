@@ -1,25 +1,29 @@
-from models.ml_model import get_models
+import os
+from dotenv import load_dotenv
+from huggingface_hub import InferenceClient
 from utils.text_utils import build_combined_text
 
+load_dotenv()
+
+client = InferenceClient(api_key=os.getenv("HF_TOKEN_ONE"))
+
+MODEL = "BAAI/bge-large-en-v1.5"
 
 def embed_job(data):
-    bi_encoder, _ = get_models()
-
-    if bi_encoder is None:
-        return {"error": "Bi-encoder model not loaded."}, 503
-
     if not data or not isinstance(data, dict):
         return {"error": "Invalid input. Expected a JSON object with job details."}, 400
 
     try:
         combined_text = build_combined_text(data)
+
         if not combined_text:
             return {"error": "No valid text to generate embedding."}, 400
 
         print("Generating embedding for job data...")
-        embedding = bi_encoder.encode(
+
+        embedding = client.feature_extraction(
             combined_text,
-            normalize_embeddings=True
+            model=MODEL
         ).tolist()
 
         result = data.copy()
@@ -32,11 +36,6 @@ def embed_job(data):
 
 
 def embed_candidate(data):
-    bi_encoder, _ = get_models()
-
-    if bi_encoder is None:
-        return {"error": "Bi-encoder model not loaded."}, 503
-
     summary = data.get("summary")
 
     if not summary or not isinstance(summary, str):
@@ -44,9 +43,10 @@ def embed_candidate(data):
 
     try:
         print("Generating embedding for candidate summary...")
-        embedding = bi_encoder.encode(
+
+        embedding = client.feature_extraction(
             summary,
-            normalize_embeddings=True
+            model=MODEL
         ).tolist()
 
         result = {
