@@ -1,5 +1,13 @@
-from models.ml_model import get_models
+import os
+from dotenv import load_dotenv
+from huggingface_hub import InferenceClient
 from services.pinecone_service import get_index
+
+load_dotenv()
+
+client = InferenceClient(api_key=os.getenv("HF_TOKEN"))
+
+MODEL = "BAAI/bge-large-en-v1.5"
 
 
 def chunk_text(text, chunk_size=120, overlap=30):
@@ -14,14 +22,9 @@ def chunk_text(text, chunk_size=120, overlap=30):
 
 
 def store_resume_chunks(user_id, resume_text, batch_size=20):
-    bi_encoder, _ = get_models()
     index = get_index()
 
-    if bi_encoder is None:
-        return {"error": "Model not loaded"}, 503
-
     chunks = chunk_text(resume_text)
-
     total_chunks = len(chunks)
 
     for batch_start in range(0, total_chunks, batch_size):
@@ -30,9 +33,9 @@ def store_resume_chunks(user_id, resume_text, batch_size=20):
         vectors = []
 
         for i, chunk in enumerate(batch_chunks):
-            embedding = bi_encoder.encode(
+            embedding = client.feature_extraction(
                 chunk,
-                normalize_embeddings=True
+                model=MODEL
             ).tolist()
 
             vectors.append({
@@ -53,4 +56,6 @@ def store_resume_chunks(user_id, resume_text, batch_size=20):
         batch_number = (batch_start // batch_size) + 1
         print(f"Batch {batch_number} complete")
 
-    return {"stored_chunks": total_chunks}
+    return {
+        "stored_chunks": total_chunks
+    }
