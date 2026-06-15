@@ -48,13 +48,13 @@ cd Prepverse.AI
 
 ## Prerequisites
 
-- Node.js >= 18  
-- Python >= 3.11  
-- MongoDB  
-- npm or yarn  
-- llama3.1:8b
-- Alibaba-NLP/gte-large-en-v1.5
-- cross-encoder/ms-marco-electra-base
+- Node.js >= 18
+- Python >= 3.11
+- MongoDB
+- npm or yarn
+- Groq API Key (for `llama-3.1-8b-instant`)
+- Hugging Face API Token (for `BAAI/bge-large-en-v1.5` embeddings)
+- Jina AI API Key (for `jina-reranker-v2-base-multilingual` reranking)
 
 ---
 
