@@ -1,17 +1,16 @@
 from utils.filters import *
 from utils.geo_utils import haversine
 from db.mongo import get_collection
-from models.ml_model import get_models
+from services.reranker_service import rerank
 import numpy as np
 
 
 def recommend(data):
     collection = get_collection()
-    bi_encoder, cross_encoder = get_models()
-
-    if bi_encoder is None or cross_encoder is None or collection is None:
+    
+    if collection is None:
         return {"error": "Server is not ready due to a startup failure."}, 503
-
+    
     user_vector = data.get("embedding")
     filters = data.get("filters", {})
     resume_summary = data.get("resumeSummary", "").lower()
@@ -164,15 +163,22 @@ def recommend(data):
 
 
     try:
-        pairs = [
-            (
-                resume_summary,
-                f"{c.get('jobTitle','')} {c.get('jobRole','')} {c.get('jobTopic','')} {c.get('description','')}"
-            )
+        documents = [
+            f"{c.get('jobTitle','')} "
+            f"{c.get('jobRole','')} "
+            f"{c.get('jobTopic','')} "
+            f"{c.get('description','')}"
             for c in filtered_after_meta
         ]
 
-        cross_scores = np.array(cross_encoder.predict(pairs)).flatten()
+        results = rerank(
+            query=resume_summary,
+            documents=documents
+        )
+
+        cross_scores = np.array([
+            r["relevance_score"] for r in results
+        ])
         vector_scores = np.array([c.get("score", 0) for c in filtered_after_meta])
 
         skill_scores = []
