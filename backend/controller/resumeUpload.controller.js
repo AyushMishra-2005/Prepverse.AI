@@ -6,6 +6,7 @@ import ResumeData from "../models/resumeData.model.js";
 import { v2 as cloudinary } from 'cloudinary';
 import { parseResumeWithLLM } from '../utils/resumeParser.js'
 import { extractEmbeddingData } from '../utils/generateResumeSummary.js'
+import { generateRecommendations } from '../utils/recommendation.js'
 
 export const uploadResume = async (req, res) => {
   if (!req.file) {
@@ -89,6 +90,12 @@ export const uploadResume = async (req, res) => {
       },
       { new: true, upsert: true }
     ).select("-embedding");
+
+    try {
+      await generateRecommendations(userId);
+    } catch (err) {
+      console.error("Recommendation generation failed:", err.message);
+    }
 
     deleteFile(filePath);
 
