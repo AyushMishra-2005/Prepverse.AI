@@ -1,3 +1,4 @@
+requests
 Flask
 flask-cors
 pymongo
@@ -11,3 +12,4 @@ scikit-learn
 PyMuPDF
 edge-tts
 pinecone
+huggingface_hub
