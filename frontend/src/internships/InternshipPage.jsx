@@ -208,7 +208,7 @@ const InternshipPage = () => {
       setLoading(true);
       try {
         const { data } = await axios.post(
-          `${server}/internships/get-recomended-internships`,
+          `${server}/internships/recommended`,
           { filters },
           { withCredentials: true }
         );
@@ -326,7 +326,7 @@ const InternshipPage = () => {
     setLoading(true);
     try {
       const { data } = await axios.post(
-        `${server}/internships/get-recomended-internships`,
+        `${server}/internships/recommend`,
         { filters },
         { withCredentials: true }
       );
