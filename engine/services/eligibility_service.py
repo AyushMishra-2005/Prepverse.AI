@@ -1,25 +1,19 @@
 from pymongo import MongoClient
 from bson import ObjectId
 import numpy as np
-
-from models.ml_model import get_models
-from config.config import Config   # ✅ FIXED
+from services.reranker_service import rerank
+from config.config import Config  
 
 
 def eligible_users(data):
-    bi_encoder, cross_encoder = get_models()
-
-    if bi_encoder is None or cross_encoder is None:
-        return {"error": "Server not ready"}, 503
-
     internship_id = data.get("internshipId")
 
     if not internship_id:
         return {"error": "Invalid input. Provide 'internshipId'"}, 400
 
     try:
-        client = MongoClient(Config.MONGO_URI)   # ✅ FIXED
-        db = client[Config.DB_NAME]              # ✅ FIXED
+        client = MongoClient(Config.MONGO_URI)  
+        db = client[Config.DB_NAME]              
 
         internship_collection = db["new_internships_data"]
         resume_collection = db["resumedatas"]
@@ -74,10 +68,19 @@ def eligible_users(data):
 
         resumes = filtered_resumes
 
-        pairs = [(internship_desc, str(r.get("resumeJSONdata", ""))) for r in resumes]
+        documents = [
+            str(r.get("resumeJSONdata", ""))
+            for r in resumes
+        ]
 
-        raw_cross_scores = cross_encoder.predict(pairs)
-        cross_scores = np.array(raw_cross_scores).flatten()
+        results = rerank(
+            query=internship_desc,
+            documents=documents
+        )
+
+        cross_scores = np.array([
+            r["relevance_score"] for r in results
+        ])
 
         if cross_scores.max() != cross_scores.min():
             cross_scores = (cross_scores - cross_scores.min()) / (cross_scores.max() - cross_scores.min())
