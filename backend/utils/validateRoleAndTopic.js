@@ -4,29 +4,46 @@ const groq = new Groq({
   apiKey: process.env.GROQ_API_KEY
 });
 
-export const validateSingleTopic = async ({ role, topic }) => {
-
+export const validateRoleAndTopic = async ({ role, topics }) => {
   const prompt = `
     You are an expert AI assistant.
 
-    Your task is to determine whether the given role and the following comma-separated list of topics are appropriate and logically related.
+    Your task is to determine whether the given role and ALL of the provided topics are appropriate and logically related.
 
-    Return strictly one of the following JSON responses:
+    Return STRICT JSON only.
 
-    If the combination is valid:
-    { "valid": true }
+    If every topic is appropriate:
 
-    If the combination is inappropriate or unrelated:
-    { "valid": false }
+    {
+      "valid": true,
+      "invalidTopics": []
+    }
 
-    Do not provide any explanation or extra text.
+    If one or more topics are inappropriate:
 
-    Role: ${role}
-    Topics: ${topic}
+    {
+      "valid": false,
+      "invalidTopics": [
+        "topic1",
+        "topic2"
+      ]
+    }
+
+    Rules:
+    - Validate each topic independently.
+    - Only include unrelated or inappropriate topics in "invalidTopics".
+    - Do not return any explanation.
+    - Do not return markdown.
+    - Return only valid JSON.
+
+    Role:
+    ${role}
+
+    Topics:
+    ${topics.join(", ")}
     `;
 
   try {
-
     const completion = await groq.chat.completions.create({
       model: "llama-3.1-8b-instant",
       messages: [
@@ -35,41 +52,31 @@ export const validateSingleTopic = async ({ role, topic }) => {
           content: prompt
         }
       ],
-      temperature: 0.3
+      temperature: 0.2,
+      response_format: {
+        type: "json_object"
+      }
     });
 
-    let raw = completion.choices[0].message.content.trim();
+    const response = JSON.parse(
+      completion.choices[0].message.content
+    );
 
-    if (!raw.endsWith("}")) raw += "}";
-
-    const jsonMatch = raw.match(/\{\s*"valid"\s*:\s*(true|false)\s*\}/);
-
-    if (!jsonMatch) {
-      throw new Error("Invalid JSON response from AI");
+    if (
+      typeof response.valid !== "boolean" ||
+      !Array.isArray(response.invalidTopics)
+    ) {
+      throw new Error("Invalid AI response.");
     }
 
-    return JSON.parse(jsonMatch[0]);
+    return response;
 
   } catch (err) {
-    console.log("validateRoleAndTopic error:", err.message);
-    return { valid: false };
-  }
-};
+    console.error("validateRoleAndTopic:", err.message);
 
-export const validateRoleAndTopic = async ({ role, topics }) => {
-  try {
-
-    for (const topic of topics) {
-      const { valid } = await validateSingleTopic({ role, topic });
-
-      if (!valid) {
-        return { valid: false };
-      }
-    }
-
-    return { valid: true };
-
-  } catch (err) {
-    throw new Error("Validation failed");
+    return {
+      valid: false,
+      invalidTopics: topics
+    };
   }
 };
