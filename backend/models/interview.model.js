@@ -4,53 +4,74 @@ import { Schema } from "mongoose";
 const interviewSchema = new Schema(
   {
     interviewId: {
-      type : mongoose.Schema.Types.ObjectId,
-      ref : 'Internship'
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Internship",
     },
+
     participant: {
-      type : mongoose.Schema.Types.ObjectId,
-      ref : 'User',
-      required : true
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
     },
+
+    role: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+
+    topic: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+
+    numOfQns: {
+      type: Number,
+      required: true,
+      min: 2,
+      max: 25,
+    },
+
     questions: {
       type: [
         {
           question: {
             type: String,
-            required: true
+            required: true,
           },
           time: {
             type: Number,
-            required: true
-          }
+            required: true,
+          },
         },
       ],
       required: true,
     },
+
     answers: {
       type: [String],
       required: true,
     },
 
-    reviews : [
+    reviews: [
       {
-        review : {
-          type : String,
+        review: {
+          type: String,
         },
-        score : {
-          type : Number
-        }
-      }
+        score: {
+          type: Number,
+        },
+      },
     ],
 
-    totalScore : {
+    totalScore: {
       type: Number,
     },
 
-    overAllReview : {
+    overAllReview: {
       type: String,
-    }
-
+    },
   },
   {
     timestamps: true,
