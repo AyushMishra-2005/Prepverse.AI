@@ -39,7 +39,7 @@ const InterviewSection = () => {
       setLoading(true);
       const { role, topic, numOfQns } = formData;
       const { data } = await axios.post(
-        "http://localhost:8000/interview/checkRoleAndTopic",
+        "http://localhost:8000/interview/create-candidate-interivew",
         { role, topic, numOfQns },
         { withCredentials: true }
       );

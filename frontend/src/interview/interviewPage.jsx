@@ -53,7 +53,7 @@ function InterviewPage() {
   // Check screen size on mount and resize
   useEffect(() => {
     const checkScreenSize = () => {
-      setIsMobileView(window.innerWidth < 1024); // lg breakpoint
+      setIsMobileView(window.innerWidth < 1024); 
     };
     
     checkScreenSize();
@@ -135,7 +135,7 @@ function InterviewPage() {
       const modelId = interviewModelId;
 
       const { data } = await axios.post(`${server}/interview/generate-question`,
-        { role, topic, name, previousQuestions, askedQuestion, givenAnswer, numOfQns, modelId },
+        { givenAnswer, modelId },
         { withCredentials: true }
       );
 
@@ -160,15 +160,10 @@ function InterviewPage() {
     setUserMic(true);
     setAiSpeaking(true);
     try {
-      const role = interviewData?.role;
-      const topic = interviewData?.topic;
-      const numOfQns = interviewData?.numOfQns;
-      const name = authUser.user.name;
-      const previousQuestions = askedQuestions;
       const modelId = interviewModelId;
 
       const { data } = await axios.post(`${server}/interview/generate-question`,
-        { role, topic, name, previousQuestions, numOfQns, modelId },
+        { modelId },
         { withCredentials: true }
       );
       setAssistantContent(data.responseData);
