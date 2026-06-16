@@ -2,6 +2,7 @@ import axios from 'axios';
 import InterviewData from '../models/interview.model.js';
 import Groq from "groq-sdk";
 import dotenv from 'dotenv'
+import { validateRoleAndTopic } from "../utils/validateRoleAndTopic.js";
 
 dotenv.config();
 
@@ -10,27 +11,37 @@ const groq = new Groq({
 });
 
 export const generateQuestionsReview = async (req, res) => {
-  const { role, topic, name, previousQuestions = [], askedQuestion, numOfQns, modelId } = req.body;
+  const { modelId } = req.body;
   let { givenAnswer } = req.body;
   const { email } = req.user;
-
-  if (!role || !topic || !name) {
-    return res.status(500).json({ message: "Must provide a role, topic, and name!" });
-  }
+  const userId = req.user._id;
 
   if (!modelId) {
     return res.status(500).json({ message: "Must provide a modelId!" });
   }
 
-  if (previousQuestions.length > 0 && (!askedQuestion || !givenAnswer)) {
-    console.error('Missing fields for follow-up:', { askedQuestion, givenAnswer });
-    return res.status(400).json({
-      message: "For follow-up questions, must provide askedQuestion and givenAnswer!",
-      received: { askedQuestion, givenAnswer }
+  givenAnswer = givenAnswer?.trim() || "Answer Not Provided.";
+
+  const data = await InterviewData.findById(modelId)
+    .populate("participant", "name email");
+
+  if (!data) {
+    return res.status(404).json({
+      message: "Interview not found."
     });
   }
 
-  givenAnswer = givenAnswer?.trim() === "" ? "Answer Not Provided." : givenAnswer;
+  const {
+    role,
+    topic,
+    numOfQns,
+    questions,
+    answers,
+    reviews,
+    participant
+  } = data;
+
+  const { name, email } = participant;
 
   try {
     let prompt;
@@ -38,26 +49,49 @@ export const generateQuestionsReview = async (req, res) => {
     let response;
     let finishInterview = false;
 
-    if (previousQuestions.length === 0) {
+    if (questions.length === 0) {
       const prompt = `You are conducting a professional interview for a ${role} position, focusing on ${topic}.
 
-        Your task is to generate:
+        The candidate's name is ${name}.
 
-        1. A warm, professional welcome message for the candidate ${name}, written as three short parts in a single line (no line breaks).
-        - Under 200 words
-        - Mention the job title naturally
-        - Friendly + professional tone
-        - No AI/mock mention
+        Generate the following:
 
-        2. A standalone transition phrase:
-        - Not a full sentence
-        - No question mark
-        - Example: "Let's begin with"
+        1. WELCOME MESSAGE
+        - Warm and professional.
+        - Address the candidate by name.
+        - Mention the ${role} position naturally.
+        - Under 70 words.
+        - Do not mention AI, mock interviews, or evaluation.
 
-        Return STRICT JSON:
+        2. TRANSITION
+        - A short phrase only.
+        - No question mark.
+        - Examples:
+          - "Let's begin with"
+          - "To get started"
+          - "We'll start by discussing"
+
+        3. FIRST INTERVIEW QUESTION
+        Rules:
+        - Ask exactly one question.
+        - It must be related to ${topic}.
+        - Suitable for a 30–60 second spoken answer.
+        - Clear and concise.
+        - Do not combine multiple questions.
+
+        4. TIME
+        Return an appropriate time in seconds:
+        - Simple: 30–35
+        - Conceptual: 40–50
+        - Scenario-based: 50–60
+
+        Return STRICT JSON only.
+
         {
-          "addressing": "text",
-          "transition": "text"
+          "addressing": "...",
+          "transition": "...",
+          "question": "...",
+          "time": 45
         }`
         ;
       const completion = await groq.chat.completions.create({
@@ -74,85 +108,140 @@ export const generateQuestionsReview = async (req, res) => {
 
       const response = JSON.parse(completion.choices[0].message.content);
 
-      const { addressing, transition } = response;
+      const { addressing, transition, question, time } = response;
 
-      if (!addressing || !transition) {
+      if (!addressing || !transition || !question || !time) {
         return res.status(500).json({ message: "Failed to generate question!" });
       }
 
       const data = await InterviewData.findById(modelId);
-      const question = data.questions[0];
+      data.questions.push({
+        question,
+        time
+      });
 
-      let transitionData = transition.trim();
+      await data.save();
 
-      if (transitionData.endsWith(".")) {
-        transitionData = transitionData.slice(0, -1) + ",";
-      } else if (!transitionData.endsWith(",")) {
-        transitionData += ",";
-      }
-
-      let responseData =
-        addressing + " " + transitionData + " " + question.question;
+      const responseData =
+        `${addressing} ${transition}, ${question}`;
 
       return res.status(200).json({
         message: "Question generated!",
-        question,
+        question: {
+          question,
+          time
+        },
         responseData,
-        finishInterview
+        finishInterview: false
       });
 
     } else {
 
-      if (previousQuestions.length == numOfQns) {
-        prompt = `You are conducting a professional interview for ${role} focusing on ${topic}.
-          Previous Question: "${askedQuestion}"
-          Candidate Answer: "${(givenAnswer || '').trim() || '[No answer provided]'}"
+      const previousQuestion = questions[questions.length - 1]?.question || "";
+
+      const previousQuestions = questions
+        .map((q, index) => `Question ${index + 1}: ${q.question}`)
+        .join("\n");
+
+      const previousAnswers = answers
+        .map((answer, index) => `Answer ${index + 1}: ${answer}`)
+        .join("\n");
+
+      if (questions.length == numOfQns) {
+        prompt = `
+          You are conducting a professional interview for the role of ${role} focusing on ${topic}.
+
+          Candidate Name: ${name}
+
+          Final Question:
+          ${previousQuestion}
+
+          Final Answer:
+          ${givenAnswer}
+
+          The interview has now ended. Do NOT generate another question.
 
           Generate:
 
-          1. FEEDBACK:
-          - Exactly 2 professional sentences
-          - Use "you/your"
-          - Only assessment (no suggestions/praise)
-          - Be objective and factual
+          1. FEEDBACK
+          - Exactly 2 professional sentences.
+          - Evaluate only the candidate's final answer.
+          - Use "you" and "your".
+          - Be objective and factual.
+          - Do not give suggestions or praise.
 
-          2. END MESSAGE:
-          - 2–3 sentence professional thank-you
-          - Different wording every time
+          2. CLOSING MESSAGE
+          - Thank the candidate for participating.
+          - 2–3 professional sentences.
+          - Professional and friendly.
+          - End the interview naturally.
+          - Do not mention AI or mock interviews.
 
           Return STRICT JSON:
+
           {
             "feedback": "text",
-            "transition": "text"
-          }`
-          ;
+            "closing": "text"
+          }`;
 
         finishInterview = true;
+
       } else {
-        prompt = `You are conducting a professional interview for ${role} focusing on ${topic}.
+        prompt = `
+          You are conducting a professional interview for the role of ${role} focusing on ${topic}.
 
-        Previous Question: "${askedQuestion}"
-        Candidate Answer: "${(givenAnswer || '').trim() || '[No answer provided]'}"
+          Candidate Name: ${name}
 
-        Generate:
+          Interview History:
+          ${previousQuestions}
 
-        1. FEEDBACK:
-        - Exactly 2 professional sentences
-        - Use "you/your"
-        - Only assessment (no suggestions/praise)
-        - Be objective and factual
+          Latest Question:
+          ${previousQuestion}
 
-        2. TRANSITION:
-        - Start with:
-          "Next, let's discuss,", "Moving on to,", "Now, consider,"
-        - No question
-        - End with ":" or "..."
+          Latest Answer:
+          ${givenAnswer}
 
-        Return STRICT JSON:
-        {
-          "feedback": "text",
-          "transition": "text"
-        }`;
+          Generate:
+
+          1. FEEDBACK
+          - Exactly 2 professional sentences.
+          - Evaluate only the latest answer.
+          - Use "you" and "your".
+          - Be objective and factual.
+          - Do not give suggestions or praise.
+
+          2. TRANSITION
+          - A short transition phrase.
+          - Examples:
+            - "Next, let's discuss"
+            - "Moving on to"
+            - "Now, let's explore"
+          - No question mark.
+          - End with ":" or "...".
+
+          3. NEXT QUESTION
+          - Generate exactly one interview question.
+          - Do NOT repeat any previous question.
+          - If the candidate mentions an interesting technology, framework, project, implementation, optimization, design decision, or any topic that deserves deeper discussion, ask one relevant follow-up question to explore it further.
+          - Follow-up questions should be used occasionally, not after every answer.
+          - Otherwise, generate a new question covering another important aspect of ${topic}.
+          - Maintain or gradually increase the interview difficulty.
+          - The question should be answerable in 30–60 seconds.
+
+          4. TIME
+          Return the estimated answer time in seconds:
+          - Simple: 30–35
+          - Conceptual: 40–50
+          - Scenario: 50–60
+
+          Return STRICT JSON:
+
+          {
+            "feedback": "text",
+            "transition": "text",
+            "question": "text",
+            "time": 45
+          }`;
       }
 
       const completion = await groq.chat.completions.create({
@@ -169,47 +258,85 @@ export const generateQuestionsReview = async (req, res) => {
 
       const response = JSON.parse(completion.choices[0].message.content);
 
-      const { feedback, transition } = response;
+      if (finishInterview) {
+        const { feedback, closing } = response;
 
-      if (!feedback || !transition) {
-        return res.status(500).json({ message: "Invalid AI response" });
-      }
-      const data = await InterviewData.findById(modelId);
-      const question = data.questions[previousQuestions.length];
-
-      let transitionData = transition.trim();
-
-      if (!question) {
-        if (transitionData.endsWith(",")) {
-          transitionData = transitionData.slice(0, -1) + ".";
-        } else if (!transitionData.endsWith(".")) {
-          transitionData += ".";
+        if (!feedback || !closing) {
+          return res.status(500).json({
+            message: "Invalid AI response."
+          });
         }
+
+        data.answers.push(givenAnswer);
+
+        data.reviews.push({
+          review: feedback
+        });
+
+        await data.save();
+
+        return res.status(200).json({
+          message: "Interview completed.",
+          responseData: `${feedback} ${closing}`,
+          finishInterview: true
+        });
       } else {
+        const {
+          feedback,
+          transition,
+          question,
+          time
+        } = response;
+
+        if (!feedback || !transition || !question) {
+          return res.status(500).json({
+            message: "Invalid AI response."
+          });
+        }
+
+        const questionTime = time ?? 45;
+
+        data.answers.push(givenAnswer);
+
+        data.reviews.push({
+          review: feedback
+        });
+
+        data.questions.push({
+          question,
+          time: questionTime
+        });
+
+        await data.save();
+
+        let transitionData = transition.trim();
+
         if (transitionData.endsWith(".")) {
-          transitionData = transitionData.slice(0, -1) + ",";
-        } else if (!transitionData.endsWith(",")) {
+          transitionData =
+            transitionData.slice(0, -1) + ",";
+        }
+        else if (!transitionData.endsWith(",")) {
           transitionData += ",";
         }
+
+        const responseData =
+          `${feedback} ${transitionData} ${question}`;
+
+        return res.status(200).json({
+          message: "Question generated.",
+          question: {
+            question,
+            time: questionTime
+          },
+          responseData,
+          finishInterview: false
+        });
+
       }
 
-      data.answers[previousQuestions.length - 1] = givenAnswer;
-      await data.save();
 
-      let responseData = "";
 
-      if (!question) {
-        responseData = feedback + " " + transitionData;
-      } else {
-        responseData = feedback + " " + transitionData + " " + question.question;
-      }
 
-      return res.status(200).json({
-        message: "Question generated!",
-        question,
-        responseData,
-        finishInterview
-      });
     }
 
   } catch (err) {
@@ -221,112 +348,60 @@ export const generateQuestionsReview = async (req, res) => {
 
 
 
-export const checkRoleAndTopic = async (req, res) => {
-
+export const createCandidateInterview = async (req, res) => {
   const { role, topic, numOfQns } = req.body;
   const participant = req.user._id;
 
   if (!role || !topic || !numOfQns) {
-    return res.status(400).json({ message: "Provide valid inputs" });
+    return res.status(400).json({
+      message: "Provide valid inputs."
+    });
   }
 
-  if (numOfQns < 2 || numOfQns > 25) {
+  if (numOfQns < 2 || numOfQns > 10) {
     return res.status(400).json({
       message: "Please provide a number of questions between 2 and 25."
     });
   }
 
   try {
-    const prompt = `
-      You are an expert AI interview assistant.
+    const topics = [topic];
 
-      Task:
-      - Validate if role and topic are related.
-      - If valid, generate oral interview questions.
-
-      Constraints:
-      1. Generate exactly ${numOfQns} questions.
-      2. Each question should be answerable in 30–60 seconds.
-      3. No repetition.
-      4. Keep questions concise and role-relevant.
-      5. Add time (seconds):
-        - Simple: 30–35
-        - Conceptual: 40–50
-        - Scenario: 50–60
-
-      Return STRICT JSON:
-
-      If valid:
-      {
-        "valid": true,
-        "questions": [
-          { "question": "text", "time": 30 }
-        ]
-      }
-
-      If invalid:
-      {
-        "valid": false,
-        "questions": []
-      }
-
-      Input:
-      Role: ${role}
-      Topic: ${topic}
-      `;
-
-    const completion = await groq.chat.completions.create({
-      model: "llama-3.1-8b-instant",
-      messages: [
-        {
-          role: "user",
-          content: prompt
-        }
-      ],
-      temperature: 0.7,
-      response_format: { type: "json_object" }
+    const { valid, invalidTopics } = await validateRoleAndTopic({
+      role,
+      topics
     });
 
-    const parsed = JSON.parse(completion.choices[0].message.content);
-
-    let { valid, questions } = parsed;
-
-    if (!valid || !Array.isArray(questions)) {
-      return res.status(200).json({
-        message: "Invalid role-topic combination",
-        response: parsed
+    if (!valid) {
+      return res.status(400).json({
+        message: "Invalid role-topic combination.",
+        invalidTopics
       });
     }
 
-    questions = questions.slice(0, numOfQns);
-
-    questions = questions.map(q => ({
-      ...q,
-      time: q.time ?? 45
-    }));
-
-    const newData = new InterviewData({
+    const interview = await InterviewData.create({
       participant,
-      questions,
-      answers: questions.map(() => "Answer Not Provided.")
+      role,
+      topic,
+      numOfQns,
+      questions: [],
+      answers: [],
+      reviews: []
     });
 
-    await newData.save();
-
-    const interviewModelId = newData._id;
-
     return res.status(200).json({
-      message: "Questions generated successfully",
-      response: parsed,
-      interviewModelId
+      message: "Interview created successfully.",
+      interviewModelId: interview._id
     });
 
   } catch (err) {
-    console.error("Groq Error:", err.message);
-    return res.status(500).json({ message: "Server Error" });
+    console.error("Create Interview Error:", err.message);
+
+    return res.status(500).json({
+      message: "Server Error."
+    });
   }
 };
-
 
 
 

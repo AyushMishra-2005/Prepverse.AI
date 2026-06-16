@@ -1,14 +1,14 @@
 import express from 'express'
 
 import {Router} from 'express'
-import { generateQuestionsReview, checkRoleAndTopic} from '../controller/interview.controller.js';
+import { generateQuestionsReview, createCandidateInterview} from '../controller/interview.controller.js';
 import {createCompanyInterview, sendAllInterviews, searchInterviews, generateInterviewQuestions, evaluateInterviewResult, getAllCandidates} from '../controller/companyInterview.controller.js'
 import secureRoute from '../middleware/secureRoute.js';
 
 const router = Router();
 
-router.post("/generate-question", secureRoute, generateQuestionsReview);
-router.post("/checkRoleAndTopic", secureRoute, checkRoleAndTopic);
+router.post("/generate-review", secureRoute, generateQuestionsReview);
+router.post("/create-candidate-interivew", secureRoute, createCandidateInterview);
 router.post("/create-companyInterview", secureRoute, createCompanyInterview);
 router.post("/getAll-Interviews", secureRoute, sendAllInterviews);
 router.post("/search-Interviews", secureRoute, searchInterviews);
