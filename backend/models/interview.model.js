@@ -20,8 +20,8 @@ const interviewSchema = new Schema(
       trim: true,
     },
 
-    topic: {
-      type: String,
+    topics: {
+      type: [String],
       required: true,
       trim: true,
     },
