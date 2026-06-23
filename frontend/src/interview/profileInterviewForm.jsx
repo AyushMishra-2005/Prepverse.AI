@@ -107,19 +107,12 @@ export default function ProfileInterviewForm() {
     }
 
     setLoading(true);
-    const formData = new FormData();
-    
-    // Send existing resume flag
-    formData.append("useExistingResume", "true");
-    formData.append("role", role);
-    formData.append("numberOfQns", numberOfQns);
-    topics.forEach((t) => formData.append("topics", t));
-
+  
     try {
       setOpenStepProgress(true);
       const { data } = await axios.post(
         "http://localhost:8000/profileInterview/checkRoleValidity",
-        formData,
+        {role, topics, numberOfQns},
         { withCredentials: true }
       );
 

@@ -14,19 +14,51 @@ const InterviewSection = () => {
 
   const [formData, setFormData] = useState({
     role: '',
-    topic: '',
+    topics: [''],
     numOfQns: 5
   });
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+    if (name === 'topics') {
+      return;
+    }
     setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleTopicChange = (index, value) => {
+    const updatedTopics = [...formData.topics];
+    updatedTopics[index] = value;
+    setFormData(prev => ({ ...prev, topics: updatedTopics }));
+  };
+
+  const addTopic = () => {
+    setFormData(prev => ({
+      ...prev,
+      topics: [...prev.topics, '']
+    }));
+  };
+
+  const removeTopic = (index) => {
+    if (formData.topics.length <= 1) {
+      toast.error("At least one topic is required");
+      return;
+    }
+    const updatedTopics = formData.topics.filter((_, i) => i !== index);
+    setFormData(prev => ({ ...prev, topics: updatedTopics }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.role || !formData.topic || !formData.numOfQns) {
-      toast.error("Please fill the form");
+    if (!formData.role) {
+      toast.error("Please fill the role");
+      return;
+    }
+
+    // Filter out empty topics
+    const filteredTopics = formData.topics.filter(topic => topic.trim() !== '');
+    if (filteredTopics.length === 0) {
+      toast.error("Please add at least one topic");
       return;
     }
 
@@ -37,20 +69,22 @@ const InterviewSection = () => {
 
     try {
       setLoading(true);
-      const { role, topic, numOfQns } = formData;
+      const { role, numOfQns } = formData;
+      const topics = filteredTopics;
+      
       const { data } = await axios.post(
         "http://localhost:8000/interview/create-candidate-interivew",
-        { role, topic, numOfQns },
+        { role, topics, numOfQns },
         { withCredentials: true }
       );
 
       if (!data.valid) {
         setLoading(false);
-        return toast.error("Please enter valid Role and Topic!");
+        return toast.error("Please enter valid Role and Topics!");
       }
 
       setInterviewModelId(data.interviewModelId);
-      setInterviewData({ topic, role, numOfQns });
+      setInterviewData({ topics, role, numOfQns });
       setAccessInterviewPage(true);
       navigate('/interviewPage');
     } catch (err) {
@@ -62,7 +96,7 @@ const InterviewSection = () => {
   };
 
   // Theme-based styles
- const MaintextColor = theme === 'dark' ? 'text-gray-100' : 'text-gray-900';
+  const MaintextColor = theme === 'dark' ? 'text-gray-100' : 'text-gray-900';
   const containerBg = theme === 'dark' ? 'bg-black' : 'bg-gray-50';
   const cardBg = theme === 'dark' ? 'bg-orange-100' : 'bg-orange-50';
   const textColor = theme === 'dark' ? 'text-gray-800' : 'text-gray-900';
@@ -71,6 +105,7 @@ const InterviewSection = () => {
   const inputFocus = 'focus:ring-orange-500 focus:border-orange-500';
   const tipBg = theme === 'dark' ? 'bg-white' : 'bg-orange-50';
   const tipBorder = theme === 'dark' ? 'border-gray-700' : 'border-orange-200';
+
   return (
     <div className={`min-h-screen w-full py-12 px-4 sm:px-6 lg:px-8 ${containerBg}`}>
       <div className="max-w-6xl mx-auto">
@@ -104,19 +139,47 @@ const InterviewSection = () => {
                   />
                 </div>
 
-                {/* Topic */}
+                {/* Topics */}
                 <div>
-                  <label htmlFor="topic" className={`block text-sm font-medium mb-2 ${labelColor}`}>Interview Topic</label>
-                  <input
-                    type="text"
-                    id="topic"
-                    name="topic"
-                    value={formData.topic}
-                    onChange={handleChange}
-                    placeholder="e.g. React.js, Machine Learning, System Design"
-                    className={`w-full px-4 py-3 rounded-lg border ${inputBg} ${inputFocus} transition duration-200 focus:outline-none focus:ring-2`}
-                    required
-                  />
+                  <div className="flex items-center justify-between mb-2">
+                    <label className={`block text-sm font-medium ${labelColor}`}>Interview Topics</label>
+                    <button
+                      type="button"
+                      onClick={addTopic}
+                      className="text-sm text-orange-500 hover:text-orange-600 font-medium flex items-center gap-1"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
+                      </svg>
+                      Add Topic
+                    </button>
+                  </div>
+                  
+                  {formData.topics.map((topic, index) => (
+                    <div key={index} className="flex items-center gap-2 mb-2">
+                      <input
+                        type="text"
+                        value={topic}
+                        onChange={(e) => handleTopicChange(index, e.target.value)}
+                        placeholder={`Topic ${index + 1}`}
+                        className={`w-full px-4 py-3 rounded-lg border ${inputBg} ${inputFocus} transition duration-200 focus:outline-none focus:ring-2`}
+                      />
+                      {formData.topics.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => removeTopic(index)}
+                          className="p-2 text-red-500 hover:text-red-700 transition-colors"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                          </svg>
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                  <p className={`text-xs mt-1 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
+                    Add multiple topics to focus your interview
+                  </p>
                 </div>
 
                 {/* Number of Questions */}
