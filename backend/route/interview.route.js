@@ -7,7 +7,7 @@ import secureRoute from '../middleware/secureRoute.js';
 
 const router = Router();
 
-router.post("/generate-review", secureRoute, generateQuestionsReview);
+router.post("/generate-question", secureRoute, generateQuestionsReview);
 router.post("/create-candidate-interivew", secureRoute, createCandidateInterview);
 router.post("/create-companyInterview", secureRoute, createCompanyInterview);
 router.post("/getAll-Interviews", secureRoute, sendAllInterviews);

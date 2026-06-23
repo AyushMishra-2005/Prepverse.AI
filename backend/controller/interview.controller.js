@@ -13,7 +13,6 @@ const groq = new Groq({
 export const generateQuestionsReview = async (req, res) => {
   const { modelId } = req.body;
   let { givenAnswer } = req.body;
-  const { email } = req.user;
   const userId = req.user._id;
 
   if (!modelId) {
@@ -102,7 +101,7 @@ export const generateQuestionsReview = async (req, res) => {
             content: prompt
           }
         ],
-        temperature: 0.7,
+        temperature: 0.2,
         response_format: { type: "json_object" }
       });
 
@@ -252,7 +251,7 @@ export const generateQuestionsReview = async (req, res) => {
             content: prompt
           }
         ],
-        temperature: 0.7,
+        temperature: 0.2,
         response_format: { type: "json_object" }
       });
 
@@ -333,10 +332,6 @@ export const generateQuestionsReview = async (req, res) => {
         });
 
       }
-
-
-
-
     }
 
   } catch (err) {
@@ -375,7 +370,8 @@ export const createCandidateInterview = async (req, res) => {
     if (!valid) {
       return res.status(400).json({
         message: "Invalid role-topic combination.",
-        invalidTopics
+        invalidTopics,
+        valid
       });
     }
 
@@ -391,7 +387,8 @@ export const createCandidateInterview = async (req, res) => {
 
     return res.status(200).json({
       message: "Interview created successfully.",
-      interviewModelId: interview._id
+      interviewModelId: interview._id,
+      valid
     });
 
   } catch (err) {

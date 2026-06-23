@@ -79,7 +79,7 @@ export async function evaluateResult({ questions, answers }) {
     };
 
   } catch (err) {
-    console.error("Error calling LLaMA 3.2:", err.message);
+    console.error("Error calling LLaMA 3.1:", err.message);
     throw err;
   }
 }

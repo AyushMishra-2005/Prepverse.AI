@@ -12,9 +12,10 @@ import secureRoute from './middleware/secureRoute.js'
 import quizRoute from './route/quiz.route.js'
 import resumeRoute from './route/resume.route.js'
 import profileInterviewRoute from './route/profileInterview.route.js'
-import {app, io, server} from './SocketIO/server.js'
+import { app, io, server } from './SocketIO/server.js'
 import resumeUploadRoute from './route/resumeUpload.route.js'
 import internshipRoute from './route/internships.route.js'
+import { generateVoice } from './services/tts.service.js';
 
 
 
@@ -68,7 +69,7 @@ app.use('/internships', internshipRoute);
 app.get('/verify-token', secureRoute, (req, res) => {
   res.status(200).json({
     message: "Token is valid",
-    user: req.user, 
+    user: req.user,
   });
 });
 
@@ -93,13 +94,13 @@ app.post('/deleteImage', async (req, res) => {
     const result = await cloudinary.uploader.destroy(publicId, {
       invalidate: true,
     });
-    res.status(200).json({result});
+    res.status(200).json({ result });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
-
+app.post('/speak', secureRoute, generateVoice);
 
 
 
