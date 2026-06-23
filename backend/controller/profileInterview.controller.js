@@ -239,9 +239,39 @@ export const profileBasedInterview = async (req, res) => {
 }
 
 
+export const checkResumeData = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    
+    if (!userId) {
+      return res.status(400).json({ 
+        exists: false,
+        message: "User ID not found" 
+      });
+    }
 
+    const data = await ResumeData.findOne({ userId });
 
+    if (!data || !data.resumeJSONdata) {
+      return res.status(200).json({ 
+        exists: false,
+        message: "Resume data not found!" 
+      });
+    }
 
+    return res.status(200).json({
+      exists: true,
+      message: "Resume data found",
+    });
+
+  } catch (err) {
+    console.error("Error checking resume data:", err);
+    return res.status(500).json({ 
+      exists: false,
+      message: "Server error while checking resume data"
+    });
+  }
+}
 
 
 

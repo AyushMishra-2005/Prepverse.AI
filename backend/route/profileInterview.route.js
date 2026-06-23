@@ -1,5 +1,5 @@
 import express from 'express'
-import { checkRoleValidity, profileBasedInterview } from '../controller/profileInterview.controller.js';
+import { checkRoleValidity, profileBasedInterview, checkResumeData } from '../controller/profileInterview.controller.js';
 import secureRoute from '../middleware/secureRoute.js';
 import multer from 'multer';
 
@@ -9,7 +9,7 @@ const upload = multer({ dest: "uploads/" });
 
 router.post('/checkRoleValidity', secureRoute, upload.single("file"), checkRoleValidity);
 router.post('/profileBasedInterview', secureRoute, profileBasedInterview);
-
+router.post('/checkResumeData', secureRoute, checkResumeData);
 
 export default router
 
