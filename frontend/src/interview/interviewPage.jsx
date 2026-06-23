@@ -47,6 +47,9 @@ function InterviewPage() {
     setInterviewModelId,
     distractionDetect,
     setDistractionDetect,
+
+    answerTimer, 
+    setAnswerTimer,
   } = useConversation();
   const [startInterview, setStartInterview] = useState(false);
 
@@ -101,7 +104,6 @@ function InterviewPage() {
     }
 
     setStartInterview(false);
-    setAskedQuestions([]);
     setAssistantContent("");
   }
 
@@ -125,12 +127,6 @@ function InterviewPage() {
     setAiSpeaking(true);
 
     try {
-      const role = interviewData?.role;
-      const topic = interviewData?.topic;
-      const numOfQns = interviewData?.numOfQns;
-      const name = authUser.user.name;
-      const previousQuestions = askedQuestions;
-      const askedQuestion = assistantContent;
       const givenAnswer = candidateAnswer?.trim() === "" ? "Answer Not Provided." : candidateAnswer;
       const modelId = interviewModelId;
 
@@ -140,12 +136,12 @@ function InterviewPage() {
       );
 
       setAssistantContent(data.responseData);
-      askedQuestions.push(data.question);
-      setAskedQuestions(askedQuestions);
-
+    
       if (data.finishInterview) {
         setFinishInterview(data.finishInterview);
         setAiSpeaking(true);
+      }else{
+        setAnswerTimer(data.question.time);
       }
 
     } catch (err) {
@@ -167,8 +163,7 @@ function InterviewPage() {
         { withCredentials: true }
       );
       setAssistantContent(data.responseData);
-      askedQuestions.push(data.question);
-      setAskedQuestions(askedQuestions);
+      setAnswerTimer(data.question.time);
     } catch (err) {
       console.log(err);
     }
@@ -219,7 +214,7 @@ function InterviewPage() {
       {startInterview && userMic && !aiSpeaking && (
         <div className="absolute top-4 right-6 z-50">
           <CountdownTimer 
-            duration={askedQuestions[askedQuestions.length - 1]?.time} 
+            duration={answerTimer} 
             onComplete={() => {
               handleSendRecording();
             }} 

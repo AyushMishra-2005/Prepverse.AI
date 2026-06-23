@@ -44,7 +44,7 @@ const InterviewSection = () => {
         { withCredentials: true }
       );
 
-      if (!data.response.valid) {
+      if (!data.valid) {
         setLoading(false);
         return toast.error("Please enter valid Role and Topic!");
       }

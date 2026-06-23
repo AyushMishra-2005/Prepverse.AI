@@ -34,6 +34,10 @@ const useConversation = create((set) => ({
 
   distractionDetect : false,
   setDistractionDetect: (distractionDetect) => set({distractionDetect}),
+
+  answerTimer: 0,
+  setAnswerTimer: (answerTimer) => set({answerTimer}),
+
 }));
 
 export default useConversation;

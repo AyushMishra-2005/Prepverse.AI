@@ -1,70 +1,85 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useCallback } from "react";
 import useConversation from "../stateManage/useConversation";
-import axios from 'axios';
+import axios from "axios";
+import server from "../environment";
 
 function TextToVoice({ onStart, onEnd, setStopSpeakingCallback }) {
   const { assistantContent } = useConversation();
+
   const audioRef = useRef(null);
+  const audioUrlRef = useRef(null);
+
+  const stopSpeaking = useCallback(() => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+      audioRef.current = null;
+    }
+
+    if (audioUrlRef.current) {
+      URL.revokeObjectURL(audioUrlRef.current);
+      audioUrlRef.current = null;
+    }
+
+    onEnd?.();
+  }, [onEnd]);
+
+  useEffect(() => {
+    if (setStopSpeakingCallback) {
+      setStopSpeakingCallback(() => stopSpeaking);
+    }
+  }, []); 
 
   const speakText = async () => {
-    if (!assistantContent.trim()) return;
+    if (!assistantContent?.trim()) return;
 
     try {
       onStart?.();
 
       const response = await axios.post(
-        "http://localhost:5000/speak",
+        `${server}/speak`,
         { text: assistantContent },
         {
-          headers: { "Content-Type": "application/json" },
+          withCredentials: true,
           responseType: "blob",
-        },
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
       );
 
-      const blob = response.data;
-      const audioUrl = URL.createObjectURL(blob);
-      const audio = new Audio(audioUrl);
+      if (!(response.data instanceof Blob)) {
+        throw new Error("Server didn't return audio.");
+      }
+
+      const url = URL.createObjectURL(response.data);
+      audioUrlRef.current = url;
+
+      const audio = new Audio(url);
       audioRef.current = audio;
 
       audio.onended = () => {
-        onEnd?.();
-        audioRef.current = null;
+        stopSpeaking();
       };
 
-      audio.play();
+      await audio.play();
     } catch (err) {
-      console.error("Voice playback error:", err.message);
-      onEnd?.();
+      console.error("Voice playback error:", err);
+      stopSpeaking();
     }
   };
 
   useEffect(() => {
-    if (setStopSpeakingCallback) {
-      setStopSpeakingCallback(() => () => {
-        if (audioRef.current) {
-          audioRef.current.pause();
-          audioRef.current.currentTime = 0;
-          audioRef.current = null;
-          onEnd?.();
-        }
-      });
-    }
-  }, [setStopSpeakingCallback]);
-
-  useEffect(() => {
     speakText();
+
+    return () => {
+      stopSpeaking();
+    };
   }, [assistantContent]);
 
   return null;
 }
 
 export default TextToVoice;
-
-
-
-
-
-
-
 
 
