@@ -21,12 +21,6 @@ export const checkRoleValidity = async (req, res) => {
     topics = [topics];
   }
 
-  if (!req.file) {
-    return res.status(400).json({ message: "No file provided" });
-  }
-
-  const filePath = req.file.path;
-
   if (
     !role?.trim() ||
     !Array.isArray(topics) ||
@@ -34,12 +28,8 @@ export const checkRoleValidity = async (req, res) => {
     !topics.some(topic => topic.trim() !== "") ||
     !numberOfQns
   ) {
-    deleteFile(filePath);
     return res.status(400).json({ message: "Please provide a valid role and at least one non-empty topic." });
   }
-
-  const form = new FormData();
-  form.append("file", fs.createReadStream(filePath), req.file.originalname);
 
   const userSocketId = getUserSocketId(participant);
   if (!userSocketId) {
@@ -52,21 +42,16 @@ export const checkRoleValidity = async (req, res) => {
     io.to(userSocketId).emit("validateRoleAndTopic", { valid });
 
     if (!valid) {
-      deleteFile(filePath);
       return res.status(501).json({ message: "Not valid role and topic" });
     }
 
-    const flaskUrl = "http://127.0.0.1:3000/parse-resume";
-    const { data } = await axios.post(flaskUrl, form, {
-      headers: form.getHeaders(),
-    });
+    const data = await ResumeData.findOne({userId : participant});
 
-    if (!data.resume_text) {
-      deleteFile(filePath);
+    if (!data) {
       return res.status(400).json({ message: "Parsing Resume Failed!" });
     }
 
-    const resume_data = await parseResumeWithLLM(data.resume_text);
+    const resume_data = data.resumeJSONdata;
 
     if (resume_data) {
 
@@ -86,49 +71,29 @@ export const checkRoleValidity = async (req, res) => {
 
       io.to(userSocketId).emit("resumeScore", { totalScore, summaryFeedback });
 
-      const questions = await generateInterviewQuestions(
-        resume_data,
+      
+      const newData = new InterviewData({
+        participant,
         role,
-        Array.isArray(topics) ? topics : topics.split(","),
-        parseInt(numberOfQns) || 3
-      );
-
-      if (questions) {
-        const newData = new InterviewData({
-          participant,
-          questions,
-          answers: questions.map(() => "Answer Not Provided.")
-        });
-
-        await newData.save();
-
-        const interviewModelId = newData._id;
-
-        deleteFile(filePath);
-        io.to(userSocketId).emit("questionsGenerated");
-
-        return res.status(200).json({ message: "process successfull", interviewModelId });
-
-      }
-
-      deleteFile(filePath);
-      return res.status(200).json({
-        resume_data: resume_data,
-        questions,
-        message: "Resume Parsing successful"
+        topics, 
+        numOfQns: numberOfQns
       });
 
+      await newData.save();
+
+      const interviewModelId = newData._id;
+
+      io.to(userSocketId).emit("questionsGenerated");
+
+      return res.status(200).json({ message: "process successfull", interviewModelId });
+
     } else {
-      deleteFile(filePath);
       return res.status(500).json({ message: "Resume parsing failed." });
     }
 
   } catch (err) {
     console.log(err);
-    deleteFile(filePath);
     return res.status(501).json({ message: "server error" });
-  } finally {
-    deleteFile(filePath);
   }
 }
 

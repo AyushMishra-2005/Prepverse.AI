@@ -32,7 +32,7 @@ export const generateQuestionsReview = async (req, res) => {
 
   const {
     role,
-    topic,
+    topics,
     numOfQns,
     questions,
     answers,
@@ -49,7 +49,7 @@ export const generateQuestionsReview = async (req, res) => {
     let finishInterview = false;
 
     if (questions.length === 0) {
-      const prompt = `You are conducting a professional interview for a ${role} position, focusing on ${topic}.
+      const prompt = `You are conducting a professional interview for a ${role} position, focusing on ${topics}.
 
         The candidate's name is ${name}.
 
@@ -73,7 +73,7 @@ export const generateQuestionsReview = async (req, res) => {
         3. FIRST INTERVIEW QUESTION
         Rules:
         - Ask exactly one question.
-        - It must be related to ${topic}.
+        - It must be related to ${topics}.
         - Suitable for a 30–60 second spoken answer.
         - Clear and concise.
         - Do not combine multiple questions.
@@ -148,7 +148,7 @@ export const generateQuestionsReview = async (req, res) => {
 
       if (questions.length == numOfQns) {
         prompt = `
-          You are conducting a professional interview for the role of ${role} focusing on ${topic}.
+          You are conducting a professional interview for the role of ${role} focusing on ${topics}.
 
           Candidate Name: ${name}
 
@@ -187,7 +187,7 @@ export const generateQuestionsReview = async (req, res) => {
 
       } else {
         prompt = `
-          You are conducting a professional interview for the role of ${role} focusing on ${topic}.
+          You are conducting a professional interview for the role of ${role} focusing on ${topics}.
 
           Candidate Name: ${name}
 
@@ -223,7 +223,7 @@ export const generateQuestionsReview = async (req, res) => {
           - Do NOT repeat any previous question.
           - If the candidate mentions an interesting technology, framework, project, implementation, optimization, design decision, or any topic that deserves deeper discussion, ask one relevant follow-up question to explore it further.
           - Follow-up questions should be used occasionally, not after every answer.
-          - Otherwise, generate a new question covering another important aspect of ${topic}.
+          - Otherwise, generate a new question covering another important aspect of ${topics}.
           - Maintain or gradually increase the interview difficulty.
           - The question should be answerable in 30–60 seconds.
 
@@ -344,10 +344,10 @@ export const generateQuestionsReview = async (req, res) => {
 
 
 export const createCandidateInterview = async (req, res) => {
-  const { role, topic, numOfQns } = req.body;
+  const { role, topics, numOfQns } = req.body;
   const participant = req.user._id;
 
-  if (!role || !topic || !numOfQns) {
+  if (!role || !topics || !numOfQns) {
     return res.status(400).json({
       message: "Provide valid inputs."
     });
@@ -360,17 +360,16 @@ export const createCandidateInterview = async (req, res) => {
   }
 
   try {
-    const topics = [topic];
 
-    const { valid, invalidTopics } = await validateRoleAndTopic({
+    const { valid, invalidtopics } = await validateRoleAndTopic({
       role,
       topics
     });
 
     if (!valid) {
       return res.status(400).json({
-        message: "Invalid role-topic combination.",
-        invalidTopics,
+        message: "Invalid role-topics combination.",
+        invalidtopics,
         valid
       });
     }
@@ -378,7 +377,7 @@ export const createCandidateInterview = async (req, res) => {
     const interview = await InterviewData.create({
       participant,
       role,
-      topic,
+      topics,
       numOfQns,
       questions: [],
       answers: [],
